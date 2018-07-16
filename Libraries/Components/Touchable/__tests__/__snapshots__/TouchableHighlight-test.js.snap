@@ -2,15 +2,27 @@
 
 exports[`TouchableHighlight renders correctly 1`] = `
 <View
+  acceptsKeyboardFocus={true}
   accessibilityComponentType={undefined}
+  accessibilityHint={undefined}
   accessibilityLabel={undefined}
   accessibilityTraits={undefined}
   accessible={true}
+  clickable={false}
+  draggedTypes={undefined}
+  enableFocusRing={true}
   hasTVPreferredFocus={undefined}
   hitSlop={undefined}
   isTVSelectable={true}
   nativeID={undefined}
+  onAccessibilityTap={undefined}
+  onClick={[Function]}
+  onDragEnter={undefined}
+  onDragLeave={undefined}
+  onDrop={undefined}
   onLayout={undefined}
+  onMouseEnter={undefined}
+  onMouseLeave={undefined}
   onResponderGrant={[Function]}
   onResponderMove={[Function]}
   onResponderRelease={[Function]}

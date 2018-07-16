@@ -11,7 +11,7 @@
 
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "RCTUIKit.h"
 
 #import <React/RCTAssert.h>
 #import <React/RCTDefines.h>
@@ -47,9 +47,15 @@ RCT_EXTERN CGFloat RCTScreenScale(void);
 RCT_EXTERN CGSize RCTScreenSize(void);
 
 // Round float coordinates to nearest whole screen pixel (not point)
+#if !TARGET_OS_OSX
 RCT_EXTERN CGFloat RCTRoundPixelValue(CGFloat value);
 RCT_EXTERN CGFloat RCTCeilPixelValue(CGFloat value);
 RCT_EXTERN CGFloat RCTFloorPixelValue(CGFloat value);
+#else
+RCT_EXTERN CGFloat RCTRoundPixelValue(CGFloat value, CGFloat scale);
+RCT_EXTERN CGFloat RCTCeilPixelValue(CGFloat value, CGFloat scale);
+RCT_EXTERN CGFloat RCTFloorPixelValue(CGFloat value, CGFloat scale);
+#endif
 
 // Convert a size in points to pixels, rounded up to the nearest integral size
 RCT_EXTERN CGSize RCTSizeInPixels(CGSize pointSize, CGFloat scale);
@@ -74,11 +80,12 @@ RCT_EXTERN NSString *const RCTErrorUnspecified;
 // Returns YES if React is running in a test environment
 RCT_EXTERN BOOL RCTRunningInTestEnvironment(void);
 
-// Returns YES if React is running in an iOS App Extension
-RCT_EXTERN BOOL RCTRunningInAppExtension(void);
-
 // Returns the shared UIApplication instance, or nil if running in an App Extension
 RCT_EXTERN UIApplication *__nullable RCTSharedApplication(void);
+
+#if !TARGET_OS_OSX
+// Returns YES if React is running in an iOS App Extension
+RCT_EXTERN BOOL RCTRunningInAppExtension(void);
 
 // Returns the current main window, useful if you need to access the root view
 // or view controller
@@ -90,6 +97,7 @@ RCT_EXTERN UIViewController *__nullable RCTPresentedViewController(void);
 
 // Does this device support force touch (aka 3D Touch)?
 RCT_EXTERN BOOL RCTForceTouchAvailable(void);
+#endif
 
 // Create an NSError in the RCTErrorDomain
 RCT_EXTERN NSError *RCTErrorWithMessage(NSString *message);
@@ -128,8 +136,10 @@ RCT_EXTERN NSString *__nullable RCTTempFilePath(NSString *__nullable extension, 
 // Converts a CGColor to a hex string
 RCT_EXTERN NSString *RCTColorToHexString(CGColorRef color);
 
+#if !TARGET_OS_OSX
 // Get standard localized string (if it exists)
 RCT_EXTERN NSString *RCTUIKitLocalizedString(NSString *string);
+#endif
 
 // URL manipulation
 RCT_EXTERN NSString *__nullable RCTGetURLQueryParam(NSURL *__nullable URL, NSString *param);

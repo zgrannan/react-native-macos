@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTFrameUpdate.h>
 
@@ -21,5 +21,8 @@
 - (void)detachFromView:(UIView *)view;
 
 - (void)cancel;
+#if TARGET_OS_OSX
+- (void)willShowMenuWithEvent:(NSEvent*)event;
+#endif
 
 @end

@@ -574,7 +574,7 @@ var RCTText = createReactNativeComponentClass(
 );
 var RCTVirtualText = RCTText;
 
-if (Platform.OS === 'android') {
+if (Platform.OS === 'android' || Platform.OS === 'win32' || Platform.OS === 'windesktop' || Platform.OS === 'uwp') {
   RCTVirtualText = createReactNativeComponentClass('RCTVirtualText', () => ({
     validAttributes: mergeFast(ReactNativeViewAttributes.UIView, {
       isHighlighted: true,

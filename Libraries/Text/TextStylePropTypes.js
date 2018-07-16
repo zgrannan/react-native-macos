@@ -20,6 +20,11 @@ const TextStylePropTypes = {
 
   color: ColorPropType,
   fontFamily: ReactPropTypes.string,
+  /**
+   * Specifies the fully qualified path of the font file.
+   * @platform android
+   */
+  fontPath: ReactPropTypes.string,
   fontSize: ReactPropTypes.number,
   fontStyle: ReactPropTypes.oneOf(['normal', 'italic']),
   /**

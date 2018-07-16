@@ -7,13 +7,13 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import "RCTUIKit.h"
 
-@interface UIView (Private)
+@interface RCTPlatformView (Private)
 
 // remove clipped subviews implementation
 - (void)react_remountAllSubviews;
-- (void)react_updateClippedSubviewsWithClipRect:(CGRect)clipRect relativeToView:(UIView *)clipView;
-- (UIView *)react_findClipView;
+- (void)react_updateClippedSubviewsWithClipRect:(CGRect)clipRect relativeToView:(RCTPlatformView *)clipView;
+- (RCTPlatformView *)react_findClipView;
 
 @end

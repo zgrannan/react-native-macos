@@ -49,7 +49,11 @@
         absolutePosition:absolutePosition];
 
   // Step 3. Reset the position.
+#if !TARGET_OS_OSX
   _frame.origin.x = RCTRoundPixelValue(YGNodeLayoutGetRight(node));
+#else
+  _frame.origin.x = RCTRoundPixelValue(YGNodeLayoutGetRight(node), self.scale);
+#endif
 }
 
 @end

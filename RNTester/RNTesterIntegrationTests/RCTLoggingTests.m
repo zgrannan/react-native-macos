@@ -13,6 +13,7 @@
 #import <React/RCTAssert.h>
 #import <React/RCTBridge.h>
 #import <React/RCTLog.h>
+#import <React/RCTBundleURLProvider.h>
 
 @interface RCTLoggingTests : XCTestCase
 
@@ -33,7 +34,7 @@
   NSURL *scriptURL;
   if (getenv("CI_USE_PACKAGER")) {
     NSString *app = @"IntegrationTests/IntegrationTestsApp";
-    scriptURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8081/%@.bundle?platform=ios&dev=true", app]];
+    scriptURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8081/%@.bundle?platform=%@&dev=true", app, kRCTPlatformName]];
   } else {
     scriptURL = [[NSBundle bundleForClass:[RCTBridge class]] URLForResource:@"main" withExtension:@"jsbundle"];
   }

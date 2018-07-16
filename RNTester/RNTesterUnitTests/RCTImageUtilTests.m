@@ -10,7 +10,6 @@
 
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
-#import <UIKit/UIView.h>
 #import <XCTest/XCTest.h>
 
 #import <RCTImage/RCTImageUtils.h>

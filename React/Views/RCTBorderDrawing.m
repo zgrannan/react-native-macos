@@ -178,10 +178,10 @@ static CGPathRef RCTPathCreateOuterOutline(BOOL drawToEdge, CGRect rect, RCTCorn
   return RCTPathCreateWithRoundedRect(rect, RCTGetCornerInsets(cornerRadii, UIEdgeInsetsZero), NULL);
 }
 
-static CGContextRef RCTUIGraphicsBeginImageContext(CGSize size, CGColorRef backgroundColor, BOOL hasCornerRadii, BOOL drawToEdge) {
+static CGContextRef RCTUIGraphicsBeginImageContext(CGSize size, CGColorRef backgroundColor, BOOL hasCornerRadii, BOOL drawToEdge, CGFloat scaleFactor) {
   const CGFloat alpha = CGColorGetAlpha(backgroundColor);
   const BOOL opaque = (drawToEdge || !hasCornerRadii) && alpha == 1.0;
-  UIGraphicsBeginImageContextWithOptions(size, opaque, 0.0);
+  UIGraphicsBeginImageContextWithOptions(size, opaque, scaleFactor);
   return UIGraphicsGetCurrentContext();
 }
 
@@ -190,7 +190,8 @@ static UIImage *RCTGetSolidBorderImage(RCTCornerRadii cornerRadii,
                                        UIEdgeInsets borderInsets,
                                        RCTBorderColors borderColors,
                                        CGColorRef backgroundColor,
-                                       BOOL drawToEdge)
+                                       BOOL drawToEdge,
+                                       CGFloat scaleFactor)
 {
   const BOOL hasCornerRadii = RCTCornerRadiiAreAboveThreshold(cornerRadii);
   const RCTCornerInsets cornerInsets = RCTGetCornerInsets(cornerRadii, borderInsets);
@@ -218,7 +219,7 @@ static UIImage *RCTGetSolidBorderImage(RCTCornerRadii cornerRadii,
     edgeInsets.top + 1 + edgeInsets.bottom
   } : viewSize;
 
-  CGContextRef ctx = RCTUIGraphicsBeginImageContext(size, backgroundColor, hasCornerRadii, drawToEdge);
+  CGContextRef ctx = RCTUIGraphicsBeginImageContext(size, backgroundColor, hasCornerRadii, drawToEdge, scaleFactor);
   const CGRect rect = {.size = size};
   CGPathRef path = RCTPathCreateOuterOutline(drawToEdge, rect, cornerRadii);
 
@@ -373,7 +374,11 @@ static UIImage *RCTGetSolidBorderImage(RCTCornerRadii cornerRadii,
   UIGraphicsEndImageContext();
 
   if (makeStretchable) {
+#if !TARGET_OS_OSX
     image = [image resizableImageWithCapInsets:edgeInsets];
+#else
+    image.capInsets = edgeInsets;
+#endif
   }
 
   return image;
@@ -445,7 +450,8 @@ static UIImage *RCTGetDashedOrDottedBorderImage(RCTBorderStyle borderStyle,
                                                 UIEdgeInsets borderInsets,
                                                 RCTBorderColors borderColors,
                                                 CGColorRef backgroundColor,
-                                                BOOL drawToEdge)
+                                                BOOL drawToEdge,
+                                                CGFloat scaleFactor)
 {
   NSCParameterAssert(borderStyle == RCTBorderStyleDashed || borderStyle == RCTBorderStyleDotted);
 
@@ -460,7 +466,7 @@ static UIImage *RCTGetDashedOrDottedBorderImage(RCTBorderStyle borderStyle,
   }
 
   const BOOL hasCornerRadii = RCTCornerRadiiAreAboveThreshold(cornerRadii);
-  CGContextRef ctx = RCTUIGraphicsBeginImageContext(viewSize, backgroundColor, hasCornerRadii, drawToEdge);
+  CGContextRef ctx = RCTUIGraphicsBeginImageContext(viewSize, backgroundColor, hasCornerRadii, drawToEdge, scaleFactor);
   const CGRect rect = {.size = viewSize};
 
   if (backgroundColor) {
@@ -484,7 +490,7 @@ static UIImage *RCTGetDashedOrDottedBorderImage(RCTBorderStyle borderStyle,
   CGContextSetLineWidth(ctx, lineWidth);
   CGContextSetLineDash(ctx, 0, dashLengths, sizeof(dashLengths) / sizeof(*dashLengths));
 
-  CGContextSetStrokeColorWithColor(ctx, [UIColor yellowColor].CGColor);
+  CGContextSetRGBStrokeColor(ctx, 1.0, 1.0, 0.0, 1.0); // yellowColor
 
   CGContextAddPath(ctx, path);
   CGContextSetStrokeColorWithColor(ctx, borderColors.top);
@@ -504,15 +510,16 @@ UIImage *RCTGetBorderImage(RCTBorderStyle borderStyle,
                            UIEdgeInsets borderInsets,
                            RCTBorderColors borderColors,
                            CGColorRef backgroundColor,
-                           BOOL drawToEdge)
+                           BOOL drawToEdge,
+                           CGFloat scaleFactor)
 {
 
   switch (borderStyle) {
     case RCTBorderStyleSolid:
-      return RCTGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge);
+      return RCTGetSolidBorderImage(cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, scaleFactor);
     case RCTBorderStyleDashed:
     case RCTBorderStyleDotted:
-      return RCTGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge);
+      return RCTGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, scaleFactor);
     case RCTBorderStyleUnset:
       break;
   }

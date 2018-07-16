@@ -9,7 +9,7 @@
 
 #import "RCTClipboard.h"
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 @implementation RCTClipboard
 
@@ -23,15 +23,26 @@ RCT_EXPORT_MODULE()
 
 RCT_EXPORT_METHOD(setString:(NSString *)content)
 {
+#if !TARGET_OS_OSX
   UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
   clipboard.string = (content ? : @"");
+#else
+  NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+  [pasteboard clearContents];
+  [pasteboard setString:(content ? : @"") forType:NSPasteboardTypeString];
+#endif
 }
 
 RCT_EXPORT_METHOD(getString:(RCTPromiseResolveBlock)resolve
                   rejecter:(__unused RCTPromiseRejectBlock)reject)
 {
+#if !TARGET_OS_OSX
   UIPasteboard *clipboard = [UIPasteboard generalPasteboard];
   resolve((clipboard.string ? : @""));
+#else
+  NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+  resolve(([pasteboard stringForType:NSPasteboardTypeString] ? : @""));
+#endif
 }
 
 @end

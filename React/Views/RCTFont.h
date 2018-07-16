@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <Foundation/Foundation.h>
+#import "RCTUIKit.h"
 
 #import <React/RCTConvert.h>
 

@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTView.h>
 
@@ -47,15 +47,17 @@
 
 @property (nonatomic, assign) NSInteger mostRecentEventCount;
 @property (nonatomic, assign) BOOL blurOnSubmit;
+#if !TARGET_OS_OSX
 @property (nonatomic, assign) BOOL selectTextOnFocus;
 @property (nonatomic, assign) BOOL clearTextOnFocus;
+#endif
 @property (nonatomic, copy) RCTTextSelection *selection;
 
 - (void)setFont:(UIFont *)font;
 
 - (void)invalidateContentSize;
 
-// Temporary exposure of particial `RCTBackedTextInputDelegate` support.
+// Temporary exposure of partial `RCTBackedTextInputDelegate` support.
 // In the future all methods of the protocol should move to this class.
 - (BOOL)textInputShouldBeginEditing;
 - (void)textInputDidBeginEditing;
@@ -64,5 +66,11 @@
 - (void)textInputDidChangeSelection;
 - (BOOL)textInputShouldEndEditing;
 - (void)textInputDidEndEditing;
+- (BOOL)textInputShouldChangeTextInRange:(NSRange)range replacementText:(NSString *)string;
+- (void)textInputDidChange;
+- (BOOL)textInputShouldHandleDeleteBackward:(id)sender;
+#if TARGET_OS_OSX
+- (BOOL)textInputShouldHandleDeleteForward:(id)sender;
+#endif
 
 @end

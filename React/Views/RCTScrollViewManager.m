@@ -20,6 +20,7 @@
 
 @end
 
+#if !TARGET_OS_OSX
 @implementation RCTConvert (UIScrollView)
 
 RCT_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
@@ -36,6 +37,8 @@ RCT_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
   @"white": @(UIScrollViewIndicatorStyleWhite),
 }), UIScrollViewIndicatorStyleDefault, integerValue)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 /* __IPHONE_11_0 */
 RCT_ENUM_CONVERTER(UIScrollViewContentInsetAdjustmentBehavior, (@{
   @"automatic": @(UIScrollViewContentInsetAdjustmentAutomatic),
@@ -44,36 +47,38 @@ RCT_ENUM_CONVERTER(UIScrollViewContentInsetAdjustmentBehavior, (@{
   @"always": @(UIScrollViewContentInsetAdjustmentAlways),
 }), UIScrollViewContentInsetAdjustmentNever, integerValue)
 #endif
+#pragma clang diagnostic pop
 
 @end
+#endif
 
 @implementation RCTScrollViewManager
 
 RCT_EXPORT_MODULE()
 
-- (UIView *)view
+- (RCTPlatformView *)view
 {
   return [[RCTScrollView alloc] initWithEventDispatcher:self.bridge.eventDispatcher];
 }
 
 RCT_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(alwaysBounceVertical, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(bounces, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(bouncesZoom, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(canCancelContentTouches, BOOL)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(bounces, BOOL)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(bouncesZoom, BOOL)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(canCancelContentTouches, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(centerContent, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(automaticallyAdjustContentInsets, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(decelerationRate, CGFloat)
-RCT_EXPORT_VIEW_PROPERTY(directionalLockEnabled, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(indicatorStyle, UIScrollViewIndicatorStyle)
-RCT_EXPORT_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
-RCT_EXPORT_VIEW_PROPERTY(maximumZoomScale, CGFloat)
-RCT_EXPORT_VIEW_PROPERTY(minimumZoomScale, CGFloat)
-RCT_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(decelerationRate, CGFloat)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(directionalLockEnabled, BOOL)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(indicatorStyle, UIScrollViewIndicatorStyle)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(maximumZoomScale, CGFloat)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(minimumZoomScale, CGFloat)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(scrollEnabled, BOOL)
 #if !TARGET_OS_TV
-RCT_EXPORT_VIEW_PROPERTY(pagingEnabled, BOOL)
-RCT_REMAP_VIEW_PROPERTY(pinchGestureEnabled, scrollView.pinchGestureEnabled, BOOL)
-RCT_EXPORT_VIEW_PROPERTY(scrollsToTop, BOOL)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(pagingEnabled, BOOL)
+RCT_REMAP_NOT_OSX_VIEW_PROPERTY(pinchGestureEnabled, scrollView.pinchGestureEnabled, BOOL)
+RCT_EXPORT_NOT_OSX_VIEW_PROPERTY(scrollsToTop, BOOL)
 #endif
 RCT_EXPORT_VIEW_PROPERTY(showsHorizontalScrollIndicator, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(showsVerticalScrollIndicator, BOOL)
@@ -90,6 +95,7 @@ RCT_EXPORT_VIEW_PROPERTY(onScrollEndDrag, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(DEPRECATED_sendUpdatedChildFrames, BOOL)
+RCT_EXPORT_OSX_VIEW_PROPERTY(onKeyDown, RCTDirectEventBlock)
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 /* __IPHONE_11_0 */
 RCT_EXPORT_VIEW_PROPERTY(contentInsetAdjustmentBehavior, UIScrollViewContentInsetAdjustmentBehavior)
 #endif
@@ -116,7 +122,7 @@ RCT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)reactTag
       return;
     }
 
-    CGSize size = view.scrollView.contentSize;
+    CGSize size = view.contentSize;
     callback(@[@{
       @"width" : @(size.width),
       @"height" : @(size.height)
@@ -202,7 +208,7 @@ RCT_EXPORT_METHOD(flashScrollIndicators:(nonnull NSNumber *)reactTag)
        return;
      }
 
-     [view.scrollView flashScrollIndicators];
+     [view flashScrollIndicators];
    }];
 }
 

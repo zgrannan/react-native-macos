@@ -14,19 +14,31 @@
 #import "RCTSlider.h"
 #import "UIView+React.h"
 
+#if TARGET_OS_OSX
+@interface RCTSliderManager () <RCTSliderDelegate>
+@end
+#endif
+
 @implementation RCTSliderManager
 
 RCT_EXPORT_MODULE()
 
-- (UIView *)view
+- (RCTPlatformView *)view
 {
   RCTSlider *slider = [RCTSlider new];
+#if !TARGET_OS_OSX
   [slider addTarget:self action:@selector(sliderValueChanged:)
    forControlEvents:UIControlEventValueChanged];
   [slider addTarget:self action:@selector(sliderTouchEnd:)
    forControlEvents:(UIControlEventTouchUpInside |
                      UIControlEventTouchUpOutside |
                      UIControlEventTouchCancel)];
+#else
+  slider.delegate = self;
+  slider.target = self;
+  slider.action = @selector(sliderValueChanged:);
+#endif
+  
   return slider;
 }
 
@@ -73,6 +85,15 @@ static void RCTSendSliderEvent(RCTSlider *sender, BOOL continuous)
 {
   RCTSendSliderEvent(sender, NO);
 }
+
+#if TARGET_OS_OSX
+- (void)slider:(id)slider didPress:(BOOL)press
+{
+  if (!press) {
+    RCTSendSliderEvent(slider, NO);
+  }
+}
+#endif
 
 RCT_EXPORT_VIEW_PROPERTY(value, float);
 RCT_EXPORT_VIEW_PROPERTY(step, float);

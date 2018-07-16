@@ -14,6 +14,7 @@
 var React = require('react');
 var createReactClass = require('create-react-class');
 var ReactNative = require('react-native');
+var Platform = require('Platform');
 var {
   Image,
   LayoutAnimation,
@@ -68,13 +69,24 @@ var LayoutEventsTest = createReactClass({
   },
   animateViewLayout: function() {
     debug('animateViewLayout invoked');
-    LayoutAnimation.configureNext(
+
+    if (Platform.OS === 'macos') {
+      LayoutAnimation.configureNext(
+      LayoutAnimation.Presets.easeInEaseOut,
+      () => {
+        debug('animateViewLayout done');
+        this.checkLayout(this.addWrapText);
+        }
+      );
+    } else {
+      LayoutAnimation.configureNext(
       LayoutAnimation.Presets.spring,
       () => {
         debug('animateViewLayout done');
         this.checkLayout(this.addWrapText);
-      }
-    );
+        }
+      );
+    }    
     this.setState({viewStyle: {margin: 60}});
   },
   addWrapText: function() {

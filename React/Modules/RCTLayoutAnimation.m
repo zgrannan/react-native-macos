@@ -13,8 +13,11 @@
 
 @implementation RCTLayoutAnimation
 
+#if !TARGET_OS_OSX
 static UIViewAnimationCurve _currentKeyboardAnimationCurve;
+#endif
 
+#if !TARGET_OS_OSX
 static UIViewAnimationOptions UIViewAnimationOptionsFromRCTAnimationType(RCTAnimationType type)
 {
   switch (type) {
@@ -34,7 +37,26 @@ static UIViewAnimationOptions UIViewAnimationOptionsFromRCTAnimationType(RCTAnim
       return UIViewAnimationOptionCurveEaseInOut;
   }
 }
+#elif TARGET_OS_OSX
+static NSString *CAMediaTimingFunctionNameFromRCTAnimationType(RCTAnimationType type)
+{
+  switch (type) {
+    case RCTAnimationTypeLinear:
+      return kCAMediaTimingFunctionLinear;
+    case RCTAnimationTypeEaseIn:
+      return kCAMediaTimingFunctionEaseIn;
+    case RCTAnimationTypeEaseOut:
+      return kCAMediaTimingFunctionEaseOut;
+    case RCTAnimationTypeEaseInEaseOut:
+      return kCAMediaTimingFunctionEaseInEaseOut;
+    default:
+      RCTLogError(@"Unsupported animation type %zd", type);
+      return kCAMediaTimingFunctionDefault;
+  }
+}
+#endif
 
+#if !TARGET_OS_OSX
 // Use a custom initialization function rather than implementing `+initialize` so that we can control
 // when the initialization code runs. `+initialize` runs immediately before the first message is sent
 // to the class which may be too late for us. By this time, we may have missed some
@@ -59,6 +81,7 @@ static UIViewAnimationOptions UIViewAnimationOptionsFromRCTAnimationType(RCTAnim
   _currentKeyboardAnimationCurve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
 #endif
 }
+#endif
 
 - (instancetype)initWithDuration:(NSTimeInterval)duration
                            delay:(NSTimeInterval)delay
@@ -102,10 +125,12 @@ static UIViewAnimationOptions UIViewAnimationOptionsFromRCTAnimationType(RCTAnim
     }
 
     _animationType = [RCTConvert RCTAnimationType:config[@"type"]];
+#if !TARGET_OS_OSX
     if (_animationType == RCTAnimationTypeSpring) {
       _springDamping = [RCTConvert CGFloat:config[@"springDamping"]];
       _initialVelocity = [RCTConvert CGFloat:config[@"initialVelocity"]];
     }
+#endif
   }
 
   return self;
@@ -114,6 +139,7 @@ static UIViewAnimationOptions UIViewAnimationOptionsFromRCTAnimationType(RCTAnim
 - (void)performAnimations:(void (^)(void))animations
       withCompletionBlock:(void (^)(BOOL completed))completionBlock
 {
+#if !TARGET_OS_OSX
   if (_animationType == RCTAnimationTypeSpring) {
     [UIView animateWithDuration:_duration
                           delay:_delay
@@ -133,6 +159,35 @@ static UIViewAnimationOptions UIViewAnimationOptionsFromRCTAnimationType(RCTAnim
                      animations:animations
                      completion:completionBlock];
   }
+#elif TARGET_OS_OSX
+  NSString *timingFunctionName = CAMediaTimingFunctionNameFromRCTAnimationType(_animationType);
+  
+  CAMediaTimingFunction *timingFunction = [CAMediaTimingFunction functionWithName:timingFunctionName];
+  NSTimeInterval duration = _duration;
+  
+  dispatch_block_t runAnimationGroup = ^{
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
+      context.duration = duration;
+      context.timingFunction = timingFunction;
+      
+      if (animations != nil) {
+        animations();
+      }
+    }
+                        completionHandler:^{
+                          if (completionBlock != nil) {
+                            completionBlock(YES);
+                          }
+                        }];
+  };
+  
+  if (_delay == 0.0) {
+    runAnimationGroup();
+  } else {
+    dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_delay * NSEC_PER_SEC));
+    dispatch_after(time, dispatch_get_main_queue(), runAnimationGroup);
+  }
+#endif
 }
 
 - (BOOL)isEqual:(RCTLayoutAnimation *)animation

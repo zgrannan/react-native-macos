@@ -68,6 +68,24 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 #pragma mark - Properties
 
+#if TARGET_OS_OSX
+- (void)setReactPaddingInsets:(UIEdgeInsets)reactPaddingInsets
+{
+  [super setReactPaddingInsets:reactPaddingInsets];
+  // We apply `paddingInsets` as `backedTextInputView`'s `textContainerInsets` on mac.
+  ((RCTUITextField*)self.backedTextInputView).textContainerInset = reactPaddingInsets;
+  [self setNeedsLayout];
+}
+
+- (void)setReactBorderInsets:(UIEdgeInsets)reactBorderInsets
+{
+  [super setReactBorderInsets:reactBorderInsets];
+  // We apply `borderInsets` as `backedTextInputView`'s layout offset on mac.
+  ((RCTUITextField*)self.backedTextInputView).frame = UIEdgeInsetsInsetRect(self.bounds, reactBorderInsets);
+  [self setNeedsLayout];
+}
+#endif // TARGET_OS_OSX
+
 - (NSString *)text
 {
   return _backedTextInput.text;
@@ -77,6 +95,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 {
   NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
   if (eventLag == 0 && ![text isEqualToString:self.text]) {
+#if !TARGET_OS_OSX
     UITextRange *selection = _backedTextInput.selectedTextRange;
     NSInteger oldTextLength = _backedTextInput.text.length;
 
@@ -91,10 +110,109 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
       [_backedTextInput setSelectedTextRange:[_backedTextInput textRangeFromPosition:position toPosition:position]
                               notifyDelegate:YES];
     }
+#else
+    NSRange selection = _backedTextInput.currentEditor.selectedRange;
+    NSInteger oldTextLength = _backedTextInput.text.length;
+    
+    _backedTextInput.text = text;
+    
+    if (selection.length == 0) {
+      // maintain cursor position relative to the end of the old text
+      NSInteger offsetStart = selection.location;
+      NSInteger offsetFromEnd = oldTextLength - offsetStart;
+      NSInteger newOffset = MAX(0, text.length - offsetFromEnd);
+      [_backedTextInput setSelectedTextRange:NSMakeRange(newOffset, 0)
+                              notifyDelegate:YES];
+    }
+#endif
   } else if (eventLag > RCTTextUpdateLagWarningThreshold) {
     RCTLogWarn(@"Native TextInput(%@) is %lld events ahead of JS - try to make your JS faster.", _backedTextInput.text, (long long)eventLag);
   }
 }
+
+#if 0 // TODO(tomun): refactored away by facebook, integrate into new classes
+
+#pragma mark - Events
+
+- (void)textFieldDidChange
+{
+  _nativeEventCount++;
+  [_eventDispatcher sendTextEventWithType:RCTTextEventTypeChange
+                                 reactTag:self.reactTag
+                                     text:_textField.text
+                                      key:nil
+                               eventCount:_nativeEventCount];
+#if !TARGET_OS_OSX
+  // selectedTextRange observer isn't triggered when you type even though the
+  // cursor position moves, so we send event again here.
+  [self sendSelectionEvent];
+#endif
+}
+
+- (void)textFieldEndEditing
+{
+  if (![_finalText isEqualToString:_textField.text]) {
+    _finalText = nil;
+    // iOS does't send event `UIControlEventEditingChanged` if the change was happened because of autocorrection
+    // which was triggered by loosing focus. We assume that if `text` was changed in the middle of loosing focus process,
+    // we did not receive that event. So, we call `textFieldDidChange` manually.
+    [self textFieldDidChange];
+  }
+}
+
+- (void)textFieldSubmitEditing
+{
+  _submitted = YES;
+  [_eventDispatcher sendTextEventWithType:RCTTextEventTypeSubmit
+                                 reactTag:self.reactTag
+                                     text:_textField.text
+                                      key:nil
+                               eventCount:_nativeEventCount];
+  
+#if TARGET_OS_OSX
+  if (_blurOnSubmit) {
+    [self.window makeFirstResponder:nil];
+  }
+#endif
+}
+
+- (void)textFieldBeginEditing
+{
+  [_eventDispatcher sendTextEventWithType:RCTTextEventTypeFocus
+                                 reactTag:self.reactTag
+                                     text:_textField.text
+                                      key:nil
+                               eventCount:_nativeEventCount];
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+#if !TARGET_OS_OSX
+    if (self->_selectTextOnFocus) {
+      [self->_textField selectAll:nil];
+    }
+#endif
+
+    [self sendSelectionEvent];
+  });
+}
+
+- (void)textFieldDidChangeSelection
+{
+  [self sendSelectionEvent];
+}
+
+#if !TARGET_OS_OSX
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(__unused UITextField *)textField
+                        change:(__unused NSDictionary *)change
+                       context:(__unused void *)context
+{
+  if ([keyPath isEqualToString:@"selectedTextRange"]) {
+    [self textFieldDidChangeSelection];
+  }
+}
+#endif
+
+#endif // TODO(tomun): refactored away by facebook, integrate into new classes
 
 #pragma mark - RCTBackedTextInputDelegate
 
@@ -116,10 +234,15 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
         _backedTextInput.text = newString;
 
         // Collapse selection at end of insert to match normal paste behavior.
+#if !TARGET_OS_OSX
         UITextPosition *insertEnd = [_backedTextInput positionFromPosition:_backedTextInput.beginningOfDocument
                                                               offset:(range.location + allowedLength)];
         [_backedTextInput setSelectedTextRange:[_backedTextInput textRangeFromPosition:insertEnd toPosition:insertEnd]
                                 notifyDelegate:YES];
+#else
+        [_backedTextInput setSelectedTextRange:NSMakeRange(range.location + allowedLength, 0)
+                                notifyDelegate:YES];
+#endif
         [self textInputDidChange];
       }
       return NO;
@@ -138,5 +261,17 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
                                       key:nil
                                eventCount:_nativeEventCount];
 }
+
+#if TARGET_OS_OSX
+
+#pragma mark - NSResponder chain
+
+- (BOOL)canBecomeKeyView
+{
+	return NO; // Enclosed _textField can become the key view
+}
+
+#endif // TARGET_OS_OSX
+
 
 @end

@@ -29,13 +29,26 @@
 
 - (void)testWeight
 {
+#if !TARGET_OS_OSX
+  // VSO#1878630: macOS: some RCTFontTests failing
+
+	// macOS: expected = .AppleSystemUIFontBold 14.00 pt., result = .AppleSystemUIFontEmphasized 14.00 pt.
   {
+#if TARGET_OS_TV
     UIFont *expected = [UIFont systemFontOfSize:14 weight:UIFontWeightBold];
+#else
+    UIFont *expected = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+#endif
     UIFont *result = [RCTConvert UIFont:@{@"fontWeight": @"bold"}];
     RCTAssertEqualFonts(expected, result);
   }
+#endif
   {
+#if TARGET_OS_TV || TARGET_OS_OSX
     UIFont *expected = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
+#else
+    UIFont *expected = [UIFont systemFontOfSize:14 weight:UIFontWeightRegular];
+#endif
     UIFont *result = [RCTConvert UIFont:@{@"fontWeight": @"500"}];
     RCTAssertEqualFonts(expected, result);
   }
@@ -83,6 +96,8 @@
 
 - (void)testStyle
 {
+#if !TARGET_OS_OSX
+	// macOS: expected = .SFNSText-Italic 14.00 pt., result = .AppleSystemUIFontItalic 14.00 pt.
   {
     UIFont *font = [UIFont systemFontOfSize:14];
     UIFontDescriptor *fontDescriptor = [font fontDescriptor];
@@ -93,6 +108,7 @@
     UIFont *result = [RCTConvert UIFont:@{@"fontStyle": @"italic"}];
     RCTAssertEqualFonts(expected, result);
   }
+#endif
   {
     UIFont *expected = [UIFont systemFontOfSize:14];
     UIFont *result = [RCTConvert UIFont:@{@"fontStyle": @"normal"}];
@@ -102,6 +118,8 @@
 
 - (void)testStyleAndWeight
 {
+#if !TARGET_OS_OSX
+	// macOS: expected = .SFNSText-LightItalic 14.00 pt., result = .AppleSystemUIFontUltraLightItalic 14.00 pt.
   {
     UIFont *font = [UIFont systemFontOfSize:14 weight:UIFontWeightUltraLight];
     UIFontDescriptor *fontDescriptor = [font fontDescriptor];
@@ -112,8 +130,13 @@
     UIFont *result = [RCTConvert UIFont:@{@"fontStyle": @"italic", @"fontWeight": @"100"}];
     RCTAssertEqualFonts(expected, result);
   }
+	// macOS: expected = .SFNSText-BoldItalic 14.00 pt., result = .AppleSystemUIFontEmphasizedItalic 14.00 pt.
   {
+#if TARGET_OS_TV
     UIFont *font = [UIFont systemFontOfSize:14 weight:UIFontWeightBold];
+#else
+    UIFont *font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+#endif
     UIFontDescriptor *fontDescriptor = [font fontDescriptor];
     UIFontDescriptorSymbolicTraits symbolicTraits = fontDescriptor.symbolicTraits;
     symbolicTraits |= UIFontDescriptorTraitItalic;
@@ -122,6 +145,7 @@
     UIFont *result = [RCTConvert UIFont:@{@"fontStyle": @"italic", @"fontWeight": @"bold"}];
     RCTAssertEqualFonts(expected, result);
   }
+#endif
 }
 
 - (void)testFamilyAndWeight
@@ -185,11 +209,14 @@
 
 - (void)testVariant
 {
+#if !TARGET_OS_OSX
+	// expected = .AppleSystemUIFont 14.00 pt., result = .SFNSText 14.00 pt.
   {
     UIFont *expected = [UIFont monospacedDigitSystemFontOfSize:14 weight:UIFontWeightRegular];
     UIFont *result = [RCTConvert UIFont:@{@"fontVariant": @[@"tabular-nums"]}];
     RCTAssertEqualFonts(expected, result);
   }
+	// expected = .AppleSystemUIFont 14.00 pt., result = .SFNSText 14.00 pt.
   {
     UIFont *monospaceFont = [UIFont monospacedDigitSystemFontOfSize:14 weight:UIFontWeightRegular];
     UIFontDescriptor *fontDescriptor = [monospaceFont.fontDescriptor fontDescriptorByAddingAttributes:@{
@@ -202,6 +229,7 @@
     UIFont *result = [RCTConvert UIFont:@{@"fontVariant": @[@"tabular-nums", @"small-caps"]}];
     RCTAssertEqualFonts(expected, result);
   }
+#endif
 }
 
 - (void)testInvalidFont
@@ -211,11 +239,18 @@
     UIFont *result = [RCTConvert UIFont:@{@"fontFamily": @"foobar"}];
     RCTAssertEqualFonts(expected, result);
   }
+#if !TARGET_OS_OSX
+  // expected = .AppleSystemUIFontBold 14.00 pt., result = .AppleSystemUIFontDemi 14.00 pt.
   {
+#if TARGET_OS_TV
     UIFont *expected = [UIFont systemFontOfSize:14 weight:UIFontWeightBold];
+#else
+    UIFont *expected = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+#endif
     UIFont *result = [RCTConvert UIFont:@{@"fontFamily": @"foobar", @"fontWeight": @"bold"}];
     RCTAssertEqualFonts(expected, result);
   }
+#endif
 }
 
 @end

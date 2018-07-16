@@ -9,12 +9,17 @@
 
 #import "RCTText.h"
 
+#if !TARGET_OS_OSX
 #import <MobileCoreServices/UTCoreTypes.h>
+#endif
 
+#import <React/RCTAssert.h>
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 
 #import "RCTShadowText.h"
+
+#import <QuartzCore/QuartzCore.h>
 
 static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDescendants)
 {
@@ -31,28 +36,46 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
 {
   NSTextStorage *_textStorage;
   CAShapeLayer *_highlightLayer;
+#if !TARGET_OS_OSX
   UILongPressGestureRecognizer *_longPressGestureRecognizer;
+#endif
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if ((self = [super initWithFrame:frame])) {
     _textStorage = [NSTextStorage new];
+#if !TARGET_OS_OSX
     self.isAccessibilityElement = YES;
     self.accessibilityTraits |= UIAccessibilityTraitStaticText;
+#else
+    self.accessibilityRole = NSAccessibilityStaticTextRole;
+#endif
 
     self.opaque = NO;
-    self.contentMode = UIViewContentModeRedraw;
+    UIViewSetContentModeRedraw(self);
   }
   return self;
 }
+
+#if TARGET_OS_OSX
+-(BOOL)canBecomeKeyView
+{
+	//RCTText should not get any keyboard focus
+	return NO;
+}
+#endif
 
 - (NSString *)description
 {
   NSString *superDescription = super.description;
   NSRange semicolonRange = [superDescription rangeOfString:@";"];
-  NSString *replacement = [NSString stringWithFormat:@"; reactTag: %@; text: %@", self.reactTag, self.textStorage.string];
-  return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
+  if (semicolonRange.location == NSNotFound) {
+    return [[superDescription substringToIndex:superDescription.length - 1] stringByAppendingFormat:@"; reactTag: %@; text: %@, frame = %@; layer = %@>", self.reactTag, self.textStorage.string, NSStringFromCGRect(self.frame), self.layer];
+  } else {
+    NSString *replacement = [NSString stringWithFormat:@"; reactTag: %@; text: %@", self.reactTag, self.textStorage.string];
+    return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
+	}
 }
 
 - (void)setSelectable:(BOOL)selectable
@@ -63,14 +86,17 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
 
   _selectable = selectable;
 
+#if !TARGET_OS_OSX
   if (_selectable) {
     [self enableContextMenu];
   }
   else {
     [self disableContextMenu];
   }
+#endif
 }
 
+#if !TARGET_OS_OSX
 - (void)reactSetFrame:(CGRect)frame
 {
   // Text looks super weird if its frame is animated.
@@ -79,6 +105,7 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
     [super reactSetFrame:frame];
   }];
 }
+#endif
 
 - (void)reactSetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor
 {
@@ -124,7 +151,7 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
   [layoutManager drawBackgroundForGlyphRange:glyphRange atPoint:textFrame.origin];
   [layoutManager drawGlyphsForGlyphRange:glyphRange atPoint:textFrame.origin];
 
-  __block UIBezierPath *highlightPath = nil;
+  __block CGMutablePathRef highlightPath = NULL;
   NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
   [layoutManager.textStorage enumerateAttribute:RCTIsHighlightedAttributeName inRange:characterRange options:0 usingBlock:^(NSNumber *value, NSRange range, BOOL *_) {
     if (!value.boolValue) {
@@ -132,12 +159,10 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
     }
 
     [layoutManager enumerateEnclosingRectsForGlyphRange:range withinSelectedGlyphRange:range inTextContainer:textContainer usingBlock:^(CGRect enclosingRect, __unused BOOL *__) {
-      UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(enclosingRect, -2, -2) cornerRadius:2];
-      if (highlightPath) {
-        [highlightPath appendPath:path];
-      } else {
-        highlightPath = path;
+      if (highlightPath == NULL) {
+        highlightPath = CGPathCreateMutable();
       }
+      CGPathAddRoundedRect(highlightPath, NULL, CGRectInset(enclosingRect, -2, -2), 2, 2);
     }];
   }];
 
@@ -148,7 +173,8 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
       [self.layer addSublayer:_highlightLayer];
     }
     _highlightLayer.position = (CGPoint){_contentInset.left, _contentInset.top};
-    _highlightLayer.path = highlightPath.CGPath;
+    _highlightLayer.path = highlightPath;
+    CFRelease(highlightPath);
   } else {
     [_highlightLayer removeFromSuperlayer];
     _highlightLayer = nil;
@@ -203,6 +229,7 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
 
 #pragma mark - Context Menu
 
+#if !TARGET_OS_OSX
 - (void)enableContextMenu
 {
   _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
@@ -232,12 +259,47 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
   [menuController setMenuVisible:YES animated:YES];
 #endif
 }
+#else
+
+- (void)rightMouseDown:(NSEvent *)event
+{
+  if (_selectable == NO) {
+    return;
+  }
+  NSText *fieldEditor = [self.window fieldEditor:YES forObject:self];
+  NSMenu *fieldEditorMenu = [fieldEditor menuForEvent:event];
+
+  RCTAssert(fieldEditorMenu, @"Unable to obtain fieldEditor's context menu");
+
+  if (fieldEditorMenu) {
+    NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
+
+    for (NSMenuItem *fieldEditorMenuItem in fieldEditorMenu.itemArray) {
+      if (fieldEditorMenuItem.action == @selector(copy:)) {
+        NSMenuItem *item = [fieldEditorMenuItem copy];
+
+        item.target = self;
+        [menu addItem:item];
+
+        break;
+      }
+    }
+
+    RCTAssert(menu.numberOfItems > 0, @"Unable to create context menu with \"Copy\" item");
+
+    if (menu.numberOfItems > 0) {
+      [NSMenu popUpContextMenu:menu withEvent:event forView:self];
+    }
+  }
+}
+#endif
 
 - (BOOL)canBecomeFirstResponder
 {
   return _selectable;
 }
 
+#if !TARGET_OS_OSX
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
 {
   if (_selectable && action == @selector(copy:)) {
@@ -246,17 +308,19 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
   
   return [self.nextResponder canPerformAction:action withSender:sender];
 }
+#endif
 
 - (void)copy:(id)sender
 {
 #if !TARGET_OS_TV
   NSAttributedString *attributedString = _textStorage;
 
-  NSMutableDictionary *item = [NSMutableDictionary new];
-
   NSData *rtf = [attributedString dataFromRange:NSMakeRange(0, attributedString.length)
                              documentAttributes:@{NSDocumentTypeDocumentAttribute: NSRTFDTextDocumentType}
                                           error:nil];
+
+#if TARGET_OS_IPHONE
+  NSMutableDictionary *item = [NSMutableDictionary new];
 
   if (rtf) {
     [item setObject:rtf forKey:(id)kUTTypeFlatRTFD];
@@ -266,6 +330,11 @@ static void collectNonTextDescendants(RCTText *view, NSMutableArray *nonTextDesc
 
   UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
   pasteboard.items = @[item];
+#elif TARGET_OS_OSX
+  NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+  [pasteboard clearContents];
+  [pasteboard writeObjects:[NSArray arrayWithObjects:attributedString.string, rtf, nil]];
+#endif
 #endif
 }
 

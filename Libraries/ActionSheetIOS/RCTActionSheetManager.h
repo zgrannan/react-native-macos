@@ -7,9 +7,8 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
-
 #import <React/RCTBridge.h>
+#import <React/RCTUIKit.h>
 
 @interface RCTActionSheetManager : NSObject <RCTBridgeModule>
 

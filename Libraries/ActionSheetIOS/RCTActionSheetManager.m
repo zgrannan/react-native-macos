@@ -15,7 +15,12 @@
 #import <React/RCTUIManager.h>
 #import <React/RCTUtils.h>
 
-@interface RCTActionSheetManager () <UIActionSheetDelegate>
+@interface RCTActionSheetManager ()
+#if !TARGET_OS_OSX
+<UIActionSheetDelegate>
+#else
+<NSSharingServicePickerDelegate>
+#endif
 @end
 
 @implementation RCTActionSheetManager
@@ -23,6 +28,12 @@
   // Use NSMapTable, as UIAlertViews do not implement <NSCopying>
   // which is required for NSDictionary keys
   NSMapTable *_callbacks;
+#if TARGET_OS_OSX
+  NSArray<NSSharingService*> *_excludedActivities;
+  NSString *_sharingSubject;
+  RCTResponseErrorBlock _failureCallback;
+  RCTResponseSenderBlock _successCallback;
+#endif
 }
 
 RCT_EXPORT_MODULE()
@@ -34,6 +45,7 @@ RCT_EXPORT_MODULE()
   return dispatch_get_main_queue();
 }
 
+#if !TARGET_OS_OSX
 /*
  * The `anchor` option takes a view to set as the anchor for the share
  * popup to point to, on iPads running iOS 8. If it is not passed, it
@@ -49,25 +61,37 @@ RCT_EXPORT_MODULE()
     return (CGRect){sourceView.center, {1, 1}};
   }
 }
+#endif
 
 RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
                   callback:(RCTResponseSenderBlock)callback)
 {
+#if !TARGET_OS_OSX
   if (RCTRunningInAppExtension()) {
     RCTLogError(@"Unable to show action sheet from app extension");
     return;
   }
+#endif
 
   if (!_callbacks) {
     _callbacks = [NSMapTable strongToStrongObjectsMapTable];
   }
 
   NSString *title = [RCTConvert NSString:options[@"title"]];
-  NSString *message = [RCTConvert NSString:options[@"message"]];
   NSArray<NSString *> *buttons = [RCTConvert NSStringArray:options[@"options"]];
-  NSInteger destructiveButtonIndex = options[@"destructiveButtonIndex"] ? [RCTConvert NSInteger:options[@"destructiveButtonIndex"]] : -1;
   NSInteger cancelButtonIndex = options[@"cancelButtonIndex"] ? [RCTConvert NSInteger:options[@"cancelButtonIndex"]] : -1;
-
+  
+  /*
+   * The `anchor` option takes a view to set as the anchor for the share
+   * popup to point to, on iPads running iOS 8. If it is not passed, it
+   * defaults to centering the share popup on screen without any arrows.
+   */
+  NSNumber *anchorViewTag = [RCTConvert NSNumber:options[@"anchor"]];
+  
+#if !TARGET_OS_OSX
+  NSInteger destructiveButtonIndex = options[@"destructiveButtonIndex"] ? [RCTConvert NSInteger:options[@"destructiveButtonIndex"]] : -1;
+  NSString *message = [RCTConvert NSString:options[@"message"]];
+  
   UIViewController *controller = RCTPresentedViewController();
 
   if (controller == nil) {
@@ -75,12 +99,6 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
     return;
   }
 
-  /*
-   * The `anchor` option takes a view to set as the anchor for the share
-   * popup to point to, on iPads running iOS 8. If it is not passed, it
-   * defaults to centering the share popup on screen without any arrows.
-   */
-  NSNumber *anchorViewTag = [RCTConvert NSNumber:options[@"anchor"]];
   UIView *sourceView = controller.view;
   CGRect sourceRect = [self sourceRectInView:sourceView anchorViewTag:anchorViewTag];
 
@@ -117,16 +135,51 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
   [controller presentViewController:alertController animated:YES completion:nil];
 
   alertController.view.tintColor = [RCTConvert UIColor:options[@"tintColor"]];
+#else
+  NSMenu *menu = [[NSMenu alloc] initWithTitle:title ?: @""];
+  [_callbacks setObject:callback forKey:menu];
+  for (NSInteger index = 0; index < buttons.count; index++) {
+    if (index == cancelButtonIndex) {
+      //NSMenu doesn't require a cancel button
+      continue;
+    }
+    
+    NSString *option = buttons[index];
+    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:option action:@selector(menuItemDidTap:) keyEquivalent:@""];
+    item.tag = index;
+    item.target = self;
+    [menu addItem:item];
+  }
+  
+  NSPoint origin = NSZeroPoint;
+  NSEvent *event = nil;
+  RCTPlatformView *view = nil;
+  if (anchorViewTag) {
+    view = [self.bridge.uiManager viewForReactTag:anchorViewTag];
+    event = [view.window currentEvent];
+  }
+  if (event && view) {
+    origin = [view convertPoint:[event locationInWindow] fromView:nil];
+  } else if (view) {
+    origin = NSMakePoint(NSMidX(view.superview.frame), NSMidY(view.superview.frame));
+  } else {
+    origin = [NSEvent mouseLocation];
+  }
+  
+  [menu popUpMenuPositioningItem:menu.itemArray.firstObject atLocation:origin inView:view.superview];
+#endif
 }
 
 RCT_EXPORT_METHOD(showShareActionSheetWithOptions:(NSDictionary *)options
                   failureCallback:(RCTResponseErrorBlock)failureCallback
                   successCallback:(RCTResponseSenderBlock)successCallback)
 {
+#if !TARGET_OS_OSX
   if (RCTRunningInAppExtension()) {
     RCTLogError(@"Unable to show action sheet from app extension");
     return;
   }
+#endif
 
   NSMutableArray<id> *items = [NSMutableArray array];
   NSString *message = [RCTConvert NSString:options[@"message"]];
@@ -154,6 +207,7 @@ RCT_EXPORT_METHOD(showShareActionSheetWithOptions:(NSDictionary *)options
     return;
   }
 
+#if !TARGET_OS_OSX
   UIActivityViewController *shareController = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
 
   NSString *subject = [RCTConvert NSString:options[@"subject"]];
@@ -186,12 +240,41 @@ RCT_EXPORT_METHOD(showShareActionSheetWithOptions:(NSDictionary *)options
   [controller presentViewController:shareController animated:YES completion:nil];
 
   shareController.view.tintColor = [RCTConvert UIColor:options[@"tintColor"]];
+#else
+  NSMutableArray<NSSharingService*> *excludedTypes = [NSMutableArray array];
+  for (NSString *excludeActivityType in [RCTConvert NSStringArray:options[@"excludedActivityTypes"]]) {
+    NSSharingService *sharingService = [NSSharingService sharingServiceNamed:excludeActivityType];
+    if (sharingService) {
+      [excludedTypes addObject:sharingService];
+    }
+  }
+  _excludedActivities = excludedTypes.copy;
+  _sharingSubject = [RCTConvert NSString:options[@"subject"]];
+  _failureCallback = failureCallback;
+  _successCallback = successCallback;
+  RCTPlatformView *view = nil;
+  NSNumber *anchorViewTag = [RCTConvert NSNumber:options[@"anchor"]];
+  if (anchorViewTag) {
+    view = [self.bridge.uiManager viewForReactTag:anchorViewTag];
+  }
+  NSView *contentView = view ?: NSApp.keyWindow.contentView;
+  NSSharingServicePicker *picker = [[NSSharingServicePicker alloc] initWithItems:items];
+  picker.delegate = self;
+  [picker showRelativeToRect:contentView.bounds ofView:contentView preferredEdge:0];
+#endif
 }
 
+#if !TARGET_OS_OSX
 #pragma mark UIActionSheetDelegate Methods
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
+#else
+- (void)menuItemDidTap:(NSMenuItem*)menuItem
+ {
+   NSMenu *actionSheet = menuItem.menu;
+   NSInteger buttonIndex = menuItem.tag;
+#endif
   RCTResponseSenderBlock callback = [_callbacks objectForKey:actionSheet];
   if (callback) {
     callback(@[@(buttonIndex)]);
@@ -200,5 +283,43 @@ RCT_EXPORT_METHOD(showShareActionSheetWithOptions:(NSDictionary *)options
     RCTLogWarn(@"No callback registered for action sheet: %@", actionSheet.title);
   }
 }
+  
+#if TARGET_OS_OSX
 
+#pragma mark - NSSharingServicePickerDelegate methods
+  
+- (void)sharingServicePicker:(NSSharingServicePicker *)sharingServicePicker didChooseSharingService:(NSSharingService *)service
+{
+  if (service){
+    service.subject = _sharingSubject;
+  }
+}
+  
+- (void)sharingService:(NSSharingService *)sharingService didFailToShareItems:(NSArray *)items error:(NSError *)error
+{
+  _failureCallback(error);
+}
+
+- (void)sharingService:(NSSharingService *)sharingService didShareItems:(NSArray *)items
+{
+  NSRange range = [sharingService.description rangeOfString:@"\\[com.apple.share.*\\]" options:NSRegularExpressionSearch];
+  if (range.location == NSNotFound) {
+    _successCallback(@[@NO, (id)kCFNull]);
+    return;
+  }
+  range.location++; // Start after [
+  range.length -= 2; // Remove both [ and ]
+  NSString *activityType = [sharingService.description substringWithRange:range];
+  _successCallback(@[@YES, RCTNullIfNil(activityType)]);
+}
+  
+- (NSArray<NSSharingService *> *)sharingServicePicker:(__unused NSSharingServicePicker *)sharingServicePicker sharingServicesForItems:(__unused NSArray *)items proposedSharingServices:(NSArray<NSSharingService *> *)proposedServices
+{
+  return [proposedServices filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSSharingService *service, __unused NSDictionary<NSString *,id> * _Nullable bindings) {
+      return ![_excludedActivities containsObject:service];
+  }]];
+}
+  
+#endif
+  
 @end

@@ -15,6 +15,7 @@
 #import <RCTAnimation/RCTNativeAnimatedNodesManager.h>
 #import <RCTAnimation/RCTValueAnimatedNode.h>
 #import <React/RCTUIManager.h>
+#import <React/RCTPlatformDisplayLink.h>
 
 static const NSTimeInterval FRAME_LENGTH = 1.0 / 60.0;
 
@@ -123,6 +124,7 @@ static id RCTPropChecker(NSString *prop, NSNumber *value)
   id _uiManager;
   RCTNativeAnimatedNodesManager *_nodesManager;
   RCTFakeDisplayLink *_displayLink;
+
 }
 
 - (void)setUp
@@ -168,6 +170,7 @@ static id RCTPropChecker(NSString *prop, NSNumber *value)
     [[_uiManager expect] synchronouslyUpdateViewOnUIThread:@1000
                                                   viewName:@"UIView"
                                                      props:RCTPropChecker(@"opacity", frame)];
+    
     [_nodesManager stepAnimations:_displayLink];
     [_uiManager verify];
   }

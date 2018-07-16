@@ -60,7 +60,7 @@ type ConnectivityStateAndroid = $Enum<{
 const _subscriptions = new Map();
 
 let _isConnectedDeprecated;
-if (Platform.OS === 'ios') {
+if (Platform.OS === 'ios' || Platform.OS === 'macos') {
   _isConnectedDeprecated = function(
     reachability: ReachabilityStateIOS,
   ): bool {
@@ -332,7 +332,7 @@ const NetInfo = {
 
   isConnectionExpensive(): Promise<boolean> {
     return (
-      Platform.OS === 'android' ? RCTNetInfo.isConnectionMetered() : Promise.reject(new Error('Currently not supported on iOS'))
+      Platform.OS === 'android' ? RCTNetInfo.isConnectionMetered() : Promise.reject(new Error('Currently not supported on iOS or MacOS'))
     );
   },
 };

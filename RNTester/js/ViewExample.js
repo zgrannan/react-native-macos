@@ -17,6 +17,8 @@ var {
   StyleSheet,
   Text,
   View,
+  TouchableNativeFeedback, 
+  Button
 } = ReactNative;
 var TouchableWithoutFeedback = require('TouchableWithoutFeedback');
 
@@ -32,6 +34,13 @@ var styles = StyleSheet.create({
     height: 50,
     marginTop: -10,
   },
+  focusView: {
+    marginTop: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderStyle: 'dotted',
+    padding: 5
+  }
 });
 
 class ViewBorderStyleExample extends React.Component<{}, $FlowFixMeState> {
@@ -116,6 +125,51 @@ class ZIndexExample extends React.Component<{}, $FlowFixMeState> {
   _handlePress = () => {
     this.setState({flipped: !this.state.flipped});
   };
+}
+
+class ViewFocusEventsExample extends React.Component<{}, $FlowFixMeState> {
+  state = {
+    showSampleViews: false,
+    showTextView: false,
+  };
+
+  render() {
+    return (
+      <View>
+        <Button onPress={() => this.setState({showSampleViews: !this.state.showSampleViews})} title={(this.state.showSampleViews) ? 'Hide Sample Focus event View' : 'Show Sample View'} />
+        <Button onPress={() => this.defaultFocusView.focus()} title={'Give Focus to default View'} />
+        { (this.state.showSampleViews) ?
+        <View> 
+          <Text> Enter on any view will move focus within this view </Text>
+          <TouchableNativeFeedback onPress={() => this.defaultFocusView.focus()}>
+            <View ref = {v => this.view1 = v} style={[ styles.focusView]} >
+              <Text> Test View</Text>
+            </View>
+          </TouchableNativeFeedback>
+
+          <TouchableNativeFeedback onPress={() => this.view2.focus()}>
+            <View ref = {v => this.defaultFocusView = v} style={[ styles.focusView]} >
+              <Text> Default Focus View </Text>
+            </View>
+          </TouchableNativeFeedback>
+
+          <TouchableNativeFeedback onPress={() => this.view1.focus()}>
+            <View ref = {v => this.view2 = v}
+              style={[ styles.focusView]}
+              onFocusChange = {(hasFocus) => {this.setState({showTextView: hasFocus})}}>
+              <Text> Show sample textview on focus </Text>
+            </View>
+          </TouchableNativeFeedback>
+          {
+            this.state.showTextView ? 
+            <Text> This is a sample Text</Text>
+            : null
+          }
+        </View> 
+        : null }
+      </View>
+    );
+  }
 }
 
 exports.title = '<View>';
@@ -237,5 +291,5 @@ exports.examples = [
     render: function() {
       return <ZIndexExample />;
     },
-  },
+  }
 ];

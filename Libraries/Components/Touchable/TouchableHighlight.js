@@ -352,8 +352,12 @@ var TouchableHighlight = createReactClass({
          * comment suppresses an error when upgrading Flow's support for React.
          * To see the error delete this comment and run Flow. */
         accessibilityLabel={this.props.accessibilityLabel}
+        accessibilityHint={this.props.accessibilityHint}
         accessibilityComponentType={this.props.accessibilityComponentType}
         accessibilityTraits={this.props.accessibilityTraits}
+        onAccessibilityTap={this.props.onAccessibilityTap}
+        acceptsKeyboardFocus={(this.props.acceptsKeyboardFocus === undefined || this.props.acceptsKeyboardFocus) && !this.props.disabled}
+        enableFocusRing={(this.props.enableFocusRing === undefined || this.props.enableFocusRing) && !this.props.disabled}
         ref={UNDERLAY_REF}
         style={this.state.underlayStyle}
         onLayout={this.props.onLayout}
@@ -367,6 +371,14 @@ var TouchableHighlight = createReactClass({
         onResponderMove={this.touchableHandleResponderMove}
         onResponderRelease={this.touchableHandleResponderRelease}
         onResponderTerminate={this.touchableHandleResponderTerminate}
+        clickable={this.props.clickable !== false && this.props.onPress !== undefined}
+        onClick={this.touchableHandlePress}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
+        onDragEnter={this.props.onDragEnter}
+        onDragLeave={this.props.onDragLeave}
+        onDrop={this.props.onDrop}
+        draggedTypes={this.props.draggedTypes}
         /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
          * comment suppresses an error when upgrading Flow's support for React.
          * To see the error delete this comment and run Flow. */

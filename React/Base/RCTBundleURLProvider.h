@@ -13,6 +13,8 @@ extern NSString *const RCTBundleURLProviderUpdatedNotification;
 
 extern const NSUInteger kRCTBundleURLProviderDefaultPort;
 
+extern NSString *const kRCTPlatformName;
+
 @interface RCTBundleURLProvider : NSObject
 
 /**

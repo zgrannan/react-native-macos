@@ -7,7 +7,17 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 @interface RCTActivityIndicatorView : UIActivityIndicatorView
+
+#if TARGET_OS_OSX
+@property (nonatomic, assign) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
+@property (nonatomic, assign) BOOL hidesWhenStopped;
+@property (nullable, readwrite, nonatomic, strong) UIColor *color;
+@property (nonatomic, readonly, getter=isAnimating) BOOL animating;
+- (void)startAnimating;
+- (void)stopAnimating;
+#endif
+
 @end

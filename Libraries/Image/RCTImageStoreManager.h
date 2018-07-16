@@ -1,6 +1,6 @@
 // Copyright 2004-present Facebook. All Rights Reserved.
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTBridge.h>
 #import <React/RCTURLRequestHandler.h>

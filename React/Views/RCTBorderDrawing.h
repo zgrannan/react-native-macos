@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import "RCTUIKit.h"
 
 #import <React/RCTBorderStyle.h>
 
@@ -59,6 +59,7 @@ CGPathRef RCTPathCreateWithRoundedRect(CGRect bounds,
  * by inspecting the image's `capInsets`.
  *
  * `borderInsets` defines the border widths for each edge.
+ * `scaleFactor` defines the backing scale factor of the device for supporting high-resolution drawing.
  */
 UIImage *RCTGetBorderImage(RCTBorderStyle borderStyle,
                            CGSize viewSize,
@@ -66,4 +67,5 @@ UIImage *RCTGetBorderImage(RCTBorderStyle borderStyle,
                            UIEdgeInsets borderInsets,
                            RCTBorderColors borderColors,
                            CGColorRef backgroundColor,
-                           BOOL drawToEdge);
+                           BOOL drawToEdge,
+                           CGFloat scaleFactor);

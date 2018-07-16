@@ -27,6 +27,7 @@ exports[`SectionList rendering empty section headers is fine 1`] = `
   maxToRenderPerBatch={10}
   onContentSizeChange={[Function]}
   onEndReachedThreshold={2}
+  onKeyDown={null}
   onLayout={[Function]}
   onMomentumScrollEnd={[Function]}
   onScroll={[Function]}
@@ -35,7 +36,9 @@ exports[`SectionList rendering empty section headers is fine 1`] = `
   onViewableItemsChanged={undefined}
   renderItem={[Function]}
   renderSectionHeader={[Function]}
+  rowIndex={-1}
   scrollEventThrottle={50}
+  sectionIndex={0}
   sections={
     Array [
       Object {
@@ -109,6 +112,7 @@ exports[`SectionList renders a footer when there is no data 1`] = `
   maxToRenderPerBatch={10}
   onContentSizeChange={[Function]}
   onEndReachedThreshold={2}
+  onKeyDown={null}
   onLayout={[Function]}
   onMomentumScrollEnd={[Function]}
   onScroll={[Function]}
@@ -118,7 +122,9 @@ exports[`SectionList renders a footer when there is no data 1`] = `
   renderItem={[Function]}
   renderSectionFooter={[Function]}
   renderSectionHeader={[Function]}
+  rowIndex={-1}
   scrollEventThrottle={50}
+  sectionIndex={0}
   sections={
     Array [
       Object {
@@ -177,6 +183,7 @@ exports[`SectionList renders a footer when there is no data and no header 1`] = 
   maxToRenderPerBatch={10}
   onContentSizeChange={[Function]}
   onEndReachedThreshold={2}
+  onKeyDown={null}
   onLayout={[Function]}
   onMomentumScrollEnd={[Function]}
   onScroll={[Function]}
@@ -185,7 +192,9 @@ exports[`SectionList renders a footer when there is no data and no header 1`] = 
   onViewableItemsChanged={undefined}
   renderItem={[Function]}
   renderSectionFooter={[Function]}
+  rowIndex={-1}
   scrollEventThrottle={50}
+  sectionIndex={0}
   sections={
     Array [
       Object {
@@ -276,6 +285,7 @@ exports[`SectionList renders all the bells and whistles 1`] = `
   maxToRenderPerBatch={10}
   onContentSizeChange={[Function]}
   onEndReachedThreshold={2}
+  onKeyDown={null}
   onLayout={[Function]}
   onMomentumScrollEnd={[Function]}
   onRefresh={[Function]}
@@ -294,7 +304,9 @@ exports[`SectionList renders all the bells and whistles 1`] = `
   renderItem={[Function]}
   renderSectionFooter={[Function]}
   renderSectionHeader={[Function]}
+  rowIndex={-1}
   scrollEventThrottle={50}
+  sectionIndex={0}
   sections={
     Array [
       Object {
@@ -373,7 +385,7 @@ exports[`SectionList renders all the bells and whistles 1`] = `
           v="highlighted:false,leadingItem:undefined,leadingSection:undefined,section:s1,trailingItem:i1s1,trailingSection:s2"
         />
         <itemForSection1
-          v="item:i1s1,index:0,section:s1,separators:[object Object]"
+          v="item:i1s1,index:0,isSelected:false,section:s1,separators:[object Object]"
         />
         <itemSeparatorForSection1
           v="highlighted:false,leadingItem:i1s1,leadingSection:undefined,section:s1,trailingItem:i2s1,trailingSection:s2"
@@ -386,7 +398,7 @@ exports[`SectionList renders all the bells and whistles 1`] = `
     >
       <View>
         <itemForSection1
-          v="item:i2s1,index:1,section:s1,separators:[object Object]"
+          v="item:i2s1,index:1,isSelected:false,section:s1,separators:[object Object]"
         />
         <sectionSeparator
           v="highlighted:false,leadingItem:i2s1,leadingSection:undefined,section:s1,trailingItem:undefined,trailingSection:s2"
@@ -418,7 +430,7 @@ exports[`SectionList renders all the bells and whistles 1`] = `
           v="highlighted:false,leadingItem:undefined,leadingSection:s1,section:s2,trailingItem:i1s2,trailingSection:s3"
         />
         <defaultItem
-          v="item:i1s2,index:0,section:s2,separators:[object Object]"
+          v="item:i1s2,index:0,isSelected:false,section:s2,separators:[object Object]"
         />
         <defaultItemSeparator
           v="highlighted:false,leadingItem:i1s2,leadingSection:s1,section:s2,trailingItem:i2s2,trailingSection:s3"
@@ -431,7 +443,7 @@ exports[`SectionList renders all the bells and whistles 1`] = `
     >
       <View>
         <defaultItem
-          v="item:i2s2,index:1,section:s2,separators:[object Object]"
+          v="item:i2s2,index:1,isSelected:false,section:s2,separators:[object Object]"
         />
         <sectionSeparator
           v="highlighted:false,leadingItem:i2s2,leadingSection:s1,section:s2,trailingItem:undefined,trailingSection:s3"
@@ -463,7 +475,7 @@ exports[`SectionList renders all the bells and whistles 1`] = `
           v="highlighted:false,leadingItem:undefined,leadingSection:s2,section:s3,trailingItem:i1s3,trailingSection:undefined"
         />
         <defaultItem
-          v="item:i1s3,index:0,section:s3,separators:[object Object]"
+          v="item:i1s3,index:0,isSelected:false,section:s3,separators:[object Object]"
         />
         <defaultItemSeparator
           v="highlighted:false,leadingItem:i1s3,leadingSection:s2,section:s3,trailingItem:i2s3,trailingSection:undefined"
@@ -476,7 +488,7 @@ exports[`SectionList renders all the bells and whistles 1`] = `
     >
       <View>
         <defaultItem
-          v="item:i2s3,index:1,section:s3,separators:[object Object]"
+          v="item:i2s3,index:1,isSelected:false,section:s3,separators:[object Object]"
         />
         <sectionSeparator
           v="highlighted:false,leadingItem:i2s3,leadingSection:s2,section:s3,trailingItem:undefined,trailingSection:undefined"
@@ -516,6 +528,7 @@ exports[`SectionList renders empty list 1`] = `
   maxToRenderPerBatch={10}
   onContentSizeChange={[Function]}
   onEndReachedThreshold={2}
+  onKeyDown={null}
   onLayout={[Function]}
   onMomentumScrollEnd={[Function]}
   onScroll={[Function]}
@@ -523,7 +536,9 @@ exports[`SectionList renders empty list 1`] = `
   onScrollEndDrag={[Function]}
   onViewableItemsChanged={undefined}
   renderItem={[Function]}
+  rowIndex={-1}
   scrollEventThrottle={50}
+  sectionIndex={0}
   sections={Array []}
   stickyHeaderIndices={Array []}
   stickySectionHeadersEnabled={true}

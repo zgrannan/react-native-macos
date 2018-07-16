@@ -23,8 +23,14 @@
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if ((self = [super initWithFrame:frame])) {
+    
+#if !TARGET_OS_OSX
     [self addTarget:self action:@selector(didChange)
                forControlEvents:UIControlEventValueChanged];
+#else
+    self.target = self;
+    self.action = @selector(didChange);
+#endif
   }
   return self;
 }
@@ -34,7 +40,13 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 - (void)didChange
 {
   if (_onChange) {
-    _onChange(@{ @"timestamp": @(self.date.timeIntervalSince1970 * 1000.0) });
+    _onChange(@{ @"timestamp":
+#if !TARGET_OS_OSX
+                   @(self.date.timeIntervalSince1970 * 1000.0)
+#else
+                   @(self.dateValue.timeIntervalSince1970 * 1000.0)
+#endif
+                 });
   }
 }
 

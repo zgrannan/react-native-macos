@@ -9,7 +9,6 @@
 
 #import "RCTActivityIndicatorViewManager.h"
 
-#import "RCTActivityIndicatorView.h"
 #import "RCTConvert.h"
 
 @implementation RCTConvert (UIActivityIndicatorView)
@@ -28,7 +27,7 @@ RCT_ENUM_CONVERTER(UIActivityIndicatorViewStyle, (@{
 
 RCT_EXPORT_MODULE()
 
-- (UIView *)view
+- (RCTPlatformView *)view
 {
   return [RCTActivityIndicatorView new];
 }
@@ -36,7 +35,7 @@ RCT_EXPORT_MODULE()
 RCT_EXPORT_VIEW_PROPERTY(color, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(hidesWhenStopped, BOOL)
 RCT_REMAP_VIEW_PROPERTY(size, activityIndicatorViewStyle, UIActivityIndicatorViewStyle)
-RCT_CUSTOM_VIEW_PROPERTY(animating, BOOL, UIActivityIndicatorView)
+RCT_CUSTOM_VIEW_PROPERTY(animating, BOOL, RCTActivityIndicatorView)
 {
   BOOL animating = json ? [RCTConvert BOOL:json] : [defaultView isAnimating];
   if (animating != [view isAnimating]) {

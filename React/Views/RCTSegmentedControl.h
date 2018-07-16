@@ -7,11 +7,18 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
-
 #import <React/RCTComponent.h>
+#import <React/RCTUIKit.h>
 
+#if !TARGET_OS_OSX
 @interface RCTSegmentedControl : UISegmentedControl
+#else
+@interface RCTSegmentedControl : NSSegmentedControl
+#endif
+
+#if TARGET_OS_OSX
+@property (nonatomic, assign, getter = isMomentary) BOOL momentary;
+#endif
 
 @property (nonatomic, copy) NSArray<NSString *> *values;
 @property (nonatomic, assign) NSInteger selectedIndex;

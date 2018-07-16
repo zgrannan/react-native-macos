@@ -167,11 +167,19 @@ var TouchableBounce = createReactClass({
         /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
          * comment suppresses an error when upgrading Flow's support for React.
          * To see the error delete this comment and run Flow. */
+        accessibilityHint={this.props.accessibilityHint}
+        /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
+         * comment suppresses an error when upgrading Flow's support for React.
+         * To see the error delete this comment and run Flow. */
         accessibilityComponentType={this.props.accessibilityComponentType}
         /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
          * comment suppresses an error when upgrading Flow's support for React.
          * To see the error delete this comment and run Flow. */
         accessibilityTraits={this.props.accessibilityTraits}
+        /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
+         * comment suppresses an error when upgrading Flow's support for React.
+         * To see the error delete this comment and run Flow. */
+        onAccessibilityTap={this.props.onAccessibilityTap}
         /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
          * comment suppresses an error when upgrading Flow's support for React.
          * To see the error delete this comment and run Flow. */
@@ -188,7 +196,15 @@ var TouchableBounce = createReactClass({
         onResponderGrant={this.touchableHandleResponderGrant}
         onResponderMove={this.touchableHandleResponderMove}
         onResponderRelease={this.touchableHandleResponderRelease}
-        onResponderTerminate={this.touchableHandleResponderTerminate}>
+        onResponderTerminate={this.touchableHandleResponderTerminate}
+        clickable={this.props.clickable !== false && this.props.onPress !== undefined && !this.props.disabled}
+        onClick={this.touchableHandlePress}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
+        onDragEnter={this.props.onDragEnter}
+        onDragLeave={this.props.onDragLeave}
+        onDrop={this.props.onDrop}
+        draggedTypes={this.props.draggedTypes}>
         {
           // $FlowFixMe(>=0.41.0)
           this.props.children

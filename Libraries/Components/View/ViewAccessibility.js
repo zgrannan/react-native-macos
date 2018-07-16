@@ -11,6 +11,13 @@
  */
 'use strict';
 
+const PropTypes = require('prop-types');
+const createStrictShapeTypeChecker = require('createStrictShapeTypeChecker');
+
+const AccessibilityNodeInfoPropType = createStrictShapeTypeChecker({
+  clickable: PropTypes.bool,
+});
+
 export type AccessibilityTrait =
   'none' |
   'button' |
@@ -28,13 +35,19 @@ export type AccessibilityTrait =
   'startsMedia' |
   'adjustable' |
   'allowsDirectInteraction' |
-  'pageTurn';
+  'pageTurn' |
+  'group' |
+  'list';
 
 export type AccessibilityComponentType =
   'none' |
   'button' |
   'radiobutton_checked' |
   'radiobutton_unchecked';
+  
+export type AccessibilityNodeInfoProp = {
+  clickable: bool,
+};
 
 module.exports = {
   AccessibilityTraits: [
@@ -55,6 +68,8 @@ module.exports = {
     'adjustable',
     'allowsDirectInteraction',
     'pageTurn',
+    'group',
+    'list',
   ],
   AccessibilityComponentTypes: [
     'none',
@@ -62,4 +77,5 @@ module.exports = {
     'radiobutton_checked',
     'radiobutton_unchecked',
   ],
+  AccessibilityNodeInfoPropType
 };

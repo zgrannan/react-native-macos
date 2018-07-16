@@ -12,7 +12,9 @@
 #import <tgmath.h>
 
 #import <ImageIO/ImageIO.h>
+#if !TARGET_OS_OSX
 #import <MobileCoreServices/UTCoreTypes.h>
+#endif
 
 #import <React/RCTLog.h>
 #import <React/RCTUtils.h>
@@ -35,6 +37,7 @@ static CGSize RCTCeilSize(CGSize size, CGFloat scale)
   };
 }
 
+#if !TARGET_OS_OSX
 static CGImagePropertyOrientation CGImagePropertyOrientationFromUIImageOrientation(UIImageOrientation imageOrientation)
 {
   // see https://stackoverflow.com/a/6699649/496389
@@ -50,6 +53,7 @@ static CGImagePropertyOrientation CGImagePropertyOrientationFromUIImageOrientati
     default: return kCGImagePropertyOrientationUp;
   }
 }
+#endif
 
 CGRect RCTTargetRect(CGSize sourceSize, CGSize destSize,
                      CGFloat destScale, RCTResizeMode resizeMode)
@@ -282,7 +286,11 @@ UIImage *__nullable RCTDecodeImageWithData(NSData *data,
       destScale = 1;
     }
   } else if (!destScale) {
+#if !TARGET_OS_OSX
     destScale = RCTScreenScale();
+#else
+    destScale = 1.0; // It's not possible to derive the correct scale on macOS, but it's not necessary for NSImage anyway
+#endif
   }
 
   if (resizeMode == UIViewContentModeScaleToFill) {
@@ -312,9 +320,14 @@ UIImage *__nullable RCTDecodeImageWithData(NSData *data,
   }
 
   // Return image
+#if !TARGET_OS_OSX
   UIImage *image = [UIImage imageWithCGImage:imageRef
                                        scale:destScale
                                  orientation:UIImageOrientationUp];
+#else
+	NSImage *image = [[NSImage alloc] initWithCGImage:imageRef
+                                               size:targetSize];
+#endif
   CGImageRelease(imageRef);
   return image;
 }
@@ -333,11 +346,17 @@ NSDictionary<NSString *, id> *__nullable RCTGetImageMetadata(NSData *data)
 NSData *__nullable RCTGetImageData(UIImage *image, float quality)
 {
   NSMutableDictionary *properties = [[NSMutableDictionary alloc] initWithDictionary:@{
+#if !TARGET_OS_OSX
     (id)kCGImagePropertyOrientation : @(CGImagePropertyOrientationFromUIImageOrientation(image.imageOrientation))
+#endif
   }];
   CGImageDestinationRef destination;
   CFMutableDataRef imageData = CFDataCreateMutable(NULL, 0);
+#if !TARGET_OS_OSX
   CGImageRef cgImage = image.CGImage;
+#else
+  CGImageRef cgImage = [image CGImageForProposedRect:NULL context:NULL hints:NULL];
+#endif
   if (RCTImageHasAlpha(cgImage)) {
     // get png data
     destination = CGImageDestinationCreateWithData(imageData, kUTTypePNG, 1, NULL);
@@ -365,11 +384,15 @@ UIImage *__nullable RCTTransformImage(UIImage *image,
     return nil;
   }
 
-  BOOL opaque = !RCTImageHasAlpha(image.CGImage);
+  BOOL opaque = !RCTUIImageHasAlpha(image);
   UIGraphicsBeginImageContextWithOptions(destSize, opaque, destScale);
   CGContextRef currentContext = UIGraphicsGetCurrentContext();
   CGContextConcatCTM(currentContext, transform);
+#if !TARGET_OS_OSX
   [image drawAtPoint:CGPointZero];
+#else
+  [image drawAtPoint:CGPointZero fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:1.0];
+#endif
   UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
   return result;
@@ -386,3 +409,20 @@ BOOL RCTImageHasAlpha(CGImageRef image)
       return YES;
   }
 }
+
+#if !TARGET_OS_OSX
+BOOL RCTUIImageHasAlpha(UIImage *image)
+{
+  return RCTImageHasAlpha(image.CGImage);
+}
+#else
+BOOL RCTUIImageHasAlpha(UIImage *image)
+{
+  for (NSImageRep *imageRep in image.representations) {
+    if (imageRep.hasAlpha) {
+      return YES;
+    }
+  }
+  return NO;
+}
+#endif

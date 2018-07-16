@@ -155,7 +155,8 @@ exports.examples = [
   },
   {
     title: 'Custom colors can be provided',
-    render(): React.Element<any> { return <ColorSegmentedControlExample />; }
+    render(): React.Element<any> { return <ColorSegmentedControlExample />; },
+    platform: 'ios'
   },
   {
     title: 'Change events can be detected',

@@ -16,6 +16,7 @@ var createReactClass = require('create-react-class');
 var ReactNative = require('react-native');
 var {
   AlertIOS,
+  AlertMacOS,
   Platform,
   ToastAndroid,
   Text,
@@ -169,6 +170,8 @@ var TimerTester = createReactClass({
       console.log(msg);
       if (Platform.OS === 'ios') {
         AlertIOS.alert(msg);
+      } else if (Platform.OS === 'macos') {
+        AlertMacOS.alert(msg);
       } else if (Platform.OS === 'android') {
         ToastAndroid.show(msg, ToastAndroid.SHORT);
       }

@@ -12,6 +12,7 @@
 #import <RCTAnimation/RCTValueAnimatedNode.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTUIManager.h>
+#import <React/RCTPlatformDisplayLink.h>
 
 @interface RCTNativeAnimatedNodesManager : NSObject
 

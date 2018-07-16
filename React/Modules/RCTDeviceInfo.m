@@ -13,9 +13,11 @@
 #import "RCTAssert.h"
 #import "RCTEventDispatcher.h"
 #import "RCTUtils.h"
+#import "RCTUIKit.h"
+#import "UIView+React.h"
 
 @implementation RCTDeviceInfo {
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_OSX
   UIInterfaceOrientation _currentInterfaceOrientation;
 #endif
 }
@@ -38,11 +40,14 @@ RCT_EXPORT_MODULE()
 {
   _bridge = bridge;
 
+#if !TARGET_OS_OSX
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didReceiveNewContentSizeMultiplier)
                                                name:RCTAccessibilityManagerDidUpdateMultiplierNotification
                                              object:_bridge.accessibilityManager];
-#if !TARGET_OS_TV
+#endif
+  
+#if !TARGET_OS_TV && !TARGET_OS_OSX
   _currentInterfaceOrientation = [RCTSharedApplication() statusBarOrientation];
 
   [[NSNotificationCenter defaultCenter] addObserver:self
@@ -54,6 +59,7 @@ RCT_EXPORT_MODULE()
 
 static BOOL RCTIsIPhoneX() {
   static BOOL isIPhoneX = NO;
+#if !TARGET_OS_OSX
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
@@ -64,16 +70,21 @@ static BOOL RCTIsIPhoneX() {
       CGSizeMake(1125, 2436)
     );
   });
-
+#endif
   return isIPhoneX;
 }
 
-static NSDictionary *RCTExportedDimensions(RCTBridge *bridge)
+#if !TARGET_OS_OSX
+NSDictionary *RCTExportedDimensions(RCTBridge *bridge)
+#else
+NSDictionary *RCTExportedDimensions(RCTPlatformView *rootView)
+#endif
 {
   RCTAssertMainQueue();
 
   // Don't use RCTScreenSize since it the interface orientation doesn't apply to it
-  CGRect screenSize = [[UIScreen mainScreen] bounds];
+#if !TARGET_OS_OSX
+	CGRect screenSize = [[UIScreen mainScreen] bounds];
   NSDictionary *dims = @{
                          @"width": @(screenSize.size.width),
                          @"height": @(screenSize.size.height),
@@ -84,6 +95,32 @@ static NSDictionary *RCTExportedDimensions(RCTBridge *bridge)
            @"window": dims,
            @"screen": dims
            };
+#else
+	if (rootView != nil) {
+		NSWindow *window = rootView.window;
+		if (window != nil) {
+			NSSize size = rootView.bounds.size;
+			return @{
+				@"window": @{
+					@"width": @(size.width),
+					@"height": @(size.height),
+					@"scale": @(window.backingScaleFactor),
+				},
+        @"rootTag" : rootView.reactTag,
+			};
+		}
+	}
+
+  // We don't have a root view or window yet so make something up
+  NSScreen *screen = [NSScreen screens].firstObject;
+  return @{
+      @"window": @{
+        @"width": @(screen.frame.size.width),
+        @"height": @(screen.frame.size.height),
+        @"scale": @(screen.backingScaleFactor),
+      },
+  };
+#endif
 }
 
 - (void)dealloc
@@ -102,7 +139,11 @@ static NSDictionary *RCTExportedDimensions(RCTBridge *bridge)
 - (NSDictionary<NSString *, id> *)constantsToExport
 {
   return @{
+#if !TARGET_OS_OSX
     @"Dimensions": RCTExportedDimensions(_bridge),
+#else
+    @"Dimensions": RCTExportedDimensions(nil),
+#endif
     // Note:
     // This prop is deprecated and will be removed right after June 01, 2018.
     // Please use this only for a quick and temporary solution.
@@ -119,12 +160,16 @@ static NSDictionary *RCTExportedDimensions(RCTBridge *bridge)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [bridge.eventDispatcher sendDeviceEventWithName:@"didUpdateDimensions"
-                                        body:RCTExportedDimensions(bridge)];
+#if !TARGET_OS_OSX
+    body:RCTExportedDimensions(bridge)];
+#else
+    body:RCTExportedDimensions(nil)];
+#endif
 #pragma clang diagnostic pop
   });
 }
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_OSX
 
 - (void)interfaceOrientationDidChange
 {

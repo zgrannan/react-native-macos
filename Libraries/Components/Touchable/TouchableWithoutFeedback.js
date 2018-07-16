@@ -56,10 +56,20 @@ const TouchableWithoutFeedback = createReactClass({
       PropTypes.oneOf(AccessibilityTraits),
       PropTypes.arrayOf(PropTypes.oneOf(AccessibilityTraits)),
     ]),
+    onAccessibilityTap: PropTypes.func,
+
     /**
      * If true, disable all interactions for this component.
      */
     disabled: PropTypes.bool,
+    /**
+     * Called when the mouse enters the touchable element
+     */
+    onMouseEnter: PropTypes.func,
+    /**
+     * Called when the mouse exits the touchable element
+     */
+    onMouseLeave: PropTypes.func,
     /**
      * Called when the touch is released, but not if cancelled (e.g. by a scroll
      * that steals the responder lock).
@@ -188,8 +198,12 @@ const TouchableWithoutFeedback = createReactClass({
       accessible: this.props.accessible !== false,
       // $FlowFixMe(>=0.41.0)
       accessibilityLabel: this.props.accessibilityLabel,
+      accessibilityHint: this.props.accessibilityHint,
       accessibilityComponentType: this.props.accessibilityComponentType,
       accessibilityTraits: this.props.accessibilityTraits,
+      onAccessibilityTap: this.props.onAccessibilityTap,
+      acceptsKeyboardFocus: (this.props.acceptsKeyboardFocus === undefined || this.props.acceptsKeyboardFocus) && !this.props.disabled,
+      enableFocusRing: (this.props.enableFocusRing === true && !this.props.disabled),
       // $FlowFixMe(>=0.41.0)
       nativeID: this.props.nativeID,
       // $FlowFixMe(>=0.41.0)
@@ -202,8 +216,16 @@ const TouchableWithoutFeedback = createReactClass({
       onResponderMove: this.touchableHandleResponderMove,
       onResponderRelease: this.touchableHandleResponderRelease,
       onResponderTerminate: this.touchableHandleResponderTerminate,
+      clickable: this.props.clickable !== false && this.props.onPress !== undefined,
+      onClick: this.touchableHandlePress,
+      onMouseEnter: this.props.onMouseEnter,
+      onMouseLeave: this.props.onMouseLeave,
+      onDragEnter: this.props.onDragEnter,
+      onDragLeave: this.props.onDragLeave,
+      onDrop: this.props.onDrop,
+      draggedTypes: this.props.draggedTypes,
       style,
-      children,
+      children,      
     });
   }
 });

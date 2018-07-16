@@ -54,7 +54,7 @@ var NetworkImageCallbackExample = createReactClass({
           style={[styles.base, {overflow: 'visible'}]}
           onLoadStart={() => this._loadEventFired(`✔ onLoadStart (+${new Date() - mountTime}ms)`)}
           onLoad={(event) => {
-            // Currently this image source feature is only available on iOS.
+            // Currently this image source feature is only available on iOS & macOS.
             if (event.nativeEvent.source) {
               const url = event.nativeEvent.source.url;
               this._loadEventFired(`✔ onLoad (+${new Date() - mountTime}ms) for URL ${url}`);
@@ -274,7 +274,7 @@ exports.examples = [
         <NetworkImageExample source={{uri: 'https://TYPO_ERROR_facebook.github.io/react/logo-og.png'}} />
       );
     },
-    platform: 'ios',
+    platform: ['ios', 'macos'],
   },
   {
     title: 'Image Download Progress',
@@ -283,7 +283,7 @@ exports.examples = [
         <NetworkImageExample source={{uri: 'http://origami.design/public/images/bird-logo.png?r=1'}}/>
       );
     },
-    platform: 'ios',
+    platform: ['ios', 'macos'],
   },
   {
     title: 'defaultSource',
@@ -297,7 +297,7 @@ exports.examples = [
         />
       );
     },
-    platform: 'ios',
+    platform: ['ios', 'macos'],
   },
   {
     title: 'Cache Policy',
@@ -326,8 +326,9 @@ exports.examples = [
         </View>
       );
     },
-    platform: 'ios',
+    platform: ['ios', 'macos'],
   },
+
   {
     title: 'Border Color',
     render: function() {
@@ -560,7 +561,7 @@ exports.examples = [
                     source={image}
                   />
                 </View>
-                { Platform.OS === 'ios' ?
+                { Platform.OS === 'ios' || Platform.OS === 'macos' ?
                   <View style={styles.leftMargin}>
                     <Text style={[styles.resizeModeText]}>
                       Repeat
@@ -602,7 +603,7 @@ exports.examples = [
         />
       );
     },
-    platform: 'ios',
+    platform: ['ios', 'macos'],
   },
   {
     title: 'Base64 image',
@@ -614,7 +615,7 @@ exports.examples = [
         />
       );
     },
-    platform: 'ios',
+    platform: ['ios', 'macos'],
   },
   {
     title: 'Cap Insets',
@@ -626,7 +627,7 @@ exports.examples = [
     render: function() {
       return <ImageCapInsetsExample />;
     },
-    platform: 'ios',
+    platform: ['ios', 'macos'],
   },
   {
     title: 'Image Size',
@@ -685,6 +686,36 @@ exports.examples = [
       );
     },
     platform: 'ios',
+  },
+  {
+    title: 'Bundled images',
+    description:
+      'Images shipped in a separate native bundle',
+    render: function() {
+      return (
+        <View style={{flexDirection: 'row'}}>
+          <Image
+            source={{
+              uri: 'ImageInBundle',
+              bundle: 'RNTesterBundle-macOS',
+              width: 100,
+              height: 100,
+            }}
+            style={{borderColor: 'yellow', borderWidth: 4}}
+          />
+          <Image
+            source={{
+              uri: 'ImageInAssetCatalog',
+              bundle: 'RNTesterBundle-macOS',
+              width: 100,
+              height: 100,
+            }}
+            style={{marginLeft: 10, borderColor: 'blue', borderWidth: 4}}
+          />
+        </View>
+      );
+    },
+    platform: 'macos',
   },
   {
     title: 'Blur Radius',

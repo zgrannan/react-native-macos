@@ -35,6 +35,7 @@
       ],
       "platforms": [
         "ios",
+        "macos",
         "android"
       ]
     },
@@ -83,7 +84,7 @@
     ],
     "testEnvironment": "node"
   },
-  "main": "Libraries/react-native/react-native-implementation.js",
+  "main": "Libraries/react-native/react-native-implementation",
   "files": [
     ".flowconfig",
     "android",

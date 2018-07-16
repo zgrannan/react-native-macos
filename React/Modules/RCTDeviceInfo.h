@@ -7,10 +7,15 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
-
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
+#import <React/RCTUIKit.h>
+
+#if !TARGET_OS_OSX
+NSDictionary *RCTExportedDimensions(RCTBridge *bridge);
+#else
+NSDictionary *RCTExportedDimensions(RCTPlatformView *rootView);
+#endif
 
 @interface RCTDeviceInfo : NSObject <RCTBridgeModule, RCTInvalidating>
 

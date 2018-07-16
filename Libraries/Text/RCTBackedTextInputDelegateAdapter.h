@@ -7,8 +7,6 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
-
 #import "RCTBackedTextInputViewProtocol.h"
 #import "RCTBackedTextInputDelegate.h"
 
@@ -18,7 +16,11 @@
 
 - (instancetype)initWithTextField:(UITextField<RCTBackedTextInputViewProtocol> *)backedTextInput;
 
+#if !TARGET_OS_OSX
 - (void)skipNextTextInputDidChangeSelectionEventWithTextRange:(UITextRange *)textRange;
+#else
+- (void)skipNextTextInputDidChangeSelectionEventWithTextRange:(NSRange)textRange;
+#endif
 - (void)selectedTextRangeWasSet;
 
 @end
@@ -29,6 +31,10 @@
 
 - (instancetype)initWithTextView:(UITextView<RCTBackedTextInputViewProtocol> *)backedTextInput;
 
+#if !TARGET_OS_OSX
 - (void)skipNextTextInputDidChangeSelectionEventWithTextRange:(UITextRange *)textRange;
+#else
+- (void)skipNextTextInputDidChangeSelectionEventWithTextRange:(NSRange)textRange;
+#endif
 
 @end

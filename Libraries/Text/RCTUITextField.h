@@ -7,7 +7,9 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
+
+#import "RCTTextUIKit.h"
 
 #import "RCTBackedTextInputViewProtocol.h"
 
@@ -23,10 +25,25 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<RCTBackedTextInputDelegate> textInputDelegate;
 
 @property (nonatomic, assign) BOOL caretHidden;
-@property (nonatomic, assign, readonly) BOOL textWasPasted;
+#if !TARGET_OS_OSX
+@property (nonatomic, readonly) BOOL textWasPasted;
+#else
+@property (nonatomic, assign) BOOL textWasPasted;
+#endif
 @property (nonatomic, strong, nullable) UIColor *placeholderColor;
 @property (nonatomic, assign) UIEdgeInsets textContainerInset;
+#if !TARGET_OS_OSX
 @property (nonatomic, assign, getter=isEditable) BOOL editable;
+#else
+@property (assign, getter=isEditable) BOOL editable;
+#endif
+#if TARGET_OS_OSX
+@property (nonatomic, copy, nullable) NSString *text;
+@property (nonatomic, getter=isAutomaticTextReplacementEnabled) BOOL automaticTextReplacementEnabled;
+@property (nonatomic, getter=isAutomaticSpellingCorrectionEnabled) BOOL automaticSpellingCorrectionEnabled;
+@property (nonatomic, strong, nullable) UIColor *selectionColor;
+@property (weak, nullable) id<RCTUITextFieldDelegate> delegate;
+#endif // TARGET_OS_OSX
 
 @end
 

@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import "RCTUIKit.h"
 
 #import <React/RCTComponent.h>
 #import <React/RCTRootView.h>
@@ -22,7 +22,7 @@ typedef NS_ENUM(NSUInteger, RCTUpdateLifecycle) {
   RCTUpdateLifecycleDirtied,
 };
 
-typedef void (^RCTApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
+typedef void (^RCTApplierBlock)(NSDictionary<NSNumber *, RCTPlatformView *> *viewRegistry);
 
 /**
  * ShadowView tree mirrors RCT view tree. Every node is highly stateful.
@@ -57,6 +57,9 @@ typedef void (^RCTApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry
 @property (nonatomic, copy) NSString *viewName;
 @property (nonatomic, strong) UIColor *backgroundColor; // Used to propagate to children
 @property (nonatomic, copy) RCTDirectEventBlock onLayout;
+#if TARGET_OS_OSX
+@property (nonatomic) CGFloat scale;
+#endif
 
 /**
  * In some cases we need a way to specify some environmental data to shadow view

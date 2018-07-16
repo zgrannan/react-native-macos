@@ -137,7 +137,7 @@ class Picker extends React.Component<{
    mode: PropTypes.oneOf(['dialog', 'dropdown']),
    /**
     * Style to apply to each of the item labels.
-    * @platform ios
+    * @platform ios, macos
     */
    itemStyle: itemStylePropType,
    /**
@@ -152,7 +152,7 @@ class Picker extends React.Component<{
  };
 
  render() {
-     if (Platform.OS === 'ios') {
+     if (Platform.OS === 'ios' || Platform.OS === 'macos') {
        // $FlowFixMe found when converting React.createClass to ES6
        return <PickerIOS {...this.props}>{this.props.children}</PickerIOS>;
      } else if (Platform.OS === 'android') {

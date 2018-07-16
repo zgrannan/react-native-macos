@@ -18,28 +18,39 @@
 
 RCT_EXPORT_MODULE()
 
-- (UIView *)view
+- (RCTPlatformView *)view
 {
   RCTSwitch *switcher = [RCTSwitch new];
+#if !TARGET_OS_OSX
   [switcher addTarget:self
                action:@selector(onChange:)
      forControlEvents:UIControlEventValueChanged];
+#else
+  [switcher setTarget:self];
+  [switcher setAction:@selector(onChange:)];
+#endif
   return switcher;
 }
 
 - (void)onChange:(RCTSwitch *)sender
 {
+#if !TARGET_OS_OSX
   if (sender.wasOn != sender.on) {
     if (sender.onChange) {
       sender.onChange(@{ @"value": @(sender.on) });
     }
     sender.wasOn = sender.on;
   }
+#else
+  sender.onChange(@{ @"value": @(sender.on) });
+#endif
 }
 
+#if !TARGET_OS_OSX
 RCT_EXPORT_VIEW_PROPERTY(onTintColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(tintColor, UIColor);
 RCT_EXPORT_VIEW_PROPERTY(thumbTintColor, UIColor);
+#endif
 RCT_REMAP_VIEW_PROPERTY(value, on, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(onChange, RCTBubblingEventBlock);
 RCT_CUSTOM_VIEW_PROPERTY(disabled, BOOL, RCTSwitch)

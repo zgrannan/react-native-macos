@@ -8,7 +8,7 @@
  */
 
 #import <QuartzCore/QuartzCore.h>
-#import <UIKit/UIKit.h>
+#import "RCTUIKit.h"
 
 #import <React/RCTAnimationType.h>
 #import <React/RCTBorderStyle.h>
@@ -62,6 +62,7 @@ typedef NSURL RCTFileURL;
 + (NSTextAlignment)NSTextAlignment:(id)json;
 + (NSUnderlineStyle)NSUnderlineStyle:(id)json;
 + (NSWritingDirection)NSWritingDirection:(id)json;
+#if !TARGET_OS_OSX
 + (UITextAutocapitalizationType)UITextAutocapitalizationType:(id)json;
 + (UITextFieldViewMode)UITextFieldViewMode:(id)json;
 + (UIKeyboardType)UIKeyboardType:(id)json;
@@ -74,6 +75,11 @@ typedef NSURL RCTFileURL;
 + (UIViewContentMode)UIViewContentMode:(id)json;
 #if !TARGET_OS_TV
 + (UIBarStyle)UIBarStyle:(id)json;
+#endif
+#endif
+
+#if TARGET_OS_OSX
++ (NSTextCheckingTypes)NSTextCheckingTypes:(id)json;
 #endif
 
 + (CGFloat)CGFloat:(id)json;
@@ -100,6 +106,9 @@ typedef NSURL RCTFileURL;
 + (NSArray<RCTFileURL *> *)RCTFileURLArray:(id)json;
 + (NSArray<NSNumber *> *)NSNumberArray:(id)json;
 + (NSArray<UIColor *> *)UIColorArray:(id)json;
+#if TARGET_OS_OSX
++ (NSArray<NSPasteboardType> *)NSPasteboardTypeArray:(id)json;
+#endif
 
 typedef NSArray CGColorArray;
 + (CGColorArray *)CGColorArray:(id)json;
@@ -126,6 +135,9 @@ typedef BOOL css_backface_visibility_t;
 + (RCTBorderStyle)RCTBorderStyle:(id)json;
 + (RCTTextDecorationLineType)RCTTextDecorationLineType:(id)json;
 
+#if TARGET_OS_OSX
++ (NSString *)accessibilityRoleFromTraits:(id)json;
+#endif
 @end
 
 @interface RCTConvert (Deprecated)

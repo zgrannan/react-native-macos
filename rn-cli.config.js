@@ -17,7 +17,14 @@ const getPolyfills = require('./rn-get-polyfills');
  * This cli config is needed for development purposes, e.g. for running
  * integration tests during local development or on CI services.
  */
+
+const platforms = ['ios', 'android', 'macos'];
+
 module.exports = {
+  getPlatforms() {
+    return platforms;
+  },
+
   extraNodeModules: {
     'react-native': __dirname,
   },

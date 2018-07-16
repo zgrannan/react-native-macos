@@ -9,7 +9,9 @@
 
 #import "RCTShadowText.h"
 
+#if !TARGET_OS_OSX
 #import <React/RCTAccessibilityManager.h>
+#endif
 #import <React/RCTBridge.h>
 #import <React/RCTConvert.h>
 #import <React/RCTFont.h>
@@ -51,11 +53,19 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
   CGSize computedSize = [layoutManager usedRectForTextContainer:textContainer].size;
 
   YGSize result;
+#if !TARGET_OS_OSX
   result.width = RCTCeilPixelValue(computedSize.width);
+#else
+  result.width = RCTCeilPixelValue(computedSize.width, shadowText.scale);
+#endif
   if (shadowText->_effectiveLetterSpacing < 0) {
     result.width -= shadowText->_effectiveLetterSpacing;
   }
+#if !TARGET_OS_OSX
   result.height = RCTCeilPixelValue(computedSize.height);
+#else
+  result.height = RCTCeilPixelValue(computedSize.height, shadowText.scale);
+#endif
   return result;
 }
 
@@ -76,10 +86,12 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
 
     YGNodeSetMeasureFunc(self.yogaNode, RCTMeasure);
 
+#if !TARGET_OS_OSX
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contentSizeMultiplierDidChange:)
                                                  name:RCTUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
                                                object:nil];
+#endif
   }
   return self;
 }
@@ -100,11 +112,13 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
   return YES;
 }
 
+#if !TARGET_OS_OSX
 - (void)contentSizeMultiplierDidChange:(NSNotification *)note
 {
   YGNodeMarkDirty(self.yogaNode);
   [self dirtyText];
 }
+#endif
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<RCTApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties
@@ -174,11 +188,21 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
       UIFont *font = [textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:nil];
       CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
       CGRect childFrame = {{
+#if !TARGET_OS_OSX
         RCTRoundPixelValue(glyphRect.origin.x),
         RCTRoundPixelValue(glyphRect.origin.y + glyphRect.size.height - height + font.descender)
+#else
+        RCTRoundPixelValue(glyphRect.origin.x, self.scale),
+        RCTRoundPixelValue(glyphRect.origin.y + glyphRect.size.height - height + font.descender, self.scale)
+#endif
       }, {
+#if !TARGET_OS_OSX
         RCTRoundPixelValue(width),
         RCTRoundPixelValue(height)
+#else
+        RCTRoundPixelValue(width, self.scale),
+        RCTRoundPixelValue(height, self.scale)
+#endif
       }};
 
       NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
@@ -361,8 +385,18 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
   [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
   [self _addAttribute:NSKernAttributeName withValue:letterSpacing toAttributedString:attributedString];
   [self _addAttribute:RCTReactTagAttributeName withValue:self.reactTag toAttributedString:attributedString];
+#if !TARGET_OS_OSX
+  CGFloat lineHeight = font.lineHeight;
+#else
+  CGFloat lineHeight = 0.0;
+  if ([NSString respondsToSelector:@selector(defaultLineHeightForFont:)]) {
+    lineHeight = [(id)[NSString self] defaultLineHeightForFont:font];
+  } else {
+    lineHeight = [[NSLayoutManager new] defaultLineHeightForFont:font];
+  }
+#endif
   [self _setParagraphStyleOnAttributedString:attributedString
-                              fontLineHeight:font.lineHeight
+                              fontLineHeight:lineHeight
                       heightOfTallestSubview:heightOfTallestSubview];
 
   // create a non-mutable attributedString for use by the Text system which avoids copies down the line
@@ -504,7 +538,11 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
   }
 
   // Vertically center draw position for new text sizing.
+#if !TARGET_OS_OSX
   frame.origin.y = self.compoundInsets.top + RCTRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f);
+#else
+  frame.origin.y = self.compoundInsets.top + RCTRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f, self.scale);
+#endif
   return frame;
 }
 
@@ -558,7 +596,7 @@ static YGSize RCTMeasure(YGNodeRef node, float width, YGMeasureMode widthMode, f
        UIFont *originalFont = [self.attributedString attribute:NSFontAttributeName
                                                        atIndex:range.location
                                                 effectiveRange:&range];
-       UIFont *newFont = [font fontWithSize:originalFont.pointSize * scale];
+       UIFont *newFont = UIFontWithSize(font, originalFont.pointSize * scale);
        [textStorage removeAttribute:NSFontAttributeName range:range];
        [textStorage addAttribute:NSFontAttributeName value:newFont range:range];
      }

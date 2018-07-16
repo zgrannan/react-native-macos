@@ -9,6 +9,8 @@
 
 #import <React/RCTViewManager.h>
 
+#import "RCTActivityIndicatorView.h"
+
 @interface RCTConvert (UIActivityIndicatorView)
 
 + (UIActivityIndicatorViewStyle)UIActivityIndicatorViewStyle:(id)json;

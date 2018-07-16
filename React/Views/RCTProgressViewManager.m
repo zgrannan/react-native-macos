@@ -10,15 +10,23 @@
 #import "RCTProgressViewManager.h"
 
 #import "RCTConvert.h"
+#import "RCTProgressView.h"
 
 @implementation RCTConvert (RCTProgressViewManager)
 
+#if TARGET_OS_OSX
+RCT_ENUM_CONVERTER(NSProgressIndicatorStyle, (@{
+  @"default": @(NSProgressIndicatorBarStyle),
+  @"bar": @(NSProgressIndicatorBarStyle),
+}), NSProgressIndicatorBarStyle, integerValue)
+#else
 RCT_ENUM_CONVERTER(UIProgressViewStyle, (@{
   @"default": @(UIProgressViewStyleDefault),
 #if !TARGET_OS_TV
   @"bar": @(UIProgressViewStyleBar),
 #endif
 }), UIProgressViewStyleDefault, integerValue)
+#endif
 
 @end
 
@@ -26,13 +34,18 @@ RCT_ENUM_CONVERTER(UIProgressViewStyle, (@{
 
 RCT_EXPORT_MODULE()
 
-- (UIView *)view
+- (RCTPlatformView *)view
 {
-  return [UIProgressView new];
+  return [RCTProgressView new];
 }
 
+#if !TARGET_OS_OSX
 RCT_EXPORT_VIEW_PROPERTY(progressViewStyle, UIProgressViewStyle)
 RCT_EXPORT_VIEW_PROPERTY(progress, float)
+#else
+RCT_EXPORT_VIEW_PROPERTY(style, NSProgressIndicatorStyle)
+RCT_REMAP_VIEW_PROPERTY(progress, doubleValue, double)
+#endif
 RCT_EXPORT_VIEW_PROPERTY(progressTintColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(trackTintColor, UIColor)
 RCT_EXPORT_VIEW_PROPERTY(progressImage, UIImage)

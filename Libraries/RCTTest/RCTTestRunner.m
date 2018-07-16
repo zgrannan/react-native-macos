@@ -15,6 +15,7 @@
 #import <React/RCTLog.h>
 #import <React/RCTRootView.h>
 #import <React/RCTUtils.h>
+#import <React/RCTBundleURLProvider.h>
 
 #import "FBSnapshotTestController.h"
 #import "RCTTestModule.h"
@@ -56,7 +57,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (void)updateScript
 {
   if (getenv("CI_USE_PACKAGER") || _useBundler) {
-    _scriptURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8081/%@.bundle?platform=ios&dev=true", _appPath]];
+    _scriptURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:8081/%@.bundle?platform=%@&dev=true", _appPath, kRCTPlatformName]];
   } else {
     _scriptURL = [[NSBundle bundleForClass:[RCTBridge class]] URLForResource:@"main" withExtension:@"jsbundle"];
   }
@@ -140,9 +141,11 @@ expectErrorBlock:(BOOL(^)(NSString *error))expectErrorBlock
     testModule.testSuffix = _testSuffix;
     testModule.view = rootView;
 
+#if !TARGET_OS_OSX
     UIViewController *vc = RCTSharedApplication().delegate.window.rootViewController;
     vc.view = [UIView new];
     [vc.view addSubview:rootView]; // Add as subview so it doesn't get resized
+#endif
 
     if (configurationBlock) {
       configurationBlock(rootView);
@@ -158,7 +161,7 @@ expectErrorBlock:(BOOL(^)(NSString *error))expectErrorBlock
 
     RCTSetLogFunction(defaultLogFunction);
 
-#if RCT_DEV
+#if RCT_DEV && !TARGET_OS_OSX
     NSArray<UIView *> *nonLayoutSubviews = [vc.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id subview, NSDictionary *bindings) {
       return ![NSStringFromClass([subview class]) isEqualToString:@"_UILayoutGuide"];
     }]];

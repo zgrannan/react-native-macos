@@ -7,12 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import "RCTUIKit.h"
 
 #import <React/RCTBorderStyle.h>
 #import <React/RCTComponent.h>
 #import <React/RCTPointerEvents.h>
-#import <React/RCTView.h>
 
 @protocol RCTAutoInsetsProtocol;
 
@@ -20,11 +19,20 @@
 
 @interface RCTView : UIView
 
+#if TARGET_OS_OSX
+/**
+  * Specifies whether the the key view loop will be automatically calculated or created manually.
+  */
+@property (nonatomic, assign) BOOL overrideDefaultFocusLoop;
+#endif
+
 /**
  * Accessibility event handlers
  */
 @property (nonatomic, copy) RCTDirectEventBlock onAccessibilityTap;
+#if !TARGET_OS_OSX
 @property (nonatomic, copy) RCTDirectEventBlock onMagicTap;
+#endif
 
 /**
  * Used to control how touch events are processed.
@@ -35,10 +43,12 @@
                  withScrollView:(UIScrollView *)scrollView
                    updateOffset:(BOOL)updateOffset;
 
+#if !TARGET_OS_OSX
 /**
  * Find the first view controller whose view, or any subview is the specified view.
  */
 + (UIEdgeInsets)contentInsetsForView:(UIView *)curView;
+#endif
 
 /**
  * Layout direction of the view.
@@ -108,5 +118,18 @@
  *  Insets used when hit testing inside this view.
  */
 @property (nonatomic, assign) UIEdgeInsets hitTestEdgeInsets;
+
+#if TARGET_OS_OSX
+/**
+ * macOS Properties
+ */
+@property (nonatomic, copy) RCTDirectEventBlock onDoubleClick;
+@property (nonatomic, copy) RCTDirectEventBlock onClick;
+@property (nonatomic, copy) RCTDirectEventBlock onMouseEnter;
+@property (nonatomic, copy) RCTDirectEventBlock onMouseLeave;
+@property (nonatomic, copy) RCTDirectEventBlock onDragEnter;
+@property (nonatomic, copy) RCTDirectEventBlock onDragLeave;
+@property (nonatomic, copy) RCTDirectEventBlock onDrop;
+#endif
 
 @end

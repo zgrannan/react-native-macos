@@ -17,6 +17,7 @@ const React = require('React');
 const PropTypes = require('prop-types');
 const StyleSheet = require('StyleSheet');
 const Text = require('Text');
+const TouchableHighlight = require('TouchableHighlight');
 const TouchableNativeFeedback = require('TouchableNativeFeedback');
 const TouchableOpacity = require('TouchableOpacity');
 const View = require('View');
@@ -56,6 +57,7 @@ class Button extends React.Component<{
   onPress: () => any,
   color?: ?string,
   accessibilityLabel?: ?string,
+  accessibilityHint?: ?string,
   disabled?: ?boolean,
   testID?: ?string,
   hasTVPreferredFocus?: ?boolean,
@@ -70,7 +72,11 @@ class Button extends React.Component<{
      */
     accessibilityLabel: PropTypes.string,
     /**
-     * Color of the text (iOS), or background color of the button (Android)
+    * Hint text to display blindness accessibility features
+    */
+    accessibilityHint: PropTypes.string,
+    /**
+     * Color of the text (iOS, macOS), or background color of the button (Android)
      */
     color: ColorPropType,
     /**
@@ -96,6 +102,7 @@ class Button extends React.Component<{
   render() {
     const {
       accessibilityLabel,
+      accessibilityHint,
       color,
       onPress,
       title,
@@ -106,7 +113,7 @@ class Button extends React.Component<{
     const buttonStyles = [styles.button];
     const textStyles = [styles.text];
     if (color) {
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === 'ios' || Platform.OS === 'macos') {
         textStyles.push({color: color});
       } else {
         buttonStyles.push({backgroundColor: color});
@@ -123,11 +130,12 @@ class Button extends React.Component<{
       'The title prop of a Button must be a string',
     );
     const formattedTitle = Platform.OS === 'android' ? title.toUpperCase() : title;
-    const Touchable = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableOpacity;
+    const Touchable = (Platform.OS === 'android') ? TouchableNativeFeedback : TouchableOpacity;
     return (
       <Touchable
         accessibilityComponentType="button"
         accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
         accessibilityTraits={accessibilityTraits}
         hasTVPreferredFocus={hasTVPreferredFocus}
         testID={testID}
@@ -150,6 +158,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#2196F3',
       borderRadius: 2,
     },
+    macos: {},
   }),
   text: Platform.select({
     ios: {
@@ -165,21 +174,31 @@ const styles = StyleSheet.create({
       padding: 8,
       fontWeight: '500',
     },
+    macos: {
+      color: '#007AFF',
+      textAlign: 'center',
+      padding: 8,
+      fontSize: 18,
+    },
   }),
   buttonDisabled: Platform.select({
     ios: {},
     android: {
       elevation: 0,
       backgroundColor: '#dfdfdf',
-    }
+    },
+    macos: {},
   }),
   textDisabled: Platform.select({
     ios: {
       color: '#cdcdcd',
     },
+    macos: {
+      color: '#cdcdcd',
+    },
     android: {
       color: '#a1a1a1',
-    }
+    },
   }),
 });
 

@@ -12,7 +12,7 @@
 
 #import <objc/runtime.h>
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import "UIImage+Compare.h"
 #import "UIImage+Diff.h"
@@ -69,7 +69,7 @@ typedef struct RGBAPixel {
                                  error:(NSError **)errorPtr
 {
   NSString *filePath = [self _referenceFilePathForSelector:selector identifier:identifier];
-  UIImage *image = [UIImage imageWithContentsOfFile:filePath];
+  UIImage *image = UIImageWithContentsOfFile(filePath);
   if (nil == image && NULL != errorPtr) {
     BOOL exists = [_fileManager fileExistsAtPath:filePath];
     if (!exists) {
@@ -240,11 +240,19 @@ typedef NS_ENUM(NSUInteger, FBTestSnapshotFileNameType) {
   if (0 < identifier.length) {
     fileName = [fileName stringByAppendingFormat:@"_%@", identifier];
   }
-  if ([[UIScreen mainScreen] scale] > 1.0) {
-    fileName = [fileName stringByAppendingFormat:@"@%.fx", [[UIScreen mainScreen] scale]];
+  CGFloat scale;
+#if !TARGET_OS_OSX
+  scale = [[UIScreen mainScreen] scale];
+#else
+  scale = [[NSScreen mainScreen] backingScaleFactor];
+#endif
+  if (scale > 1.0) {
+    fileName = [fileName stringByAppendingFormat:@"@%.fx", scale];
   }
 #if TARGET_OS_TV
   fileName = [fileName stringByAppendingString:@"_tvOS"];
+#elif TARGET_OS_OSX
+  fileName = [fileName stringByAppendingString:@"_macOS"];
 #endif
   fileName = [fileName stringByAppendingPathExtension:@"png"];
   return fileName;
@@ -322,13 +330,18 @@ typedef NS_ENUM(NSUInteger, FBTestSnapshotFileNameType) {
 
 - (UIImage *)_snapshotView:(UIView *)view
 {
+#if !TARGET_OS_OSX
   [view layoutIfNeeded];
-
+#else
+  [view layoutSubtreeIfNeeded];
+#endif
+  
   CGRect bounds = view.bounds;
 
   NSAssert1(CGRectGetWidth(bounds), @"Zero width for view %@", view);
   NSAssert1(CGRectGetHeight(bounds), @"Zero height for view %@", view);
 
+#if !TARGET_OS_OSX
   UIGraphicsBeginImageContextWithOptions(bounds.size, NO, 0);
   CGContextRef context = UIGraphicsGetCurrentContext();
   NSAssert1(context, @"Could not generate context for view %@", view);
@@ -344,7 +357,15 @@ typedef NS_ENUM(NSUInteger, FBTestSnapshotFileNameType) {
 
   UIImage *snapshot = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
-
+#else // TARGET_OS_OSX
+  // The macOS snapshot bitmap will *not* be scaled to the machine's current screen.
+  // The snapshot image is used for integration testing so the consistent scale makes the test results machine independent.
+  NSBitmapImageRep *rep = [view bitmapImageRepForCachingDisplayInRect:bounds];
+  [view cacheDisplayInRect:bounds toBitmapImageRep:rep];
+  UIImage *snapshot = [[NSImage alloc] initWithSize:bounds.size];
+  [snapshot addRepresentation:rep];
+#endif
+  
   return snapshot;
 }
 

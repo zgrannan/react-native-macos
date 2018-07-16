@@ -7,21 +7,26 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTView.h>
 #import <React/UIView+React.h>
 
+#import "RCTTextUIKit.h"
+#import "RCTUITextView.h"
 #import "RCTTextInput.h"
 
 @class RCTBridge;
 
 @interface RCTTextView : RCTTextInput
 
+#if !TARGET_OS_OSX
 @property (nonatomic, assign) UITextAutocorrectionType autocorrectionType;
 @property (nonatomic, assign) UITextSpellCheckingType spellCheckingType;
+#endif
 @property (nonatomic, assign) BOOL automaticallyAdjustContentInsets;
 @property (nonatomic, copy) NSString *text;
+@property (nonatomic, copy) NSString *predictedText;
 @property (nonatomic, strong) UIColor *placeholderTextColor;
 @property (nonatomic, copy) NSString *placeholder;
 @property (nonatomic, strong) UIFont *font;

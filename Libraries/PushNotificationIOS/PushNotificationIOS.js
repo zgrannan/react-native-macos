@@ -12,6 +12,7 @@
 'use strict';
 
 const NativeEventEmitter = require('NativeEventEmitter');
+const Platform = require('Platform');
 const RCTPushNotificationManager = require('NativeModules').PushNotificationManager;
 const invariant = require('fbjs/lib/invariant');
 
@@ -164,9 +165,9 @@ class PushNotificationIOS {
    * - `alertAction` : The "action" displayed beneath an actionable notification. Defaults to "view";
    * - `soundName` : The sound played when the notification is fired (optional).
    * - `isSilent`  : If true, the notification will appear without sound (optional).
-   * - `category`  : The category of this notification, required for actionable notifications (optional).
+   * - `category`  : The category of this notification, required for actionable notifications (optional, iOS only).
    * - `userInfo` : An optional object containing additional notification data.
-   * - `applicationIconBadgeNumber` (optional) : The number to display as the app's icon badge. Setting the number to 0 removes the icon badge.
+   * - `applicationIconBadgeNumber` (optional, iOS only) : The number to display as the app's icon badge. Setting the number to 0 removes the icon badge.
    * - `repeatInterval` : The interval to repeat as a string.  Possible values: `minute`, `hour`, `day`, `week`, `month`, `year`.
    */
   static scheduleLocalNotification(details: Object) {
@@ -452,7 +453,7 @@ class PushNotificationIOS {
    * be throttled, to read more about it see the above documentation link.
    */
   finish(fetchResult: FetchResult) {
-    if (!this._isRemote || !this._notificationId || this._remoteNotificationCompleteCallbackCalled) {
+    if (!this._isRemote || !this._notificationId || this._remoteNotificationCompleteCallbackCalled || Platform.OS === 'macos') {
       return;
     }
     this._remoteNotificationCompleteCallbackCalled = true;

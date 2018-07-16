@@ -63,14 +63,17 @@ var Switch = createReactClass({
 
     /**
      * Border color on iOS and background color on Android when the switch is turned off.
+     * @platform ios, android
      */
     tintColor: ColorPropType,
     /**
      * Background color when the switch is turned on.
+     * @platform ios, android
      */
     onTintColor: ColorPropType,
     /**
      * Color of the foreground switch grip.
+     * @platform ios, android
      */
     thumbTintColor: ColorPropType,
   },
@@ -108,7 +111,7 @@ var Switch = createReactClass({
       props.on = this.props.value;
       props.style = this.props.style;
       props.trackTintColor = this.props.value ? this.props.onTintColor : this.props.tintColor;
-    } else if (Platform.OS === 'ios') {
+    } else if (Platform.OS === 'ios' || Platform.OS === 'macos') {
       props.style = [styles.rctSwitchIOS, this.props.style];
     }
     return (

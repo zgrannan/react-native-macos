@@ -10,6 +10,7 @@
 #import "RCTRootContentView.h"
 
 #import "RCTBridge.h"
+#import "RCTDeviceInfo.h"
 #import "RCTPerformanceLogger.h"
 #import "RCTRootView.h"
 #import "RCTRootViewInternal.h"
@@ -20,6 +21,10 @@
 @implementation RCTRootContentView
 {
   UIColor *_backgroundColor;
+
+#if TARGET_OS_OSX
+  BOOL _subscribedToWindowNotifications;
+#endif
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -35,12 +40,58 @@
     [_touchHandler attachToView:self];
     [_bridge.uiManager registerRootView:self];
     self.layer.backgroundColor = NULL;
+    
+#if TARGET_OS_OSX
+    self.postsFrameChangedNotifications = YES;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sendFrameChangedEvent:) name:NSViewFrameDidChangeNotification object:self];
+#endif
   }
   return self;
 }
 
 RCT_NOT_IMPLEMENTED(-(instancetype)initWithFrame:(CGRect)frame)
 RCT_NOT_IMPLEMENTED(-(instancetype)initWithCoder:(nonnull NSCoder *)aDecoder)
+
+#if TARGET_OS_OSX
+- (void)dealloc
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)viewWillMoveToWindow:(nullable NSWindow *)newWindow
+{
+  if (_subscribedToWindowNotifications &&
+      self.window != nil &&
+      self.window != newWindow) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:NSWindowDidChangeBackingPropertiesNotification
+                                                  object:self.window];
+    _subscribedToWindowNotifications = NO;
+  }
+}
+
+- (void)viewDidMoveToWindow
+{
+  if (!_subscribedToWindowNotifications &&
+      self.window != nil) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sendFrameChangedEvent:)
+                                                 name:NSWindowDidChangeBackingPropertiesNotification
+                                               object:self.window];
+    _subscribedToWindowNotifications = YES;
+  }
+}
+
+- (void)sendFrameChangedEvent:(__unused NSNotification *)notification
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  [_bridge.eventDispatcher sendDeviceEventWithName:@"didUpdateDimensions"
+                                              body:RCTExportedDimensions(self)];
+#pragma clang diagnostic pop
+}
+
+#endif
 
 - (void)layoutSubviews
 {

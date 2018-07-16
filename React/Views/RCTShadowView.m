@@ -226,6 +226,7 @@ static void RCTProcessMetaPropsBorder(const YGValue metaProps[META_PROP_COUNT], 
     absolutePosition.y + YGNodeLayoutGetTop(node) + YGNodeLayoutGetHeight(node)
   };
 
+#if !TARGET_OS_OSX
   CGRect frame = {{
     RCTRoundPixelValue(YGNodeLayoutGetLeft(node)),
     RCTRoundPixelValue(YGNodeLayoutGetTop(node)),
@@ -233,6 +234,16 @@ static void RCTProcessMetaPropsBorder(const YGValue metaProps[META_PROP_COUNT], 
     RCTRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x),
     RCTRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y)
   }};
+#else
+  CGFloat scale = self.scale;
+  CGRect frame = {{
+    RCTRoundPixelValue(YGNodeLayoutGetLeft(node), scale),
+    RCTRoundPixelValue(YGNodeLayoutGetTop(node), scale),
+  }, {
+    RCTRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x, scale),
+    RCTRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y, scale)
+  }};
+#endif
 
   // Even if `YGNodeLayoutGetDirection` can return `YGDirectionInherit` here, it actually means
   // that Yoga will use LTR layout for the view (even if layout process is not finished yet).
@@ -393,6 +404,11 @@ static void RCTProcessMetaPropsBorder(const YGValue metaProps[META_PROP_COUNT], 
     _yogaNode = YGNodeNewWithConfig([[self class] yogaConfig]);
     YGNodeSetContext(_yogaNode, (__bridge void *)self);
     YGNodeSetPrintFunc(_yogaNode, RCTPrint);
+
+#if TARGET_OS_OSX
+    // RCTUIManager will fix the scale if we're on a Retina display
+    _scale = 1.0;
+#endif
   }
   return self;
 }

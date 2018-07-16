@@ -103,7 +103,7 @@ const ActivityIndicator = createReactClass({
     /**
      * Whether the indicator should hide when not animating (true by default).
      *
-     * @platform ios
+     * @platform ios, macos
      */
     hidesWhenStopped: PropTypes.bool,
   },
@@ -111,7 +111,7 @@ const ActivityIndicator = createReactClass({
   getDefaultProps(): DefaultProps {
     return {
       animating: true,
-      color: Platform.OS === 'ios' ? GRAY : undefined,
+      color: Platform.OS === 'ios' || Platform.OS === 'macos' ? GRAY : undefined,
       hidesWhenStopped: true,
       size: 'small',
     };
@@ -142,7 +142,7 @@ const ActivityIndicator = createReactClass({
 
     return (
       <View onLayout={onLayout} style={[styles.container, style]}>
-        {Platform.OS === 'ios' ? (
+        {Platform.OS === 'ios' || Platform.OS === 'macos' ? (
           <RCTActivityIndicator {...nativeProps} />
         ) : (
           <ProgressBarAndroid {...nativeProps} />
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
 });
 
-if (Platform.OS === 'ios') {
+if (Platform.OS === 'ios' || Platform.OS === 'macos') {
   var RCTActivityIndicator = requireNativeComponent(
     'RCTActivityIndicatorView',
     ActivityIndicator,

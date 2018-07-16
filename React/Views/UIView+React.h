@@ -7,22 +7,22 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import "RCTUIKit.h"
 
 #import <React/RCTComponent.h>
 #import <yoga/YGEnums.h>
 
 @class RCTShadowView;
 
-@interface UIView (React) <RCTComponent>
+@interface RCTPlatformView (React) <RCTComponent>
 
 /**
  * RCTComponent interface.
  */
-- (NSArray<UIView *> *)reactSubviews NS_REQUIRES_SUPER;
-- (UIView *)reactSuperview NS_REQUIRES_SUPER;
-- (void)insertReactSubview:(UIView *)subview atIndex:(NSInteger)atIndex NS_REQUIRES_SUPER;
-- (void)removeReactSubview:(UIView *)subview NS_REQUIRES_SUPER;
+- (NSArray<RCTPlatformView *> *)reactSubviews NS_REQUIRES_SUPER;
+- (RCTPlatformView *)reactSuperview NS_REQUIRES_SUPER;
+- (void)insertReactSubview:(RCTPlatformView *)subview atIndex:(NSInteger)atIndex NS_REQUIRES_SUPER;
+- (void)removeReactSubview:(RCTPlatformView *)subview NS_REQUIRES_SUPER;
 
 /**
  * The native id of the view, used to locate view from native codes
@@ -52,7 +52,7 @@
  * Subviews sorted by z-index. Note that this method doesn't do any caching (yet)
  * and sorts all the views each call.
  */
-- (NSArray<UIView *> *)reactZIndexSortedSubviews;
+- (NSArray<RCTPlatformView *> *)reactZIndexSortedSubviews;
 
 /**
  * Updates the subviews array based on the reactSubviews. Default behavior is
@@ -76,6 +76,7 @@
  */
 - (UIViewController *)reactViewController;
 
+#if !TARGET_OS_OSX
 /**
  * This method attaches the specified controller as a child of the
  * the owning view controller of this view. Returns NO if no view
@@ -83,6 +84,7 @@
  * attached to the view hierarchy).
  */
 - (void)reactAddControllerToClosestParent:(UIViewController *)controller;
+#endif
 
 /**
  * Focus manipulation.
@@ -106,7 +108,7 @@
  * transparent in favour of some subview.
  * Defaults to `self`.
  */
-@property (nonatomic, readonly) UIView *reactAccessibilityElement;
+@property (nonatomic, readonly) RCTPlatformView *reactAccessibilityElement;
 
 #if RCT_DEV
 

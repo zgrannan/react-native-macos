@@ -16,7 +16,9 @@
 
 @interface RCTFontAttributes ()
 {
+#if !TARGET_OS_OSX
   RCTAccessibilityManager *_accessibilityManager;
+#endif
 }
 
 @property (nonatomic, strong) UIFont *font;
@@ -27,9 +29,12 @@
 
 - (instancetype)initWithAccessibilityManager:(RCTAccessibilityManager *)accessibilityManager
 {
+#if !TARGET_OS_OSX
   RCTAssertParam(accessibilityManager);
-
+#endif
+  
   if (self = [super init]) {
+#if !TARGET_OS_OSX
     _accessibilityManager = accessibilityManager;
     _fontSizeMultiplier = _accessibilityManager.multiplier;
 
@@ -37,6 +42,9 @@
                                              selector:@selector(contentSizeMultiplierDidChange)
                                                  name:RCTAccessibilityManagerDidUpdateMultiplierNotification
                                                object:_accessibilityManager];
+#else
+    _fontSizeMultiplier = 1;
+#endif
 
     [self updateFont];
   }
@@ -48,10 +56,12 @@
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+#if !TARGET_OS_OSX
 - (void)contentSizeMultiplierDidChange
 {
   self.fontSizeMultiplier = _accessibilityManager.multiplier;
 }
+#endif
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling
 {

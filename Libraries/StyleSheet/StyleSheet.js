@@ -15,6 +15,7 @@ const PixelRatio = require('PixelRatio');
 const ReactNativePropRegistry = require('ReactNativePropRegistry');
 const ReactNativeStyleAttributes = require('ReactNativeStyleAttributes');
 const StyleSheetValidation = require('StyleSheetValidation');
+const Platform = require('Platform');
 
 const flatten = require('flattenStyle');
 
@@ -23,7 +24,7 @@ export type StyleSheet<S: Styles> = {[key: $Keys<S>]: number};
 export type StyleValue = {[key: string]: Object} | number | false | null;
 export type StyleProp = StyleValue | Array<StyleValue>;
 
-let hairlineWidth = PixelRatio.roundToNearestPixel(0.4);
+let hairlineWidth = (Platform.OS === 'win32' || Platform.OS === 'windesktop') ? 0.5 : PixelRatio.roundToNearestPixel(0.4);
 if (hairlineWidth === 0) {
   hairlineWidth = 1 / PixelRatio.get();
 }

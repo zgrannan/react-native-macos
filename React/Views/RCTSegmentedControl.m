@@ -19,8 +19,14 @@
 {
   if ((self = [super initWithFrame:frame])) {
     _selectedIndex = self.selectedSegmentIndex;
+#if !TARGET_OS_OSX
     [self addTarget:self action:@selector(didChange)
                forControlEvents:UIControlEventValueChanged];
+#else
+    self.segmentStyle = NSSegmentStyleRounded;    
+    self.target = self;
+    self.action = @selector(didChange);
+#endif
   }
   return self;
 }
@@ -28,17 +34,24 @@
 - (void)setValues:(NSArray<NSString *> *)values
 {
   _values = [values copy];
+#if !TARGET_OS_OSX
   [self removeAllSegments];
   for (NSString *value in values) {
     [self insertSegmentWithTitle:value atIndex:self.numberOfSegments animated:NO];
   }
-  super.selectedSegmentIndex = _selectedIndex;
+#else
+  self.segmentCount = values.count;
+  for (NSUInteger i = 0; i < values.count; i++) {
+    [self setLabel:values[i] forSegment:i];
+  }
+#endif
+  self.selectedSegmentIndex = _selectedIndex;
 }
 
 - (void)setSelectedIndex:(NSInteger)selectedIndex
 {
   _selectedIndex = selectedIndex;
-  super.selectedSegmentIndex = selectedIndex;
+  self.selectedSegmentIndex = selectedIndex;
 }
 
 - (void)didChange
@@ -51,5 +64,55 @@
     });
   }
 }
+
+#if TARGET_OS_OSX
+
+- (BOOL)isFlipped
+{
+  return YES;
+}
+
+- (void)setMomentary:(BOOL)momentary
+{
+  if (@available(macOS 10.10.3, *)) {
+    self.trackingMode = momentary ? NSSegmentSwitchTrackingMomentary : NSSegmentSwitchTrackingSelectOne;
+  }
+}
+
+- (BOOL)isMomentary
+{
+  if (@available(macOS 10.10.3, *)) {
+    return self.trackingMode == NSSegmentSwitchTrackingMomentary;
+  } else {
+    return NO;
+  }
+}
+
+- (void)setSelectedSegmentIndex:(NSInteger)selectedSegmentIndex
+{
+  self.selectedSegment = selectedSegmentIndex;
+}
+
+- (NSInteger)selectedSegmentIndex
+{
+  return self.selectedSegment;
+}
+
+- (NSString *)titleForSegmentAtIndex:(NSUInteger)segment
+{
+  return [self labelForSegment:segment];
+}
+
+- (void)setNumberOfSegments:(NSInteger)numberOfSegments
+{
+  self.segmentCount = numberOfSegments;
+}
+
+- (NSInteger)numberOfSegments
+{
+  return self.segmentCount;
+}
+
+#endif
 
 @end

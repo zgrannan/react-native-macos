@@ -31,7 +31,11 @@
   if (self = [super initWithFrame:CGRectZero]) {
     _bridge = bridge;
     _eventDispatcher = bridge.eventDispatcher;
+#if !TARGET_OS_OSX
     _fontAttributes = [[RCTFontAttributes alloc] initWithAccessibilityManager:bridge.accessibilityManager];
+#else
+    _fontAttributes = [[RCTFontAttributes alloc] initWithAccessibilityManager:nil];
+#endif
     _fontAttributes.delegate = self;
   }
 
@@ -64,25 +68,35 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 - (void)setReactPaddingInsets:(UIEdgeInsets)reactPaddingInsets
 {
   _reactPaddingInsets = reactPaddingInsets;
+#if !TARGET_OS_OSX
   // We apply `paddingInsets` as `backedTextInputView`'s `textContainerInset`.
   self.backedTextInputView.textContainerInset = reactPaddingInsets;
   [self setNeedsLayout];
+#endif
 }
 
 - (void)setReactBorderInsets:(UIEdgeInsets)reactBorderInsets
 {
   _reactBorderInsets = reactBorderInsets;
+#if !TARGET_OS_OSX
   // We apply `borderInsets` as `backedTextInputView` layout offset.
   self.backedTextInputView.frame = UIEdgeInsetsInsetRect(self.bounds, reactBorderInsets);
   [self setNeedsLayout];
+#endif
 }
 
 - (RCTTextSelection *)selection
 {
   id<RCTBackedTextInputViewProtocol> backedTextInput = self.backedTextInputView;
+#if !TARGET_OS_OSX
   UITextRange *selectedTextRange = backedTextInput.selectedTextRange;
   return [[RCTTextSelection new] initWithStart:[backedTextInput offsetFromPosition:backedTextInput.beginningOfDocument toPosition:selectedTextRange.start]
                                            end:[backedTextInput offsetFromPosition:backedTextInput.beginningOfDocument toPosition:selectedTextRange.end]];
+#else
+  NSRange selectedTextRange = backedTextInput.selectedTextRange;
+  return [[RCTTextSelection new] initWithStart:selectedTextRange.location
+                                           end:selectedTextRange.location + selectedTextRange.length];
+#endif
 }
 
 - (void)setSelection:(RCTTextSelection *)selection
@@ -93,13 +107,21 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 
   id<RCTBackedTextInputViewProtocol> backedTextInput = self.backedTextInputView;
 
+#if !TARGET_OS_OSX
   UITextRange *previousSelectedTextRange = backedTextInput.selectedTextRange;
   UITextPosition *start = [backedTextInput positionFromPosition:backedTextInput.beginningOfDocument offset:selection.start];
   UITextPosition *end = [backedTextInput positionFromPosition:backedTextInput.beginningOfDocument offset:selection.end];
   UITextRange *selectedTextRange = [backedTextInput textRangeFromPosition:start toPosition:end];
+#else
+  NSRange previousSelectedTextRange = backedTextInput.selectedTextRange;
+  NSInteger start = MIN(selection.start, selection.end);
+  NSInteger end = MAX(selection.start, selection.end);
+  NSInteger length = end - selection.start;
+  NSRange selectedTextRange = NSMakeRange(start, length);
+#endif
 
   NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
-  if (eventLag == 0 && ![previousSelectedTextRange isEqual:selectedTextRange]) {
+  if (eventLag == 0 && !RCTTextSelectionEqual(previousSelectedTextRange, selectedTextRange)) {
     [backedTextInput setSelectedTextRange:selectedTextRange notifyDelegate:NO];
   } else if (eventLag > RCTTextUpdateLagWarningThreshold) {
     RCTLogWarn(@"Native TextInput(%@) is %lld events ahead of JS - try to make your JS faster.", backedTextInput.text, (long long)eventLag);
@@ -115,6 +137,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 
 - (void)textInputDidBeginEditing
 {
+#if !TARGET_OS_OSX
   if (_clearTextOnFocus) {
     self.backedTextInputView.text = @"";
   }
@@ -122,6 +145,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
   if (_selectTextOnFocus) {
     [self.backedTextInputView selectAll:nil];
   }
+#endif
 
   [_eventDispatcher sendTextEventWithType:RCTTextEventTypeFocus
                                  reactTag:self.reactTag
@@ -185,6 +209,26 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
                                       key:nil
                                eventCount:_nativeEventCount];
 }
+
+- (BOOL)textInputShouldChangeTextInRange:(NSRange)range replacementText:(NSString *)string
+{
+  RCTAssert(NO, @"textInputShouldChangeTextInRange:replacementText: must be overridden in subclasses.");
+  return NO;
+}
+
+- (void)textInputDidChange
+{
+  RCTAssert(NO, @"textInputDidChange must be overridden in subclasses.");
+}
+
+- (BOOL)textInputShouldHandleDeleteBackward:(__unused id)sender {
+  return YES;
+}
+#if TARGET_OS_OSX
+- (BOOL)textInputShouldHandleDeleteForward:(__unused id)sender {
+  return YES;
+}
+#endif
 
 #pragma mark - Content Size (in Yoga terms, without any insets)
 
@@ -283,6 +327,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 
 #pragma mark - Custom Input Accessory View
 
+#if !TARGET_OS_OSX
 - (void)didSetProps:(NSArray<NSString *> *)changedProps
 {
   [self invalidateInputAccessoryView];
@@ -342,5 +387,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
     [self.backedTextInputView endEditing:YES];
   }
 }
+#endif // !TARGET_OS_OSX
 
 @end

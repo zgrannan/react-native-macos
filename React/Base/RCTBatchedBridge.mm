@@ -15,7 +15,9 @@
 #import "RCTBridge.h"
 #import "RCTBridgeMethod.h"
 #import "RCTConvert.h"
+#if TARGET_OS_IPHONE
 #import "RCTDisplayLink.h"
+#endif
 #import "RCTJSCExecutor.h"
 #import "RCTJavaScriptLoader.h"
 #import "RCTLog.h"
@@ -54,7 +56,9 @@ typedef NS_ENUM(NSUInteger, RCTBridgeFields) {
   NSArray<RCTModuleData *> *_moduleDataByID;
   NSArray<Class> *_moduleClassesByID;
   NSUInteger _modulesInitializedOnMainQueue;
+#if TARGET_OS_IPHONE
   RCTDisplayLink *_displayLink;
+#endif
 }
 
 @synthesize flowID = _flowID;
@@ -84,7 +88,9 @@ typedef NS_ENUM(NSUInteger, RCTBridgeFields) {
     _valid = YES;
     _loading = YES;
     _pendingCalls = [NSMutableArray new];
+#if TARGET_OS_IPHONE
     _displayLink = [RCTDisplayLink new];
+#endif
 
     [RCTBridge setCurrentBridge:self];
   }
@@ -439,7 +445,9 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
 - (void)registerModuleForFrameUpdates:(id<RCTBridgeModule>)module
                        withModuleData:(RCTModuleData *)moduleData
 {
+#if TARGET_OS_IPHONE
   [_displayLink registerModuleForFrameUpdates:module withModuleData:moduleData];
+#endif
 }
 
 - (NSString *)moduleConfig
@@ -489,9 +497,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
       return;
     }
 
+#if TARGET_OS_IPHONE
     // Register the display link to start sending js calls after everything is setup
     NSRunLoop *targetRunLoop = [self->_javaScriptExecutor isKindOfClass:[RCTJSCExecutor class]] ? [NSRunLoop currentRunLoop] : [NSRunLoop mainRunLoop];
     [self->_displayLink addToRunLoop:targetRunLoop];
+#endif
 
     // Log metrics about native requires during the bridge startup.
     uint64_t nativeRequiresCount = [self->_performanceLogger valueForTag:RCTPLRAMNativeRequiresCount];
@@ -518,13 +528,18 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
   }];
 
 #if RCT_DEV
+#if TARGET_OS_IPHONE
+	NSString *platformName = @"ios";
+#elif TARGET_OS_OSX
+	NSString *platformName = @"macos";
+#endif
   if (_parentBridge.devSettings.isHotLoadingEnabled) {
     NSString *path = [self.bundleURL.path substringFromIndex:1]; // strip initial slash
     NSString *host = self.bundleURL.host;
     NSNumber *port = self.bundleURL.port;
     [self enqueueJSCall:@"HMRClient"
                  method:@"enable"
-                   args:@[@"ios", path, host, RCTNullIfNil(port)]
+                   args:@[platformName, path, host, RCTNullIfNil(port)]
              completion:NULL];
   }
 #endif
@@ -687,8 +702,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithBundleURL:(__unused NSURL *)bundleUR
 
   dispatch_group_notify(group, dispatch_get_main_queue(), ^{
     [self->_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+#if TARGET_OS_IPHONE
       [self->_displayLink invalidate];
       self->_displayLink = nil;
+#endif
 
       [self->_javaScriptExecutor invalidate];
       self->_javaScriptExecutor = nil;

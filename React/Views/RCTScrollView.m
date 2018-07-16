@@ -9,8 +9,6 @@
 
 #import "RCTScrollView.h"
 
-#import <UIKit/UIKit.h>
-
 #import "RCTConvert.h"
 #import "RCTEventDispatcher.h"
 #import "RCTLog.h"
@@ -18,8 +16,9 @@
 #import "RCTUtils.h"
 #import "UIView+Private.h"
 #import "UIView+React.h"
+#import "RCTUIKit.h"
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_OSX
 #import "RCTRefreshControl.h"
 #endif
 
@@ -46,6 +45,7 @@
   CGFloat _scrollViewZoomScale;
   NSDictionary *_userData;
   uint16_t _coalescingKey;
+  NSDictionary *_body;
 }
 
 @synthesize viewTag = _viewTag;
@@ -73,6 +73,7 @@
     _scrollViewZoomScale = scrollViewZoomScale;
     _userData = userData;
     _coalescingKey = coalescingKey;
+    _body = [self body];
   }
   return self;
 }
@@ -141,7 +142,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
 - (NSArray *)arguments
 {
-  return @[self.viewTag, RCTNormalizeInputEventName(self.eventName), [self body]];
+  // TODO: Revisit when FB issues their Main Thread Checker fix.
+  // Previously this called [self body], which in turn calls view-related methods.
+  // Because the arguments method is called from a background thread, we now return
+  // the cached metrics from _body to avoid calling main-thread-specific methods.
+  return @[self.viewTag, RCTNormalizeInputEventName(self.eventName), _body];
 }
 
 @end
@@ -151,12 +156,21 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
  * default UIKit behaviors such as textFields automatically scrolling
  * scroll views that contain them.
  */
-@interface RCTCustomScrollView : UIScrollView<UIGestureRecognizerDelegate>
+@interface RCTCustomScrollView :
+#if TARGET_OS_OSX
+  UIScrollView
+#else
+  UIScrollView<UIGestureRecognizerDelegate>
+#endif
 
 @property (nonatomic, assign) BOOL centerContent;
-#if !TARGET_OS_TV
+@property (nonatomic, readonly) CGSize visibleSize;
+#if !TARGET_OS_TV && !TARGET_OS_OSX
 @property (nonatomic, strong) RCTRefreshControl *rctRefreshControl;
+#endif
 @property (nonatomic, assign) BOOL pinchGestureEnabled;
+#if TARGET_OS_OSX
+@property (nonatomic, strong) NSPanGestureRecognizer *panGestureRecognizer;
 #endif
 
 @end
@@ -167,14 +181,20 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if ((self = [super initWithFrame:frame])) {
+#if TARGET_OS_OSX
+    self.panGestureRecognizer = [[NSPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleCustomPan:)];
+#else
     [self.panGestureRecognizer addTarget:self action:@selector(handleCustomPan:)];
 
     if ([self respondsToSelector:@selector(setSemanticContentAttribute:)]) {
       // We intentionaly force `UIScrollView`s `semanticContentAttribute` to `LTR` here
       // because this attribute affects a position of vertical scrollbar; we don't want this
       // scrollbar flip because we also flip it with whole `UIScrollView` flip.
-      self.semanticContentAttribute = UISemanticContentAttributeForceLeftToRight;
+      if (@available(iOS 9.0, *)) {
+        self.semanticContentAttribute = UISemanticContentAttributeForceLeftToRight;
+      }
     }
+#endif
 
     #if !TARGET_OS_TV
     _pinchGestureEnabled = YES;
@@ -183,10 +203,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   return self;
 }
 
+#if !TARGET_OS_OSX	// NSScrollView's contentView is an NSClipView. Use documentView to access NSScrollView's content.
 - (UIView *)contentView
 {
   return ((RCTScrollView *)self.superview).contentView;
 }
+#endif
 
 /**
  * @return Whether or not the scroll view interaction should be blocked because
@@ -196,15 +218,15 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 {
   // Since this may be called on every pan, we need to make sure to only climb
   // the hierarchy on rare occasions.
-  UIView *JSResponder = [RCTUIManager JSResponder];
+  RCTPlatformView *JSResponder = [RCTUIManager JSResponder];
   if (JSResponder && JSResponder != self.superview) {
-    BOOL superviewHasResponder = [self isDescendantOfView:JSResponder];
+    BOOL superviewHasResponder = UIViewIsDescendantOfView(self, JSResponder);
     return superviewHasResponder;
   }
   return NO;
 }
 
-- (void)handleCustomPan:(__unused UIPanGestureRecognizer *)sender
+- (void)handleCustomPan:(__unused UIGestureRecognizer *)sender
 {
   if ([self _shouldDisableScrollInteraction] && ![[RCTUIManager JSResponder] isKindOfClass:[RCTScrollView class]]) {
     self.panGestureRecognizer.enabled = NO;
@@ -232,8 +254,11 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   if (CGRectIsNull(rect)) {
     return;
   }
-
+#if !TARGET_OS_OSX
   [super scrollRectToVisible:rect animated:animated];
+#else
+  [super scrollRectToVisible:rect];
+#endif
 }
 
 /**
@@ -292,10 +317,19 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
  */
 - (void)setContentOffset:(CGPoint)contentOffset
 {
-  UIView *contentView = [self contentView];
+  UIView *contentView = nil;
+#if TARGET_OS_OSX
+  contentView = (UIView *) self.documentView;	// NSScrollView's documentView must be of type UIView/RCTView
+#else
+  contentView = [self contentView];
+#endif
   if (contentView && _centerContent) {
     CGSize subviewSize = contentView.frame.size;
+#if TARGET_OS_OSX
+    CGSize scrollViewSize = self.contentView.bounds.size;
+#else
     CGSize scrollViewSize = self.bounds.size;
+#endif
     if (subviewSize.width <= scrollViewSize.width) {
       contentOffset.x = -(scrollViewSize.width - subviewSize.width) / 2.0;
     }
@@ -303,7 +337,14 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
       contentOffset.y = -(scrollViewSize.height - subviewSize.height) / 2.0;
     }
   }
+#if TARGET_OS_OSX
+  if (!NSEqualPoints(contentOffset, self.documentVisibleRect.origin))
+  {
+    [self.contentView scrollToPoint:contentOffset];
+  }
+#else
   super.contentOffset = contentOffset;
+#endif
 }
 
 - (void)setFrame:(CGRect)frame
@@ -328,7 +369,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   }
 }
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_OSX
 - (void)setRctRefreshControl:(RCTRefreshControl *)refreshControl
 {
   if (_rctRefreshControl) {
@@ -353,16 +394,47 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 }
 #endif //TARGET_OS_TV
 
+#if TARGET_OS_OSX
+- (BOOL)canBecomeFirstResponder
+{
+	return YES;
+}
+
+- (BOOL)becomeFirstResponder
+{
+	return YES;
+}
+
+- (BOOL)resignFirstResponder
+{
+	return YES;
+}
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel 
+{
+  [super setAccessibilityLabel:accessibilityLabel];
+  [[self documentView] setAccessibilityLabel:accessibilityLabel];
+}
+- (void)setDocumentView:(__kindof NSView *)documentView 
+{
+  [super setDocumentView:documentView];
+  [documentView setAccessibilityLabel:[self accessibilityLabel]];
+}
+#endif
+
 @end
 
 @implementation RCTScrollView
 {
   RCTEventDispatcher *_eventDispatcher;
   RCTCustomScrollView *_scrollView;
+#if !TARGET_OS_OSX
   UIView *_contentView;
+#endif
   NSTimeInterval _lastScrollDispatchTime;
   NSMutableArray<NSValue *> *_cachedChildFrames;
   BOOL _allowNextScrollNoMatterWhat;
+  BOOL _notifyDidScroll;
   CGRect _lastClippedToRect;
   uint16_t _coalescingKey;
   NSString *_lastEmittedEventName;
@@ -378,9 +450,16 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
     _scrollView = [[RCTCustomScrollView alloc] initWithFrame:CGRectZero];
     _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+#if TARGET_OS_OSX
+    _scrollView.drawsBackground = NO;
+    _scrollView.postsBoundsChangedNotifications = YES;
+#else
     _scrollView.delegate = self;
     _scrollView.delaysContentTouches = NO;
+#endif
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 /* __IPHONE_11_0 */
     // `contentInsetAdjustmentBehavior` is only available since iOS 11.
     // We set the default behavior to "never" so that iOS
@@ -390,6 +469,7 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
         _scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
 #endif
+#pragma clang diagnostic pop
 
     _automaticallyAdjustContentInsets = YES;
     _DEPRECATED_sendUpdatedChildFrames = NO;
@@ -408,14 +488,54 @@ RCT_NOT_IMPLEMENTED(- (instancetype)init)
   return self;
 }
 
+#if TARGET_OS_OSX
+- (CGRect)focusRingMaskBounds
+{
+  return [self bounds];
+}
+
+- (void)drawFocusRingMask
+{
+  NSBezierPath *borderPath = [NSBezierPath bezierPathWithRoundedRect:self.bounds xRadius:2.0 yRadius:2.0];
+  [borderPath stroke];
+}
+
+- (UIView *)contentView
+{
+  return _scrollView.documentView;
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+  return [_scrollView canBecomeFirstResponder];
+}
+
+- (BOOL)becomeFirstResponder
+{
+  return [_scrollView becomeFirstResponder];
+}
+
+- (BOOL)resignFirstResponder
+{
+  return [_scrollView resignFirstResponder];
+}
+
+- (void)setAccessibilityLabel:(NSString *)accessibilityLabel 
+{
+  [_scrollView setAccessibilityLabel:accessibilityLabel];
+}
+#endif
+
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
-static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, UIUserInterfaceLayoutDirection layoutDirection) {
+static inline void RCTApplyTranformationAccordingLayoutDirection(RCTPlatformView *view, UIUserInterfaceLayoutDirection layoutDirection) {
+#if !TARGET_OS_OSX
   view.transform =
     layoutDirection == UIUserInterfaceLayoutDirectionLeftToRight ?
       CGAffineTransformIdentity :
       CGAffineTransformMakeScale(-1, 1);
+#endif
 }
 
 - (void)setReactLayoutDirection:(UIUserInterfaceLayoutDirection)layoutDirection
@@ -423,7 +543,7 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
   [super setReactLayoutDirection:layoutDirection];
 
   RCTApplyTranformationAccordingLayoutDirection(_scrollView, layoutDirection);
-  RCTApplyTranformationAccordingLayoutDirection(_contentView, layoutDirection);
+  RCTApplyTranformationAccordingLayoutDirection(self.contentView, layoutDirection);
 }
 
 - (void)setRemoveClippedSubviews:(__unused BOOL)removeClippedSubviews
@@ -434,6 +554,17 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
 {
   [super insertReactSubview:view atIndex:atIndex];
+#if TARGET_OS_OSX
+	RCTAssert(self.contentView == nil, @"RCTScrollView may only contain a single subview");
+	
+  _scrollView.documentView = view;
+	
+  // Register for bounds change notifications so we can track scrolling
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(scrollViewDocumentViewBoundsDidChange:)
+                                               name:NSViewBoundsDidChangeNotification
+                                             object:_scrollView.contentView];	// NSClipView
+#else
 #if !TARGET_OS_TV
   if ([view isKindOfClass:[RCTRefreshControl class]]) {
     [_scrollView setRctRefreshControl:(RCTRefreshControl *)view];
@@ -445,11 +576,19 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
     RCTApplyTranformationAccordingLayoutDirection(_contentView, self.reactLayoutDirection);
     [_scrollView addSubview:view];
   }
+#endif
 }
 
 - (void)removeReactSubview:(UIView *)subview
 {
   [super removeReactSubview:subview];
+#if TARGET_OS_OSX
+  // Unregister for bounds change notifications
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:NSViewBoundsDidChangeNotification object:_scrollView.contentView];
+  
+  _scrollView.documentView = nil;
+  _contentSize = CGSizeZero;
+#else
 #if !TARGET_OS_TV
   if ([subview isKindOfClass:[RCTRefreshControl class]]) {
     [_scrollView setRctRefreshControl:nil];
@@ -459,6 +598,7 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
     RCTAssert(_contentView == subview, @"Attempted to remove non-existent subview");
     _contentView = nil;
   }
+#endif
 }
 
 - (void)didUpdateReactSubviews
@@ -479,12 +619,16 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
 - (void)setClipsToBounds:(BOOL)clipsToBounds
 {
   super.clipsToBounds = clipsToBounds;
+#if !TARGET_OS_OSX
   _scrollView.clipsToBounds = clipsToBounds;
+#endif
 }
 
 - (void)dealloc
 {
+#if !TARGET_OS_OSX
   _scrollView.delegate = nil;
+#endif
 }
 
 - (void)layoutSubviews
@@ -493,7 +637,7 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
   RCTAssert(self.subviews.count == 1, @"we should only have exactly one subview");
   RCTAssert([self.subviews lastObject] == _scrollView, @"our only subview should be a scrollview");
 
-#if !TARGET_OS_TV
+#if !TARGET_OS_TV && !TARGET_OS_OSX
   // Adjust the refresh control frame if the scrollview layout changes.
   RCTRefreshControl *refreshControl = _scrollView.rctRefreshControl;
   if (refreshControl && refreshControl.refreshing) {
@@ -507,7 +651,7 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
 - (void)updateClippedSubviews
 {
   // Find a suitable view to use for clipping
-  UIView *clipView = [self react_findClipView];
+  RCTPlatformView *clipView = [self react_findClipView];
   if (!clipView) {
     return;
   }
@@ -515,7 +659,11 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
   static const CGFloat leeway = 1.0;
 
   const CGSize contentSize = _scrollView.contentSize;
-  const CGRect bounds = _scrollView.bounds;
+#if TARGET_OS_OSX
+  const CGRect bounds = _scrollView.contentView.bounds;
+#else
+	const CGRect bounds = _scrollView.bounds;
+#endif
   const BOOL scrollsHorizontally = contentSize.width > bounds.size.width;
   const BOOL scrollsVertically = contentSize.height > bounds.size.height;
 
@@ -531,6 +679,14 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
     _lastClippedToRect = bounds;
   }
 }
+
+#if TARGET_OS_OSX
+- (void)viewDidMoveToWindow
+{
+  [super viewDidMoveToWindow];
+  _notifyDidScroll = ([self window] != nil);
+}
+#endif
 
 - (void)setContentInset:(UIEdgeInsets)contentInset
 {
@@ -548,7 +704,11 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
   _scrollView.contentOffset = contentOffset;
 }
 
+#if TARGET_OS_OSX
+- (BOOL)isHorizontal:(RCTCustomScrollView *)scrollView
+#else
 - (BOOL)isHorizontal:(UIScrollView *)scrollView
+#endif
 {
   return scrollView.contentSize.width > self.frame.size.width;
 }
@@ -563,7 +723,12 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
   if (!CGPointEqualToPoint(_scrollView.contentOffset, offset)) {
     // Ensure at least one scroll event will fire
     _allowNextScrollNoMatterWhat = YES;
+#if TARGET_OS_OSX
+    (void) animated;
+    _scrollView.contentOffset = offset;
+#else
     [_scrollView setContentOffset:offset animated:animated];
+#endif
   }
 }
 
@@ -574,24 +739,39 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
 - (void)scrollToEnd:(BOOL)animated
 {
   BOOL isHorizontal = [self isHorizontal:_scrollView];
+#if TARGET_OS_OSX
+  CGSize boundsSize = _scrollView.contentView.bounds.size;
+#else
+  CGSize boundsSize = _scrollView.bounds.size;
+#endif
   CGPoint offset;
   if (isHorizontal) {
-    CGFloat offsetX = _scrollView.contentSize.width - _scrollView.bounds.size.width + _scrollView.contentInset.right;
+    CGFloat offsetX = _scrollView.contentSize.width - boundsSize.width + _scrollView.contentInset.right;
     offset = CGPointMake(fmax(offsetX, 0), 0);
   } else {
-    CGFloat offsetY = _scrollView.contentSize.height - _scrollView.bounds.size.height + _scrollView.contentInset.bottom;
+    CGFloat offsetY = _scrollView.contentSize.height - boundsSize.height + _scrollView.contentInset.bottom;
     offset = CGPointMake(0, fmax(offsetY, 0));
   }
   if (!CGPointEqualToPoint(_scrollView.contentOffset, offset)) {
     // Ensure at least one scroll event will fire
     _allowNextScrollNoMatterWhat = YES;
+#if TARGET_OS_OSX
+    (void) animated;
+    _scrollView.contentOffset = offset;
+#else
     [_scrollView setContentOffset:offset animated:animated];
+#endif
   }
 }
 
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated
 {
+#if TARGET_OS_OSX
+  (void) animated;
+  [_scrollView magnifyToFitRect:rect];
+#else
   [_scrollView zoomToRect:rect animated:animated];
+#endif
 }
 
 - (void)refreshContentInset
@@ -601,7 +781,30 @@ static inline void RCTApplyTranformationAccordingLayoutDirection(UIView *view, U
                       updateOffset:YES];
 }
 
+- (void)flashScrollIndicators
+{
+#if TARGET_OS_OSX
+  [_scrollView flashScrollers];
+#else
+	[_scrollView flashScrollIndicators];
+#endif
+}
+
 #pragma mark - ScrollView delegate
+
+#if TARGET_OS_OSX
+- (void)scrollViewDocumentViewBoundsDidChange:(__unused NSNotification *)notification
+{
+  if (_scrollView.centerContent) {
+    _scrollView.contentOffset = _scrollView.contentOffset; // necessary for content centering when _centerContent == YES
+  }
+
+  // if scrollView is not ready, don't notify with scroll event
+  if (_notifyDidScroll) {
+    [self scrollViewDidScroll:_scrollView];
+  }
+}
+#endif
 
 #define RCT_SEND_SCROLL_EVENT(_eventName, _userData) { \
   NSString *eventName = NSStringFromSelector(@selector(_eventName)); \
@@ -622,6 +825,8 @@ for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) { \
   RCT_FORWARD_SCROLL_EVENT(delegateMethod:scrollView);      \
 }
 
+#if !TARGET_OS_OSX
+
 RCT_SCROLL_EVENT_HANDLER(scrollViewWillBeginDecelerating, onMomentumScrollBegin)
 RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
 
@@ -635,7 +840,9 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
   [_scrollListeners removeObject:scrollListener];
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+#endif
+
+- (void)scrollViewDidScroll:(RCTCustomScrollView *)scrollView
 {
   [self updateClippedSubviews];
   NSTimeInterval now = CACurrentMediaTime();
@@ -660,24 +867,28 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
     _allowNextScrollNoMatterWhat = NO;
   }
 
+#if TARGET_OS_OSX
+  (void) scrollView;
+#else
   RCT_FORWARD_SCROLL_EVENT(scrollViewDidScroll:scrollView);
+#endif
 }
 
 - (NSArray<NSDictionary *> *)calculateChildFramesData
 {
     NSMutableArray<NSDictionary *> *updatedChildFrames = [NSMutableArray new];
-    [[_contentView reactSubviews] enumerateObjectsUsingBlock:
-     ^(UIView *subview, NSUInteger idx, __unused BOOL *stop) {
+    [[self.contentView reactSubviews] enumerateObjectsUsingBlock:
+     ^(RCTPlatformView *subview, NSUInteger idx, __unused BOOL *stop) {
 
       // Check if new or changed
       CGRect newFrame = subview.frame;
       BOOL frameChanged = NO;
       if (self->_cachedChildFrames.count <= idx) {
         frameChanged = YES;
-        [self->_cachedChildFrames addObject:[NSValue valueWithCGRect:newFrame]];
-      } else if (!CGRectEqualToRect(newFrame, [self->_cachedChildFrames[idx] CGRectValue])) {
+        [self->_cachedChildFrames addObject:NSValueWithCGRect(newFrame)];
+      } else if (!CGRectEqualToRect(newFrame, CGRectValue(self->_cachedChildFrames[idx]))) {
         frameChanged = YES;
-        self->_cachedChildFrames[idx] = [NSValue valueWithCGRect:newFrame];
+        self->_cachedChildFrames[idx] = NSValueWithCGRect(newFrame);
       }
 
       // Create JS frame object
@@ -694,6 +905,8 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
 
     return updatedChildFrames;
 }
+
+#if !TARGET_OS_OSX // [
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
@@ -815,13 +1028,18 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
   return _contentView;
 }
 
+#endif // ] !TARGET_OS_OSX
+
 #pragma mark - Setters
 
 - (CGSize)_calculateViewportSize
 {
   CGSize viewportSize = self.bounds.size;
   if (_automaticallyAdjustContentInsets) {
-    UIEdgeInsets contentInsets = [RCTView contentInsetsForView:self];
+		UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+#if !TARGET_OS_OSX
+    contentInsets = [RCTView contentInsetsForView:self];
+#endif
     viewportSize = CGSizeMake(self.bounds.size.width - contentInsets.left - contentInsets.right,
                                 self.bounds.size.height - contentInsets.top - contentInsets.bottom);
   }
@@ -879,7 +1097,7 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
     return _contentSize;
   }
 
-  return _contentView.frame.size;
+  return self.contentView.frame.size;
 }
 
 - (void)reactBridgeDidFinishTransaction
@@ -895,6 +1113,62 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
     _scrollView.contentOffset = newOffset;
   }
 }
+
+#if TARGET_OS_OSX
+
+- (NSString*)keyCommandFromKeyCode:(NSInteger)keyCode
+{
+  switch (keyCode)
+  {
+    case 36:
+      return @"ENTER";
+      
+    case 116:
+      return @"PAGE_UP";
+
+    case 121:
+      return @"PAGE_DOWN";
+      
+    case 123:
+      return @"LEFT_ARROW";
+      
+    case 124:
+      return @"RIGHT_ARROW";
+      
+    case 125:
+      return @"DOWN_ARROW";
+      
+    case 126:
+      return @"UP_ARROW";
+  }
+  return @"";
+}
+
+- (void)keyDown:(UIEvent*)theEvent
+{
+  // Don't emit a scroll event if tab was pressed while the scrollview is first responder
+  if (self == [[self window] firstResponder] &&
+      theEvent.keyCode != 48) {
+    NSString *keyCommand = [self keyCommandFromKeyCode:theEvent.keyCode];
+    RCT_SEND_SCROLL_EVENT(onKeyDown, (@{ @"key": keyCommand}));
+	} else {
+    [super keyDown:theEvent];
+		
+    // AX: if a tab key was pressed and the first responder is currently clipped by the scroll view,
+    // automatically scroll to make the view visible to make it navigable via keyboard.
+    if ([theEvent keyCode] == 48) {  //tab key
+      id firstResponder = [[self window] firstResponder];
+      if ([firstResponder isKindOfClass:[NSView class]] &&
+          [firstResponder isDescendantOf:[_scrollView documentView]]) {
+        NSView *view = (NSView*)firstResponder;
+        NSRect visibleRect = ([view superview] == [_scrollView documentView]) ? NSInsetRect(view.frame, -1, -1) :
+                              [view convertRect:view.frame toView:_scrollView.documentView];
+        [[_scrollView documentView] scrollRectToVisible:visibleRect];
+      }
+    }
+  }
+}
+#endif
 
 // Note: setting several properties of UIScrollView has the effect of
 // resetting its contentOffset to {0, 0}. To prevent this, we generate
@@ -915,6 +1189,7 @@ RCT_SCROLL_EVENT_HANDLER(scrollViewDidZoom, onScroll)
 
 RCT_SET_AND_PRESERVE_OFFSET(setAlwaysBounceHorizontal, alwaysBounceHorizontal, BOOL)
 RCT_SET_AND_PRESERVE_OFFSET(setAlwaysBounceVertical, alwaysBounceVertical, BOOL)
+#if !TARGET_OS_OSX // [
 RCT_SET_AND_PRESERVE_OFFSET(setBounces, bounces, BOOL)
 RCT_SET_AND_PRESERVE_OFFSET(setBouncesZoom, bouncesZoom, BOOL)
 RCT_SET_AND_PRESERVE_OFFSET(setCanCancelContentTouches, canCancelContentTouches, BOOL)
@@ -929,11 +1204,14 @@ RCT_SET_AND_PRESERVE_OFFSET(setScrollEnabled, isScrollEnabled, BOOL)
 RCT_SET_AND_PRESERVE_OFFSET(setPagingEnabled, isPagingEnabled, BOOL)
 RCT_SET_AND_PRESERVE_OFFSET(setScrollsToTop, scrollsToTop, BOOL)
 #endif
+#endif // ] !TARGET_OS_OSX
 RCT_SET_AND_PRESERVE_OFFSET(setShowsHorizontalScrollIndicator, showsHorizontalScrollIndicator, BOOL)
 RCT_SET_AND_PRESERVE_OFFSET(setShowsVerticalScrollIndicator, showsVerticalScrollIndicator, BOOL)
 RCT_SET_AND_PRESERVE_OFFSET(setZoomScale, zoomScale, CGFloat);
 RCT_SET_AND_PRESERVE_OFFSET(setScrollIndicatorInsets, scrollIndicatorInsets, UIEdgeInsets);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000 /* __IPHONE_11_0 */
 - (void)setContentInsetAdjustmentBehavior:(UIScrollViewContentInsetAdjustmentBehavior)behavior
 {
@@ -945,9 +1223,10 @@ RCT_SET_AND_PRESERVE_OFFSET(setScrollIndicatorInsets, scrollIndicatorInsets, UIE
   }
 }
 #endif
+#pragma clang diagnostic pop
 
 - (void)sendScrollEventWithName:(NSString *)eventName
-                     scrollView:(UIScrollView *)scrollView
+                     scrollView:(RCTCustomScrollView *)scrollView
                        userData:(NSDictionary *)userData
 {
   if (![_lastEmittedEventName isEqualToString:eventName]) {

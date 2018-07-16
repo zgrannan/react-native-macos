@@ -9,7 +9,11 @@
 
 #import "RCTFileRequestHandler.h"
 
+#if !TARGET_OS_OSX
 #import <MobileCoreServices/MobileCoreServices.h>
+#else
+#import <CoreServices/CoreServices.h>
+#endif
 
 #import <React/RCTUtils.h>
 

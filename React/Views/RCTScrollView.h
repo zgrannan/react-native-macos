@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIScrollView.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTAutoInsetsProtocol.h>
 #import <React/RCTEventDispatcher.h>
@@ -16,7 +16,12 @@
 
 @protocol UIScrollViewDelegate;
 
-@interface RCTScrollView : RCTView <UIScrollViewDelegate, RCTScrollableProtocol, RCTAutoInsetsProtocol>
+@interface RCTScrollView : RCTView <
+#if TARGET_OS_IPHONE
+	UIScrollViewDelegate,
+#endif
+	RCTScrollableProtocol, RCTAutoInsetsProtocol
+>
 
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
 
@@ -35,11 +40,6 @@
  */
 @property (nonatomic, assign) CGSize contentSize;
 
-/**
- * The underlying scrollView (TODO: can we remove this?)
- */
-@property (nonatomic, readonly) UIScrollView *scrollView;
-
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, assign) BOOL automaticallyAdjustContentInsets;
 @property (nonatomic, assign) BOOL DEPRECATED_sendUpdatedChildFrames;
@@ -56,6 +56,9 @@
 @property (nonatomic, copy) RCTDirectEventBlock onScrollEndDrag;
 @property (nonatomic, copy) RCTDirectEventBlock onMomentumScrollBegin;
 @property (nonatomic, copy) RCTDirectEventBlock onMomentumScrollEnd;
+@property (nonatomic, copy) RCTDirectEventBlock onKeyDown;
+
+- (void)flashScrollIndicators;
 
 @end
 

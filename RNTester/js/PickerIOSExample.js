@@ -13,6 +13,7 @@
 
 var React = require('react');
 var ReactNative = require('react-native');
+var Platform = require('Platform');
 var {
   PickerIOS,
   Text,
@@ -113,7 +114,7 @@ class PickerStyleExample extends React.Component<{}, $FlowFixMeState> {
   render() {
     return (
       <PickerIOS
-        itemStyle={{fontSize: 25, color: 'red', textAlign: 'left', fontWeight: 'bold'}}
+        itemStyle={{fontSize: Platform.OS === 'macos' ? 11 : 25, color: 'red', textAlign: 'left', fontWeight: 'bold'}}
         selectedValue={this.state.carMake}
         onValueChange={(carMake) => this.setState({carMake, modelIndex: 0})}>
         {Object.keys(CAR_MAKES_AND_MODELS).map((carMake) => (

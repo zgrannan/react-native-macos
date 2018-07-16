@@ -43,6 +43,7 @@
 #import "RCTJSCHelpers.h"
 #import "RCTMessageThread.h"
 #import "RCTObjcExecutor.h"
+#import "RCTCxxBridge.h"
 
 #ifdef WITH_FBSYSTRACE
 #import <React/RCTFBSystrace.h>
@@ -52,8 +53,6 @@
 #import "RCTDevLoadingView.h"
 #endif
 
-@interface RCTCxxBridge : RCTBridge
-@end
 
 #define RCTAssertJSThread() \
   RCTAssert(self.executorClass || self->_jsThread == [NSThread currentThread], \
@@ -166,7 +165,7 @@ struct RCTInstanceCallback : public InstanceCallback {
   NSMutableArray<Class> *_moduleClassesByID;
   NSUInteger _modulesInitializedOnMainQueue;
   RCTDisplayLink *_displayLink;
-
+  
   // JS thread management
   NSThread *_jsThread;
   std::shared_ptr<RCTMessageThread> _jsMessageThread;
@@ -195,6 +194,11 @@ struct RCTInstanceCallback : public InstanceCallback {
 - (JSGlobalContextRef)jsContextRef
 {
   return (JSGlobalContextRef)(self->_reactInstance ? self->_reactInstance->getJavaScriptContext() : nullptr);
+}
+
+- (std::shared_ptr<facebook::react::Instance>)reactInstance
+{
+  return _reactInstance;
 }
 
 - (instancetype)initWithParentBridge:(RCTBridge *)bridge
@@ -329,7 +333,11 @@ struct RCTInstanceCallback : public InstanceCallback {
         [self.delegate respondsToSelector:@selector(shouldBridgeUseCustomJSC:)] &&
         [self.delegate shouldBridgeUseCustomJSC:self];
       // We use the name of the device and the app for debugging & metrics
+#if !TARGET_OS_OSX
       NSString *deviceName = [[UIDevice currentDevice] name];
+#else
+      NSString *deviceName = nil;
+#endif
       NSString *appName = [[NSBundle mainBundle] bundleIdentifier];
       // The arg is a cache dir.  It's not used with standard JSC.
       executorFactory.reset(new JSCExecutorFactory(folly::dynamic::object
@@ -371,8 +379,10 @@ struct RCTInstanceCallback : public InstanceCallback {
     dispatch_group_leave(prepareBridge);
   } onProgress:^(RCTLoadingProgress *progressData) {
 #if RCT_DEV && __has_include("RCTDevLoadingView.h")
-    RCTDevLoadingView *loadingView = [weakSelf moduleForClass:[RCTDevLoadingView class]];
-    [loadingView updateProgress:progressData];
+    if ([[self devSettings] isDevModeEnabled]) {
+      RCTDevLoadingView *loadingView = [weakSelf moduleForClass:[RCTDevLoadingView class]];
+      [loadingView updateProgress:progressData];
+    }
 #endif
   }];
 
@@ -498,7 +508,9 @@ struct RCTInstanceCallback : public InstanceCallback {
   // This can only be false if the bridge was invalidated before startup completed
   if (_reactInstance) {
 #if RCT_DEV
-    executorFactory = std::make_shared<GetDescAdapter>(self, executorFactory);
+    if ([[self devSettings] isDevModeEnabled]) {
+      executorFactory = std::make_shared<GetDescAdapter>(self, executorFactory);
+    }
 #endif
 
     // This is async, but any calls into JS are blocked by the m_syncReady CV in Instance
@@ -747,7 +759,7 @@ struct RCTInstanceCallback : public InstanceCallback {
       [[NSNotificationCenter defaultCenter]
        postNotificationName:RCTJavaScriptDidLoadNotification
        object:self->_parentBridge userInfo:@{@"bridge": self}];
-
+      
       // Starting the display link is not critical to startup, so do it last
       [self ensureOnJavaScriptThread:^{
         // Register the display link to start sending js calls after everything is setup
@@ -764,7 +776,10 @@ struct RCTInstanceCallback : public InstanceCallback {
   }
 
 #if RCT_DEV
-  if (self.devSettings.isHotLoadingAvailable && self.devSettings.isHotLoadingEnabled) {
+  RCTDevSettings *devSettings = [self devSettings];
+  if (devSettings.isDevModeEnabled &&
+      devSettings.isHotLoadingAvailable &&
+      devSettings.isHotLoadingEnabled) {
     NSString *path = [self.bundleURL.path substringFromIndex:1]; // strip initial slash
     NSString *host = self.bundleURL.host;
     NSNumber *port = self.bundleURL.port;

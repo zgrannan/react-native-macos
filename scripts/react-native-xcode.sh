@@ -17,13 +17,11 @@ fi
 
 case "$CONFIGURATION" in
   *Debug*)
-    if [[ "$PLATFORM_NAME" == *simulator ]]; then
-      if [[ "$FORCE_BUNDLING" ]]; then
-        echo "FORCE_BUNDLING enabled; continuing to bundle."
-      else
-        echo "Skipping bundling in Debug for the Simulator (since the packager bundles for you). Use the FORCE_BUNDLING flag to change this behavior."
-        exit 0;
-      fi
+    # Speed up build times by skipping the creation of the offline package for debug
+    # builds on the simulator since the packager is supposed to be running anyways.
+    if [[ "$PLATFORM_NAME" == *simulator || "$PLATFORM_NAME" == macosx ]]; then
+      echo "Skipping bundling for Simulator or macOS platform"
+      exit 0;
     else
       echo "Bundling for physical device. Use the SKIP_BUNDLING flag to change this behavior."
     fi
@@ -94,7 +92,7 @@ type $NODE_BINARY >/dev/null 2>&1 || nodejs_not_found
 set -x
 DEST=$CONFIGURATION_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH
 
-if [[ "$CONFIGURATION" = "Debug" && ! "$PLATFORM_NAME" == *simulator ]]; then
+if [[ "$CONFIGURATION" = "Debug" && ! "$PLATFORM_NAME" == *simulator && ! "$PLATFORM_NAME" == macosx ]]; then
   PLISTBUDDY='/usr/libexec/PlistBuddy'
   PLIST=$TARGET_BUILD_DIR/$INFOPLIST_PATH
   IP=$(ipconfig getifaddr en0)
@@ -113,10 +111,19 @@ fi
 
 BUNDLE_FILE="$DEST/main.jsbundle"
 
+case "$PLATFORM_NAME" in
+  "macosx")
+    BUNDLE_PLATFORM="macos"
+    ;;
+  *)
+    BUNDLE_PLATFORM="ios"
+    ;;
+esac
+
 $NODE_BINARY $CLI_PATH $BUNDLE_COMMAND \
   $CONFIG_ARG \
   --entry-file "$ENTRY_FILE" \
-  --platform ios \
+  --platform "$BUNDLE_PLATFORM" \
   --dev $DEV \
   --reset-cache \
   --bundle-output "$BUNDLE_FILE" \

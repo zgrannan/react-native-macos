@@ -7,12 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
-
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTInvalidating.h>
 #import <React/RCTRootView.h>
+#import <React/RCTUIKit.h>
 #import <React/RCTViewManager.h>
 
 /**
@@ -20,6 +19,8 @@
  * next render cycle will pick up updated views and layout appropriately.
  */
 RCT_EXTERN NSString *const RCTUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification;
+
+void RCTTraverseViewNodes(id<RCTComponent> view, void (^block)(id<RCTComponent>));
 
 @class RCTLayoutAnimationGroup;
 @class RCTUIManagerObserverCoordinator;
@@ -42,7 +43,7 @@ RCT_EXTERN NSString *const RCTUIManagerWillUpdateViewsDueToContentSizeMultiplier
 /**
  * Gets the view associated with a reactTag.
  */
-- (UIView *)viewForReactTag:(NSNumber *)reactTag;
+- (RCTPlatformView *)viewForReactTag:(NSNumber *)reactTag;
 
 /**
  * Gets the shadow view associated with a reactTag.
@@ -73,21 +74,21 @@ RCT_EXTERN NSString *const RCTUIManagerWillUpdateViewsDueToContentSizeMultiplier
  * Set the size of a view. This might be in response to a screen rotation
  * or some other layout event outside of the React-managed view hierarchy.
  */
-- (void)setSize:(CGSize)size forView:(UIView *)view;
+- (void)setSize:(CGSize)size forView:(RCTPlatformView *)view;
 
 /**
  * Set the natural size of a view, which is used when no explicit size is set.
  * Use `UIViewNoIntrinsicMetric` to ignore a dimension.
  * The `size` must NOT include padding and border.
  */
-- (void)setIntrinsicContentSize:(CGSize)size forView:(UIView *)view;
+- (void)setIntrinsicContentSize:(CGSize)size forView:(RCTPlatformView *)view;
 
 /**
  * Update the background color of a view. The source of truth for
  * backgroundColor is the shadow view, so if to update backgroundColor from
  * native code you will need to call this method.
  */
-- (void)setBackgroundColor:(UIColor *)color forView:(UIView *)view;
+- (void)setBackgroundColor:(UIColor *)color forView:(RCTPlatformView *)view;
 
 /**
  * Sets up layout animation which will perform on next layout pass.
@@ -126,7 +127,7 @@ RCT_EXTERN NSString *const RCTUIManagerWillUpdateViewsDueToContentSizeMultiplier
  * @param completion the completion block that will hand over the rootView, if any.
  *
  */
-- (void)rootViewForReactTag:(NSNumber *)reactTag withCompletion:(void (^)(UIView *view))completion;
+- (void)rootViewForReactTag:(NSNumber *)reactTag withCompletion:(void (^)(RCTPlatformView *view))completion;
 
 /**
  * Finds a view that is tagged with nativeID as its nativeID prop
@@ -141,7 +142,7 @@ RCT_EXTERN NSString *const RCTUIManagerWillUpdateViewsDueToContentSizeMultiplier
 /**
  * The view that is currently first responder, according to the JS context.
  */
-+ (UIView *)JSResponder;
++ (RCTPlatformView *)JSResponder;
 
 /**
  * Normally, UI changes are not applied until the complete batch of method

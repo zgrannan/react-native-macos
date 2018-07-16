@@ -112,9 +112,12 @@ static UIFont *cachedSystemFont(CGFloat size, RCTFontWeight weight)
   }
 
   if (!font) {
-    // Only supported on iOS8.2 and above
+    // Only supported on iOS 8.2/macOS 10.11 and above
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     if ([UIFont respondsToSelector:@selector(systemFontOfSize:weight:)]) {
       font = [UIFont systemFontOfSize:size weight:weight];
+#pragma clang diagnostic pop
     } else {
       if (weight >= UIFontWeightBold) {
         font = [UIFont boldSystemFontOfSize:size];
@@ -134,6 +137,19 @@ static UIFont *cachedSystemFont(CGFloat size, RCTFontWeight weight)
   }
 
   return font;
+}
+
+static NSArray<NSString *> *fontNamesForFamilyName(NSString *familyName)
+{
+#if !TARGET_OS_OSX
+  return [UIFont fontNamesForFamilyName:familyName];
+#else
+  NSMutableArray<NSString *> *fontNames = [NSMutableArray array];
+  for (NSArray *fontSettings in [[NSFontManager sharedFontManager] availableMembersOfFontFamily:familyName]) {
+    [fontNames addObject:fontSettings[0]];
+  }
+  return fontNames;
+#endif
 }
 
 @implementation RCTConvert (RCTFont)
@@ -281,7 +297,7 @@ RCT_ARRAY_CONVERTER(RCTFontVariantDescriptor)
 
   // Gracefully handle being given a font name rather than font family, for
   // example: "Helvetica Light Oblique" rather than just "Helvetica".
-  if (!didFindFont && [UIFont fontNamesForFamilyName:familyName].count == 0) {
+  if (!didFindFont && fontNamesForFamilyName(familyName).count == 0) {
     font = [UIFont fontWithName:familyName size:fontSize];
     if (font) {
       // It's actually a font name, not a font family name,
@@ -293,8 +309,11 @@ RCT_ARRAY_CONVERTER(RCTFontVariantDescriptor)
     } else {
       // Not a valid font or family
       RCTLogError(@"Unrecognized font family '%@'", familyName);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
       if ([UIFont respondsToSelector:@selector(systemFontOfSize:weight:)]) {
         font = [UIFont systemFontOfSize:fontSize weight:fontWeight];
+#pragma clang diagnostic pop
       } else if (fontWeight > UIFontWeightRegular) {
         font = [UIFont boldSystemFontOfSize:fontSize];
       } else {
@@ -305,7 +324,7 @@ RCT_ARRAY_CONVERTER(RCTFontVariantDescriptor)
 
   // Get the closest font that matches the given weight for the fontFamily
   CGFloat closestWeight = INFINITY;
-  for (NSString *name in [UIFont fontNamesForFamilyName:familyName]) {
+  for (NSString *name in fontNamesForFamilyName(familyName)) {
     UIFont *match = [UIFont fontWithName:name size:fontSize];
     if (isItalic == isItalicFont(match) &&
         isCondensed == isCondensedFont(match)) {
@@ -320,7 +339,7 @@ RCT_ARRAY_CONVERTER(RCTFontVariantDescriptor)
   // If we still don't have a match at least return the first font in the fontFamily
   // This is to support built-in font Zapfino and other custom single font families like Impact
   if (!font) {
-    NSArray *names = [UIFont fontNamesForFamilyName:familyName];
+    NSArray *names = fontNamesForFamilyName(familyName);
     if (names.count > 0) {
       font = [UIFont fontWithName:names[0] size:fontSize];
     }

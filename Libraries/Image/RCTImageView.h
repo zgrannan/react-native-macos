@@ -7,14 +7,25 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTResizeMode.h>
 
 @class RCTBridge;
 @class RCTImageSource;
 
+#if TARGET_OS_OSX
+typedef NS_ENUM(NSInteger, UIImageRenderingMode) {
+    UIImageRenderingModeAlwaysOriginal,
+    UIImageRenderingModeAlwaysTemplate,
+};
+#endif
+
+#if !TARGET_OS_OSX
 @interface RCTImageView : UIImageView
+#else
+@interface RCTImageView : NSImageView
+#endif
 
 - (instancetype)initWithBridge:(RCTBridge *)bridge NS_DESIGNATED_INITIALIZER;
 

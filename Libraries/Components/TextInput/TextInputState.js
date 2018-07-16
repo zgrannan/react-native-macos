@@ -39,8 +39,7 @@ var TextInputState = {
    */
   focusTextInput: function(textFieldID: ?number) {
     if (this._currentlyFocusedID !== textFieldID && textFieldID !== null) {
-      this._currentlyFocusedID = textFieldID;
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === 'ios' || Platform.OS === 'macos') {
         UIManager.focus(textFieldID);
       } else if (Platform.OS === 'android') {
         UIManager.dispatchViewManagerCommand(
@@ -53,14 +52,24 @@ var TextInputState = {
   },
 
   /**
+   * @param {number} TextInputID id of the text field that has received focus
+   * Should be called after the view has received focus and fired the onFocus event
+   * noop if the focused text field is same
+   */
+  setFocusedTextInput: function(textFieldID: ?number) {
+    if (this._currentlyFocusedID !== textFieldID && textFieldID !== null) {
+      this._currentlyFocusedID = textFieldID;
+    }
+  },
+
+  /**
    * @param {number} textFieldID id of the text field to unfocus
    * Unfocuses the specified text field
    * noop if it wasn't focused
    */
   blurTextInput: function(textFieldID: ?number) {
     if (this._currentlyFocusedID === textFieldID && textFieldID !== null) {
-      this._currentlyFocusedID = null;
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === 'ios' || Platform.OS === 'macos') {
         UIManager.blur(textFieldID);
       } else if (Platform.OS === 'android') {
         UIManager.dispatchViewManagerCommand(
@@ -69,6 +78,17 @@ var TextInputState = {
           null
         );
       }
+    }
+  },
+
+  /**
+   * @param {number} TextInputID id of the text field whose focus has to be cleared
+   * Should be called after the view has cleared focus and fired the onFocus event
+   * noop if the focused text field is not same
+   */
+  clearFocusedTextInput: function(textFieldID: ?number) {
+    if (this._currentlyFocusedID === textFieldID && textFieldID !== null) {
+      this._currentlyFocusedID = null;
     }
   }
 };

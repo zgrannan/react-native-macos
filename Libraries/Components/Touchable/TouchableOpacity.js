@@ -245,8 +245,12 @@ var TouchableOpacity = createReactClass({
       <Animated.View
         accessible={this.props.accessible !== false}
         accessibilityLabel={this.props.accessibilityLabel}
+        accessibilityHint={this.props.accessibilityHint}
         accessibilityComponentType={this.props.accessibilityComponentType}
         accessibilityTraits={this.props.accessibilityTraits}
+        onAccessibilityTap={this.props.onAccessibilityTap}
+        acceptsKeyboardFocus={(this.props.acceptsKeyboardFocus === undefined || this.props.acceptsKeyboardFocus) && !this.props.disabled}
+        enableFocusRing={(this.props.enableFocusRing === undefined || this.props.enableFocusRing) && !this.props.disabled}
         style={[this.props.style, {opacity: this.state.anim}]}
         nativeID={this.props.nativeID}
         testID={this.props.testID}
@@ -260,7 +264,15 @@ var TouchableOpacity = createReactClass({
         onResponderGrant={this.touchableHandleResponderGrant}
         onResponderMove={this.touchableHandleResponderMove}
         onResponderRelease={this.touchableHandleResponderRelease}
-        onResponderTerminate={this.touchableHandleResponderTerminate}>
+        onResponderTerminate={this.touchableHandleResponderTerminate}
+        clickable={this.props.clickable !== false && this.props.onPress !== undefined}
+        onClick={this.touchableHandlePress}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
+        onDragEnter={this.props.onDragEnter}
+        onDragLeave={this.props.onDragLeave}
+        onDrop={this.props.onDrop}
+        draggedTypes={this.props.draggedTypes}>
         {this.props.children}
         {Touchable.renderDebugView({color: 'cyan', hitSlop: this.props.hitSlop})}
       </Animated.View>

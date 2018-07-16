@@ -45,6 +45,7 @@ type Props = {
 
 class RowComponent extends React.PureComponent<{
   item: Object,
+  isSelected?: ?boolean,
   onNavigate: Function,
   onPress?: Function,
   onShowUnderlay?: Function,
@@ -59,9 +60,17 @@ class RowComponent extends React.PureComponent<{
   };
   render() {
     const {item} = this.props;
+    const rowStyle = this.props.isSelected ? styles.selectedRow : styles.row;
     return (
-      <TouchableHighlight {...this.props} onPress={this._onPress}>
-        <View style={styles.row}>
+      <TouchableHighlight
+        {...this.props}
+        onPress={this._onPress}
+        accessibilityTraits={['group']}
+        accessibilityLabel={item.module.title}
+        onAccessibilityTap={this._onPress}
+        acceptsKeyboardFocus={false}
+        >
+        <View style={rowStyle}>
           <Text style={styles.rowTitleText}>
             {item.module.title}
           </Text>
@@ -111,24 +120,33 @@ class RNTesterExampleList extends React.Component<Props, $FlowFixMeState> {
           sections={sections}
           renderItem={this._renderItem}
           enableEmptySections={true}
+          enableSelectionOnKeyPress={true}
+          onSelectionEntered={this._handleOnSelectionEntered}
           itemShouldUpdate={this._itemShouldUpdate}
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustContentInsets={false}
           keyboardDismissMode="on-drag"
           legacyImplementation={false}
           renderSectionHeader={renderSectionHeader}
+          accessibilityLabel="RNTester Components"
         />
       </View>
     );
+  }
+
+  _handleOnSelectionEntered = (item) => {
+    const {key} = item;
+    this.props.onNavigate(RNTesterActions.ExampleAction(key));
   }
 
   _itemShouldUpdate(curr, prev) {
     return curr.item !== prev.item;
   }
 
-  _renderItem = ({item, separators}) => (
+  _renderItem = ({item, isSelected, separators}) => (
     <RowComponent
       item={item}
+      isSelected={isSelected}
       onNavigate={this.props.onNavigate}
       onShowUnderlay={separators.highlight}
       onHideUnderlay={separators.unhighlight}
@@ -205,6 +223,12 @@ const styles = StyleSheet.create({
   },
   row: {
     backgroundColor: 'white',
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+  },  
+  selectedRow: {
+    backgroundColor: '#DDECF8',
     justifyContent: 'center',
     paddingHorizontal: 15,
     paddingVertical: 8,

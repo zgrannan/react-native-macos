@@ -3,7 +3,7 @@
 #if RCT_DEV
 
 #import <jschelpers/JSCWrapper.h>
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import "RCTDefines.h"
 #import "RCTInspectorPackagerConnection.h"
@@ -32,7 +32,11 @@ static NSString *getDebugServerHost(NSURL *bundleURL)
 
 static NSURL *getInspectorDeviceUrl(NSURL *bundleURL)
 {
+#if !TARGET_OS_OSX
   NSString *escapedDeviceName = [[[UIDevice currentDevice] name] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+#else
+  NSString *escapedDeviceName = @"";
+#endif
   NSString *escapedAppName = [[[NSBundle mainBundle] bundleIdentifier] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
   return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@/inspector/device?name=%@&app=%@",
                                                         getDebugServerHost(bundleURL),

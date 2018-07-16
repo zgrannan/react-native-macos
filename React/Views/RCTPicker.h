@@ -7,11 +7,14 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
-
 #import <React/UIView+React.h>
+#import <React/RCTUIKit.h>
 
+#if !TARGET_OS_OSX
 @interface RCTPicker : UIPickerView
+#else
+@interface RCTPicker : NSComboBox
+#endif
 
 @property (nonatomic, copy) NSArray<NSDictionary *> *items;
 @property (nonatomic, assign) NSInteger selectedIndex;

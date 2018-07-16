@@ -9,6 +9,7 @@
 
 #import "RCTAppState.h"
 
+#import "RCTUIKit.h"
 #import "RCTAssert.h"
 #import "RCTBridge.h"
 #import "RCTEventDispatcher.h"
@@ -16,6 +17,7 @@
 
 static NSString *RCTCurrentAppBackgroundState()
 {
+#if !TARGET_OS_OSX
   static NSDictionary *states;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -24,12 +26,21 @@ static NSString *RCTCurrentAppBackgroundState()
       @(UIApplicationStateBackground): @"background"
     };
   });
-
   if (RCTRunningInAppExtension()) {
     return @"extension";
   }
-
   return states[@(RCTSharedApplication().applicationState)] ?: @"unknown";
+#else
+  
+  if (RCTSharedApplication().isActive) {
+    return @"active";
+  } else if (RCTSharedApplication().isHidden) {
+    return @"background";
+  }
+  return @"unknown";
+  
+#endif
+  
 }
 
 @implementation RCTAppState
@@ -75,10 +86,12 @@ RCT_EXPORT_MODULE()
                                                object:nil];
   }
 
+#if !TARGET_OS_OSX
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleMemoryWarning)
                                                name:UIApplicationDidReceiveMemoryWarningNotification
                                              object:nil];
+#endif
 }
 
 - (void)stopObserving

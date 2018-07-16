@@ -47,6 +47,7 @@ const ITEM_HEIGHT = 72;
 class ItemComponent extends React.PureComponent<{
   fixedHeight?: ?boolean,
   horizontal?: ?boolean,
+  isSelected?: ?boolean,
   item: Item,
   onPress: (key: string) => void,
   onShowUnderlay?: () => void,
@@ -59,6 +60,7 @@ class ItemComponent extends React.PureComponent<{
     const {fixedHeight, horizontal, item} = this.props;
     const itemHash = Math.abs(hashCode(item.title));
     const imgSource = THUMB_URLS[itemHash % THUMB_URLS.length];
+    const rowStyle = this.props.isSelected ? styles.selectedRow : styles.row;
     return (
       <TouchableHighlight
         onPress={this._onPress}
@@ -66,7 +68,7 @@ class ItemComponent extends React.PureComponent<{
         onHideUnderlay={this.props.onHideUnderlay}
         style={horizontal ? styles.horizItem : styles.item}>
         <View style={[
-          styles.row, horizontal && {width: HORIZ_WIDTH}, fixedHeight && {height: ITEM_HEIGHT}]}>
+          rowStyle, horizontal && {width: HORIZ_WIDTH}, fixedHeight && {height: ITEM_HEIGHT}]}>
           {!item.noImage && <Image style={styles.thumb} source={imgSource} />}
           <Text
             style={styles.text}
@@ -257,6 +259,11 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'white',
   },
+  selectedRow: {
+    flexDirection: 'row',
+    padding: 10,
+    backgroundColor: '#DDECF8',
+  },
   searchTextInput: {
     backgroundColor: 'white',
     borderColor: '#cccccc',
@@ -280,6 +287,12 @@ const styles = StyleSheet.create({
     },
     ios: {
       top: 4,
+      margin: -10,
+      transform: [{scale: 0.5}],
+    },
+    macos: {
+      top: 4,
+      left: 12,
       margin: -10,
       transform: [{scale: 0.5}],
     },

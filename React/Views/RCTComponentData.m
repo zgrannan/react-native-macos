@@ -75,17 +75,19 @@ static SEL selectorForType(NSString *type)
 
 RCT_NOT_IMPLEMENTED(- (instancetype)init)
 
-- (UIView *)createViewWithTag:(NSNumber *)tag
+- (RCTPlatformView *)createViewWithTag:(NSNumber *)tag
 {
   RCTAssertMainQueue();
 
-  UIView *view = [self.manager view];
+  RCTPlatformView *view = [self.manager view];
   view.reactTag = tag;
-#if !TARGET_OS_TV
+#if !TARGET_OS_OSX && !TARGET_OS_TV
   view.multipleTouchEnabled = YES;
 #endif
+#if !TARGET_OS_OSX
   view.userInteractionEnabled = YES; // required for touch handling
   view.layer.allowsGroupOpacity = YES; // required for touch handling
+#endif
   return view;
 }
 

@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 /**
  * Contains any methods related to scrolling. Any `RCTView` that has scrolling
@@ -26,7 +26,9 @@
 - (void)scrollToEnd:(BOOL)animated;
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated;
 
+#if !TARGET_OS_OSX
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
 - (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
+#endif
 
 @end

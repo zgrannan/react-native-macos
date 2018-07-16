@@ -28,6 +28,7 @@ import type {ImageSource} from 'ImageSource';
  */
 class SwipeableQuickActionButton extends React.Component<{
   accessibilityLabel?: string,
+  accessibilityHint?: string,
   imageSource: ImageSource | number,
   imageStyle?: ?ViewPropTypes.style,
   onPress?: Function,
@@ -38,6 +39,7 @@ class SwipeableQuickActionButton extends React.Component<{
 }> {
   static propTypes = {
     accessibilityLabel: PropTypes.string,
+    accessibilityHint: PropTypes.string,
     imageSource: Image.propTypes.source.isRequired,
     imageStyle: Image.propTypes.style,
     onPress: PropTypes.func,
@@ -60,6 +62,7 @@ class SwipeableQuickActionButton extends React.Component<{
         <View style={this.props.style}>
           <Image
             accessibilityLabel={this.props.accessibilityLabel}
+            accessibilityHint={this.props.accessibilityHint}
             source={this.props.imageSource}
             style={this.props.imageStyle}
           />

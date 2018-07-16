@@ -49,7 +49,7 @@ const onlyMultiline = {
 
 if (Platform.OS === 'android') {
   var AndroidTextInput = requireNativeComponent('AndroidTextInput', null);
-} else if (Platform.OS === 'ios') {
+} else if (Platform.OS === 'ios' || Platform.OS === 'macos') {
   var RCTTextView = requireNativeComponent('RCTTextView', null);
   var RCTTextField = requireNativeComponent('RCTTextField', null);
 }
@@ -61,12 +61,24 @@ type Selection = {
 };
 
 const DataDetectorTypes = [
+  // iOS+macOS
   'phoneNumber',
   'link',
   'address',
   'calendarEvent',
+  // iOS-only
   'none',
   'all',
+  // macOS-only
+  'ortography',
+  'spelling',
+  'grammar',
+  'quote',
+  'dash',
+  'replacement',
+  'correction',
+  'regularExpression',
+  'transitInformation',
 ];
 
 /**
@@ -197,6 +209,7 @@ const TextInput = createReactClass({
      * - `words`: first letter of each word.
      * - `sentences`: first letter of each sentence (*default*).
      * - `none`: don't auto capitalize anything.
+     * @platform ios, android
      */
     autoCapitalize: PropTypes.oneOf([
       'none',
@@ -211,7 +224,7 @@ const TextInput = createReactClass({
     /**
      * If `false`, disables spell-check style (i.e. red underlines).
      * The default value is inherited from `autoCorrect`.
-     * @platform ios
+     * @platform ios, macos
      */
     spellCheck: PropTypes.bool,
     /**
@@ -263,6 +276,7 @@ const TextInput = createReactClass({
      * The following values work on Android only:
      *
      * - `visible-password`
+     * @platform ios, android
      */
     keyboardType: PropTypes.oneOf([
       // Cross-platform
@@ -295,9 +309,9 @@ const TextInput = createReactClass({
      * Determines how the return key should look. On Android you can also use
      * `returnKeyLabel`.
      *
-     * *Cross platform*
+     * *Mobile cross platform*
      *
-     * The following values work across platforms:
+     * The following values work across mobile platforms:
      *
      * - `done`
      * - `go`
@@ -322,9 +336,10 @@ const TextInput = createReactClass({
      * - `join`
      * - `route`
      * - `yahoo`
+     * @platform ios, android
      */
     returnKeyType: PropTypes.oneOf([
-      // Cross-platform
+      // Mobile cross platform
       'done',
       'go',
       'next',
@@ -425,7 +440,6 @@ const TextInput = createReactClass({
     onSelectionChange: PropTypes.func,
     /**
      * Callback that is called when the text input's submit button is pressed.
-     * Invalid if `multiline={true}` is specified.
      */
     onSubmitEditing: PropTypes.func,
     /**
@@ -458,6 +472,7 @@ const TextInput = createReactClass({
     /**
      * If `true`, the text input obscures the text entered so that sensitive text
      * like passwords stay secure. The default value is `false`. Does not work with 'multiline={true}'.
+     * @platform ios, android
      */
     secureTextEntry: PropTypes.bool,
     /**
@@ -521,6 +536,7 @@ const TextInput = createReactClass({
     clearTextOnFocus: PropTypes.bool,
     /**
      * If `true`, all text will automatically be selected on focus.
+     * @platform ios, android
      */
     selectTextOnFocus: PropTypes.bool,
     /**
@@ -529,6 +545,7 @@ const TextInput = createReactClass({
      * multiline fields. Note that for multiline fields, setting `blurOnSubmit`
      * to `true` means that pressing return will blur the field and trigger the
      * `onSubmitEditing` event instead of inserting a newline into the field.
+     * Ignored on Android, if Hardware Keyboard is connected.
      */
     blurOnSubmit: PropTypes.bool,
     /**
@@ -583,14 +600,35 @@ const TextInput = createReactClass({
      *
      * Possible values for `dataDetectorTypes` are:
      *
+     * *iOS + macOS*
+     *
      * - `'phoneNumber'`
      * - `'link'`
      * - `'address'`
      * - `'calendarEvent'`
+     *
+     * *iOS Only*
+     *
+     * The following values work on iOS only:
+     *
      * - `'none'`
      * - `'all'`
      *
-     * @platform ios
+     * *macOS Only*
+     *
+     * The following values work on macOS only:
+     *
+     * - `'ortography'`
+     * - `'spelling'`
+     * - `'grammar'`
+     * - `'quote'`
+     * - `'dash'`
+     * - `'replacement'`
+     * - `'correction'`
+     * - `'regularExpression'`
+     * - `'transitInformation'`
+     *
+     * @platform ios, macOS
      */
     dataDetectorTypes: PropTypes.oneOfType([
       PropTypes.oneOf(DataDetectorTypes),
@@ -598,6 +636,7 @@ const TextInput = createReactClass({
     ]),
     /**
      * If `true`, caret is hidden. The default value is `false`.
+     * @platform ios, android
      */
     caretHidden: PropTypes.bool,
   },
@@ -622,6 +661,13 @@ const TextInput = createReactClass({
   isFocused: function(): boolean {
     return TextInputState.currentlyFocusedField() ===
       ReactNative.findNodeHandle(this._inputRef);
+  },
+
+  /**
+   * Returns the native `TextView` node.
+   */
+  getTextViewHandle: function(): any {
+    return ReactNative.findNodeHandle(this._inputRef);
   },
 
   contextTypes: {
@@ -681,7 +727,7 @@ const TextInput = createReactClass({
   },
 
   render: function() {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
       return this._renderIOS();
     } else if (Platform.OS === 'android') {
       return this._renderAndroid();
@@ -773,6 +819,7 @@ const TextInput = createReactClass({
         rejectResponderTermination={true}
         accessible={props.accessible}
         accessibilityLabel={props.accessibilityLabel}
+        accessibilityHint={props.accessibilityHint}
         accessibilityTraits={props.accessibilityTraits}
         nativeID={this.props.nativeID}
         testID={props.testID}>
@@ -831,6 +878,7 @@ const TextInput = createReactClass({
         onPress={this._onPress}
         accessible={this.props.accessible}
         accessibilityLabel={this.props.accessibilityLabel}
+        accessibilityHint={this.props.accessibilityHint}
         accessibilityComponentType={this.props.accessibilityComponentType}
         nativeID={this.props.nativeID}
         testID={this.props.testID}>
@@ -839,7 +887,26 @@ const TextInput = createReactClass({
     );
   },
 
+  _renderWindows: function() {
+    var props = Object.assign({}, this.props);
+    props.style = [styles.input, this.props.style];
+
+    return (
+      <RCTTextInput
+        ref={this._setNativeRef}
+        {...props}
+        text={this._getText()}
+      />
+    );
+  },
+
   _onFocus: function(event: Event) {
+    // Set the focused TextInput field info in TextInputState.
+    // Delaying this to onFocus native event ensures that -
+    // 1. The state is updated only after the native code completes setting focus on the view
+    // 2. In case the focus is moving from one TextInput(A) to another TextInput(B), the state of
+    //    A needs to be updated (blurred) before info about B is updated in TestInputState.
+    TextInputState.setFocusedTextInput(ReactNative.findNodeHandle(this._inputRef));
     if (this.props.onFocus) {
       this.props.onFocus(event);
     }
@@ -943,7 +1010,12 @@ const TextInput = createReactClass({
   },
 
   _onBlur: function(event: Event) {
-    this.blur();
+    // Set the focused TextInput field info in TextInputState.
+    // Delaying this to onBlur native event ensures that -
+    // 1. The state is updated only after the native code completes clearing focus on the view
+    // 2. In case the focus is moving from one TextInput(A) to another TextInput(B), the state of
+    //    A needs to be updated (blurred) before info about B is updated in TestInputState.
+    TextInputState.clearFocusedTextInput(ReactNative.findNodeHandle(this._inputRef));
     if (this.props.onBlur) {
       this.props.onBlur(event);
     }

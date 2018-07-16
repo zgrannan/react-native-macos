@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
@@ -77,6 +77,13 @@ RCT_EXTERN NSString *const RCTShowDevMenuNotification;
  * when user selects the item.
  */
 - (void)addItem:(RCTDevMenuItem *)item;
+
+#if TARGET_OS_OSX
+/**
+ * Creates the NSMenu for macOS.
+ */
+- (NSMenu *)menu;
+#endif
 
 @end
 

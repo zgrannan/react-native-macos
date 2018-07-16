@@ -20,44 +20,41 @@ const ViewStylePropTypes = require('ViewStylePropTypes');
 const {
   AccessibilityComponentTypes,
   AccessibilityTraits,
+  AccessibilityNodeInfoPropType,
 } = require('ViewAccessibility');
 
 import type {
   AccessibilityComponentType,
   AccessibilityTrait,
+  AccessibilityNodeInfoProp,
 } from 'ViewAccessibility';
 import type {EdgeInsetsProp} from 'EdgeInsetsPropType';
 import type {TVViewProps} from 'TVViewPropTypes';
 
 const stylePropType = StyleSheetPropType(ViewStylePropTypes);
 
-export type ViewLayout = {
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-}
-
-export type ViewLayoutEvent = {
-  nativeEvent: {
-    layout: ViewLayout,
-  }
-}
+const DraggedTypes = [
+  'fileUrl',
+];
 
 // There's no easy way to create a different type if(Platform.isTVOS):
 // so we must include TVViewProps
 export type ViewProps = {
   accessible?: bool,
   accessibilityLabel?: React$PropType$Primitive<any>,
+  accessibilityHint?: React$PropType$Primitive<any>,
   accessibilityComponentType?: AccessibilityComponentType,
   accessibilityLiveRegion?: 'none' | 'polite' | 'assertive',
   importantForAccessibility?: 'auto'| 'yes'| 'no'| 'no-hide-descendants',
   accessibilityTraits?: AccessibilityTrait | Array<AccessibilityTrait>,
   accessibilityViewIsModal?: bool,
+  accessibilityElementsHidden?: bool,
   onAccessibilityTap?: Function,
   onMagicTap?: Function,
   testID?: string,
   nativeID?: string,
+  onDoubleClick?: Function,
+  onKeyDown?: Function,
   onLayout?: (event: ViewLayoutEvent) => void,
   onResponderGrant?: Function,
   onResponderMove?: Function,
@@ -77,6 +74,19 @@ export type ViewProps = {
   shouldRasterizeIOS?: bool,
   collapsable?: bool,
   needsOffscreenAlphaCompositing?: bool,
+  overrideDefaultFocusLoop?: bool,
+  clickable?: bool,
+  onClick?: Function,
+  onMouseEnter: Function,
+  onMouseLeave: Function,
+  onDragEnter: Function,
+  onDragLeave: Function,
+  onDrop: Function,
+  onFocusChange?: Function,
+  acceptsKeyboardFocus?: bool,
+  enableFocusRing?: bool,
+  draggedTypes: DraggedTypes | Array<DraggedTypes>,
+  accessibilityNodeInfo?: AccessibilityNodeInfoProp,
 } & TVViewProps;
 
 module.exports = {
@@ -94,6 +104,12 @@ module.exports = {
    * children and accumulating all the `Text` nodes separated by space.
    */
   accessibilityLabel: PropTypes.node,
+
+  /**
+   * Sets the hint text that's read by the screen reader when the user interacts
+   * with the element.
+   */
+  accessibilityHint: PropTypes.node,
 
   /**
    * Indicates to accessibility services to treat UI component like a
@@ -157,6 +173,20 @@ module.exports = {
   ]),
 
   /**
+   * Provides privilege to overrides accessibilityNodeInfo properties to be delivered to accessibility 
+   * service. Works for Android only.
+   * 
+   * Currently supported properties:
+   *  - clickable : bool
+   * 
+   * See the [Android `AccessibilityNodeInfo` docs](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.html)
+   * for reference.
+   * 
+   * @platform android
+   */
+  accessibilityNodeInfo: AccessibilityNodeInfoPropType,
+
+  /**
    * Provides additional traits to screen reader. By default no traits are
    * provided unless specified otherwise in element.
    *
@@ -182,10 +212,14 @@ module.exports = {
    * - `'allowsDirectInteraction'` - The element allows direct touch interaction for VoiceOver users.
    * - `'pageTurn'` - Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element.
    *
+   * The following values are applicable to macos but are ignored on all other platforms:
+   * - `'group'` - The element is a group that contains other elements.
+   * - `'list'` - The element should be treated as a list.
+   *
    * See the [Accessibility guide](docs/accessibility.html#accessibilitytraits-ios)
    * for more information.
    *
-   * @platform ios
+   * @platform ios, macos
    */
   accessibilityTraits: PropTypes.oneOfType([
     PropTypes.oneOf(AccessibilityTraits),
@@ -203,6 +237,18 @@ module.exports = {
    * @platform ios
    */
   accessibilityViewIsModal: PropTypes.bool,
+
+  /**
+   * A value indicating whether the accessibility elements contained within
+   * this accessibility element are hidden.
+   *
+   * @platform ios
+   *
+   * See http://facebook.github.io/react-native/docs/view.html#accessibilityElementsHidden
+   */
+  accessibilityElementsHidden: PropTypes.bool,
+
+  onDoubleClick: PropTypes.func,
 
   /**
    * When `accessible` is true, the system will try to invoke this function
@@ -464,4 +510,97 @@ module.exports = {
    * @platform android
    */
   needsOffscreenAlphaCompositing: PropTypes.bool,
+
+  /**
+   * For platforms that support tab navigation between controls, this value
+   * specifies whether the default tab focus loop should be overridden.
+   * Currently this only applies to the `macos` platform.
+   * Default is `false`.
+   *
+   * @platform macos
+   */
+  overrideDefaultFocusLoop: PropTypes.bool,
+
+  /**
+   * When `true`, indicates that the view is clickable. By default,
+   * all the touchable elements are clickable.
+   * 
+   * @platform android
+   */
+  clickable: PropTypes.bool,
+  
+  /**
+   * When `clickable` is true, the system will try to invoke this function
+   * when the user performs a click.
+   * 
+   * @platform android
+   */
+  onClick: PropTypes.func,
+
+  /**
+   * Fired when a pointing device is moved over the view
+   * 
+   * @platform macos
+   */
+  onMouseEnter: PropTypes.func,
+  
+  /**
+   * Fired when a pointing device is moved out the view
+   * 
+   * @platform macos
+   */
+  onMouseLeave: PropTypes.func,
+  
+  /**
+   * Fired when a dragged element enters a valid drop target
+   * 
+   * @platform macos
+   */
+  onDragEnter: PropTypes.func,
+  
+  /**
+   * Fired when a dragged element leaves a valid drop target
+   * 
+   * @platform macos
+   */
+  onDragLeave: PropTypes.func,
+
+  /**
+   * Fired when an element is dropped on a valid drop target
+   * 
+   * @platform macos
+   */
+  onDrop: PropTypes.func,
+  
+  /**
+  * Specifies whether the view participates in the key view loop as user tabs
+  * through different controls.
+  */
+  acceptsKeyboardFocus: PropTypes.bool,
+
+  /**
+  * Specifies whether focus ring should be drawn when the view has the first responder status.
+  */
+  enableFocusRing: PropTypes.bool,
+
+  /**
+   * fired when the view focus changes (gain->lose or lose->gain)
+   * 
+   * @platform android
+   */
+  onFocusChange: PropTypes.func,
+
+  /**
+   * Enables Dran'n'Drop Support for certain types of dragged types
+   *
+   * Possible values for `draggedTypes` are:
+   * 
+   * - `'fileUrl'`
+   * 
+   * @platform macos
+   */
+  draggedTypes: PropTypes.oneOfType([
+    PropTypes.oneOf(DraggedTypes),
+    PropTypes.arrayOf(PropTypes.oneOf(DraggedTypes)),
+  ]),
 };

@@ -364,6 +364,18 @@ const ScrollView = createReactClass({
      */
     removeClippedSubviews: PropTypes.bool,
     /**
+     * Experimental: specifies how much to adjust the content view by when using
+     * the keyboard to scroll. This value adjusts the content's horizontal offset.
+     *
+     * @platform macos
+     */
+    horizontalLineScroll: PropTypes.number,
+    /**
+     * Experimental: specifies how much to adjust the content view by when using
+     * the keyboard to scroll. This value adjusts the content's vertical offset.
+     */
+    verticalLineScroll: PropTypes.number,
+    /**
      * The current scale of the scroll view content. The default value is 1.0.
      * @platform ios
      */
@@ -611,9 +623,47 @@ const ScrollView = createReactClass({
     }
   },
 
+  _handleKeyDown: function(e: Object) {
+    if (this.props.onKeyDown) {
+        this.props.onKeyDown(e);
+    }
+    else {
+        const event = e['nativeEvent'];
+        const key = event['key'];
+        const kMinScrollOffset = 10;
+        
+        if (Platform.OS === 'macos') {
+            if (key === 'PAGE_UP') {
+                this._handleScrollByKeyDown(event, {x: event.contentOffset.x, y: event.contentOffset.y + -event.layoutMeasurement.height})
+            }
+            else if (key === 'PAGE_DOWN') {
+                this._handleScrollByKeyDown(event, {x: event.contentOffset.x, y: event.contentOffset.y + event.layoutMeasurement.height})
+            }
+            else if (key === 'LEFT_ARROW') {
+                this._handleScrollByKeyDown(event, {x: event.contentOffset.x + -(this.props.horizontalLineScroll || kMinScrollOffset), y: event.contentOffset.y});
+            }
+            else if (key === 'RIGHT_ARROW') {
+                this._handleScrollByKeyDown(event, {x: event.contentOffset.x + (this.props.horizontalLineScroll || kMinScrollOffset), y: event.contentOffset.y});
+            }
+            else if (key === 'DOWN_ARROW') {
+                this._handleScrollByKeyDown(event, {x: event.contentOffset.x, y: event.contentOffset.y + (this.props.verticalLineScroll || kMinScrollOffset)});
+            }
+            else if (key === 'UP_ARROW') {
+                this._handleScrollByKeyDown(event, {x: event.contentOffset.x, y: event.contentOffset.y + -(this.props.verticalLineScroll || kMinScrollOffset)});
+            }
+        }
+    }
+  },
+  
+  _handleScrollByKeyDown: function(e: Object, newOffset) {
+    const maxX = e.contentSize.width - e.layoutMeasurement.width;
+    const maxY = e.contentSize.height - e.layoutMeasurement.height;
+    this.scrollTo({x: Math.max(0, Math.min(maxX, newOffset.x)), y: Math.max(0, Math.min(maxY, newOffset.y))});
+  },
+
   _handleScroll: function(e: Object) {
     if (__DEV__) {
-      if (this.props.onScroll && this.props.scrollEventThrottle == null && Platform.OS === 'ios') {
+      if (this.props.onScroll && this.props.scrollEventThrottle == null && (Platform.OS === 'ios' || Platform.OS === 'macos')) {
         console.log( // eslint-disable-line no-console
           'You specified `onScroll` on a <ScrollView> but not ' +
           '`scrollEventThrottle`. You will only receive one event. ' +
@@ -649,7 +699,7 @@ const ScrollView = createReactClass({
   render: function() {
     let ScrollViewClass;
     let ScrollContentContainerViewClass;
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
       ScrollViewClass = RCTScrollView;
       ScrollContentContainerViewClass = RCTScrollContentView;
       warning(
@@ -805,6 +855,7 @@ const ScrollView = createReactClass({
       onTouchMove: this.scrollResponderHandleTouchMove,
       onTouchStart: this.scrollResponderHandleTouchStart,
       onTouchCancel: this.scrollResponderHandleTouchCancel,
+      onKeyDown: this._handleKeyDown,
       scrollEventThrottle: hasStickyHeaders ? 1 : this.props.scrollEventThrottle,
       sendMomentumEvents: (this.props.onMomentumScrollBegin || this.props.onMomentumScrollEnd) ?
         true : false,
@@ -904,13 +955,14 @@ if (Platform.OS === 'android') {
   AndroidHorizontalScrollContentView = requireNativeComponent(
     'AndroidHorizontalScrollContentView'
   );
-} else if (Platform.OS === 'ios') {
+} else if (Platform.OS === 'ios' || Platform.OS === 'macos') {
   nativeOnlyProps = {
     nativeOnly: {
       onMomentumScrollBegin: true,
       onMomentumScrollEnd : true,
       onScrollBeginDrag: true,
       onScrollEndDrag: true,
+      onKeyDown: true,
     }
   };
   RCTScrollView = requireNativeComponent(

@@ -9,7 +9,7 @@
 
 #import "RCTImageViewManager.h"
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTConvert.h>
 
@@ -26,7 +26,7 @@ RCT_EXPORT_MODULE()
   return [RCTImageShadowView new];
 }
 
-- (UIView *)view
+- (RCTPlatformView *)view
 {
   return [[RCTImageView alloc] initWithBridge:self.bridge];
 }
@@ -42,6 +42,7 @@ RCT_EXPORT_VIEW_PROPERTY(onLoad, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onLoadEnd, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(resizeMode, RCTResizeMode)
 RCT_REMAP_VIEW_PROPERTY(source, imageSources, NSArray<RCTImageSource *>);
+#if !TARGET_OS_OSX
 RCT_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, RCTImageView)
 {
   // Default tintColor isn't nil - it's inherited from the superView - but we
@@ -50,6 +51,7 @@ RCT_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, RCTImageView)
   view.tintColor = [RCTConvert UIColor:json] ?: defaultView.tintColor;
   view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
 }
+#endif
 
 RCT_EXPORT_METHOD(getSize:(NSURLRequest *)request
                   successBlock:(RCTResponseSenderBlock)successBlock

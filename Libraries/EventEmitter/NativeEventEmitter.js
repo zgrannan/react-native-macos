@@ -33,7 +33,7 @@ class NativeEventEmitter extends EventEmitter {
 
   constructor(nativeModule: ?NativeModule) {
     super(RCTDeviceEventEmitter.sharedSubscriber);
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
       invariant(nativeModule, 'Native module cannot be null.');
       this._nativeModule = nativeModule;
     }

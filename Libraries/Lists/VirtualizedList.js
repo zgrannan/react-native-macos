@@ -14,6 +14,7 @@
 
 const Batchinator = require('Batchinator');
 const FillRateHelper = require('FillRateHelper');
+const Platform = require('Platform');
 const PropTypes = require('prop-types');
 const React = require('React');
 const ReactNative = require('ReactNative');
@@ -80,6 +81,12 @@ type OptionalProps = {
    * this for debugging purposes.
    */
   disableVirtualization: boolean,
+  /**
+   * Handles key down events and updates selection based on the key event
+   *
+   * @platform macos
+   */
+  enableSelectionOnKeyPress: boolean,
   /**
    * A marker property for telling the list to re-render (since it implements `PureComponent`). If
    * any of your `renderItem`, Header, Footer, etc. functions depend on anything outside of the
@@ -153,6 +160,19 @@ type OptionalProps = {
     highestMeasuredFrameIndex: number,
     averageItemLength: number,
   }) => void,
+  /**
+   * If provided, will be invoked whenever the selection on the list changes. Make sure to set 
+   * the property enableSelectionOnKeyPress to true to change selection via keyboard (macOS).
+   *
+   * @platform macos
+   */
+  onSelectionChanged: ?Function,
+  /**
+   * If provided, called when 'Enter' key is pressed on an item.
+   *
+   * @platform macos
+   */
+  onSelectionEntered: ?Function,
   /**
    * Called when the viewability of rows changes, as defined by the
    * `viewabilityConfig` prop.
@@ -353,6 +373,24 @@ class VirtualizedList extends React.PureComponent<Props, State> {
       this.props.horizontal ? {x: offset, animated} : {y: offset, animated},
     );
   }
+
+  ensureItemAtIndexIsVisible = (rowIndex) => {
+   const frame = this._getFrameMetricsApprox(rowIndex);
+   const visTop = this._scrollMetrics.offset;
+   const visLen = this._scrollMetrics.visibleLength;
+   const visEnd = visTop + visLen;
+   const contentLength = this._scrollMetrics.contentLength;
+   const frameEnd = frame.offset + frame.length;
+   
+    if (frameEnd > visEnd) {
+      const newOffset = Math.min(contentLength, visTop + (frameEnd - visEnd));
+      this.scrollToOffset({offset : newOffset});
+    } else if (frame.offset < visTop) {
+      const newOffset = Math.max(0, visTop - frame.length);
+      this.scrollToOffset({offset : newOffset });
+    }
+  }
+  
 
   recordInteraction() {
     this._viewabilityTuples.forEach(t => {
@@ -562,6 +600,7 @@ class VirtualizedList extends React.PureComponent<Props, State> {
           index={ii}
           inversionStyle={inversionStyle}
           item={item}
+          isSelected={ this.state.selectedRowIndex == ii ? true : false }
           key={key}
           prevCellKey={prevCellKey}
           onUpdateSeparators={this._onUpdateSeparators}
@@ -765,7 +804,7 @@ class VirtualizedList extends React.PureComponent<Props, State> {
         </View>,
       );
     }
-    const scrollProps = {
+    var scrollProps = {
       ...this.props,
       onContentSizeChange: this._onContentSizeChange,
       onLayout: this._onLayout,
@@ -843,6 +882,10 @@ class VirtualizedList extends React.PureComponent<Props, State> {
   }
 
   _defaultRenderScrollComponent = props => {
+    let keyEventHandler = this.props.onKeyDown;
+    if (!keyEventHandler) {
+      keyEventHandler = this.props.enableSelectionOnKeyPress ? this._handleKeyDown : null; 
+    }
     if (this._isNestedWithSameOrientation()) {
       return <View {...props} />;
     } else if (props.onRefresh) {
@@ -851,13 +894,14 @@ class VirtualizedList extends React.PureComponent<Props, State> {
         '`refreshing` prop must be set as a boolean in order to use `onRefresh`, but got `' +
           JSON.stringify(props.refreshing) +
           '`',
-      );
+      ); 
       return (
         /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
          * comment suppresses an error when upgrading Flow's support for React.
          * To see the error delete this comment and run Flow. */
         <ScrollView
           {...props}
+          onKeyDown={keyEventHandler}
           refreshControl={
             /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
              * comment suppresses an error when upgrading Flow's support for
@@ -874,7 +918,7 @@ class VirtualizedList extends React.PureComponent<Props, State> {
       /* $FlowFixMe(>=0.53.0 site=react_native_fb,react_native_oss) This
        * comment suppresses an error when upgrading Flow's support for React.
        * To see the error delete this comment and run Flow. */
-      return <ScrollView {...props} />;
+      return <ScrollView {...props} onKeyDown={keyEventHandler} />;
     }
   };
 
@@ -937,6 +981,66 @@ class VirtualizedList extends React.PureComponent<Props, State> {
     this._headerLength = this._selectLength(e.nativeEvent.layout);
   };
 
+  _selectRowAboveIndex = (rowIndex) => {
+    const rowAbove = rowIndex > 0 ? rowIndex - 1 : rowIndex;
+    this.setState( state => { return {selectedRowIndex: rowAbove}; });
+    return rowAbove;
+  }
+  
+  _selectRowBelowIndex = (rowIndex) => {   
+    if (this.props.getItemCount) {
+      const {data} = this.props;
+      const itemCount = this.props.getItemCount(data);
+      const rowBelow = rowIndex < (itemCount - 1) ? rowIndex + 1 : rowIndex;
+      this.setState( state => { return {selectedRowIndex: rowBelow}; });
+      return rowBelow;
+   }
+  }
+ 
+  _handleKeyDown = (e) => {
+    if (this.props.onKeyDown) {
+      this.props.onKeyDown(e);
+    }
+    else {
+      if (Platform.OS === 'macos') {
+        const event = e['nativeEvent'];
+        const key = event['key'];
+        
+        let prevIndex = -1;
+        let newIndex = -1;
+        if ("selectedRowIndex" in this.state) {
+            prevIndex = this.state.selectedRowIndex;
+        }
+
+        const {data, getItem} = this.props;
+        if (key === 'DOWN_ARROW') {
+            newIndex = this._selectRowBelowIndex(prevIndex);
+            this.ensureItemAtIndexIsVisible(newIndex);
+            
+            if (this.props.onSelectionChanged && prevIndex != newIndex) {
+              const item = getItem(data, newIndex);
+              this.props.onSelectionChanged( {previousSelection: prevIndex, newSelection: newIndex, item: item});
+            }
+        }
+        else if (key === 'UP_ARROW') {
+            newIndex = this._selectRowAboveIndex(prevIndex);
+            this.ensureItemAtIndexIsVisible(newIndex);
+            
+            if (this.props.onSelectionChanged && prevIndex != newIndex) {
+              const item = getItem(data, newIndex);
+              this.props.onSelectionChanged( {previousSelection: prevIndex, newSelection: newIndex, item: item});
+            }
+        }
+        else if (key === 'ENTER') {
+            if (this.props.onSelectionEntered) {
+              const item = getItem(data, prevIndex);
+              this.props.onSelectionEntered(item);
+            }
+        }
+      }
+    }
+  }
+  
   _renderDebugOverlay() {
     const normalize =
       this._scrollMetrics.visibleLength / this._scrollMetrics.contentLength;
@@ -1279,6 +1383,7 @@ class CellRenderer extends React.Component<
     horizontal: ?boolean,
     index: number,
     inversionStyle: ?StyleObj,
+    isSelected: Boolean,
     item: Item,
     onLayout: (event: Object) => void, // This is extracted by ScrollViewStickyHeader
     onUnmount: (cellKey: string) => void,
@@ -1341,6 +1446,7 @@ class CellRenderer extends React.Component<
       item,
       index,
       inversionStyle,
+      isSelected,
       parentProps,
     } = this.props;
     const {renderItem, getItemLayout} = parentProps;
@@ -1348,6 +1454,7 @@ class CellRenderer extends React.Component<
     const element = renderItem({
       item,
       index,
+      isSelected,
       separators: this._separators,
     });
     const onLayout =

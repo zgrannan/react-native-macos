@@ -13,6 +13,7 @@
 
 @implementation RCTShadowRawText
 
+#if !TARGET_OS_OSX
 - (instancetype)init
 {
   if ((self = [super init])) {
@@ -33,6 +34,7 @@
 {
   [self dirtyText];
 }
+#endif
 
 - (void)setText:(NSString *)text
 {

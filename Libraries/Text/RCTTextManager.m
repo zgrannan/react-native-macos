@@ -9,7 +9,9 @@
 
 #import "RCTTextManager.h"
 
+#if !TARGET_OS_OSX
 #import <React/RCTAccessibilityManager.h>
+#endif
 #import <React/RCTAssert.h>
 #import <React/RCTConvert.h>
 #import <React/RCTLog.h>
@@ -20,7 +22,6 @@
 #import "RCTShadowRawText.h"
 #import "RCTShadowText.h"
 #import "RCTText.h"
-#import "RCTTextView.h"
 
 static void collectDirtyNonTextDescendants(RCTShadowText *shadowView, NSMutableArray *nonTextDescendants) {
   for (RCTShadowView *child in shadowView.reactSubviews) {
@@ -101,7 +102,9 @@ RCT_EXPORT_SHADOW_PROPERTY(selectable, BOOL)
       RCTAssert([shadowView isTextDirty], @"Don't process any nodes that don't have dirty text");
 
       if ([shadowView isKindOfClass:[RCTShadowText class]]) {
+#if !TARGET_OS_OSX
         ((RCTShadowText *)shadowView).fontSizeMultiplier = self.bridge.accessibilityManager.multiplier;
+#endif
         [(RCTShadowText *)shadowView recomputeText];
         collectDirtyNonTextDescendants((RCTShadowText *)shadowView, queue);
       } else if ([shadowView isKindOfClass:[RCTShadowRawText class]]) {

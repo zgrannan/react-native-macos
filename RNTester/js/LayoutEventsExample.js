@@ -13,6 +13,7 @@
 
 var React = require('react');
 var ReactNative = require('react-native');
+var Platform = require('Platform');
 var {
   Image,
   LayoutAnimation,
@@ -40,13 +41,23 @@ class LayoutEventExample extends React.Component<{}, State> {
   };
 
   animateViewLayout = () => {
-    LayoutAnimation.configureNext(
+    if (Platform.OS === 'macos') {
+      LayoutAnimation.configureNext(
+      LayoutAnimation.Presets.easeInEaseOut,
+      () => {
+        console.log('layout animation done.');
+        this.addWrapText();
+        }
+      );
+    } else {
+      LayoutAnimation.configureNext(
       LayoutAnimation.Presets.spring,
       () => {
         console.log('layout animation done.');
         this.addWrapText();
-      }
-    );
+        }
+      );
+    }
     this.setState({
       viewStyle: {
         margin: this.state.viewStyle.margin > 20 ? 20 : 60,

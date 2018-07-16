@@ -198,7 +198,7 @@ var Slider = createReactClass({
 });
 
 let styles;
-if (Platform.OS === 'ios') {
+if (Platform.OS === 'ios' || Platform.OS === 'macos') {
   styles = StyleSheet.create({
     slider: {
       height: 40,

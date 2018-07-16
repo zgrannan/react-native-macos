@@ -12,7 +12,12 @@
 #import "RCTConvert.h"
 #import "RCTUtils.h"
 
-@interface RCTPicker() <UIPickerViewDataSource, UIPickerViewDelegate>
+@interface RCTPicker()
+#if !TARGET_OS_OSX
+  <UIPickerViewDataSource, UIPickerViewDelegate>
+#else
+  <NSComboBoxDataSource, NSComboBoxDelegate>
+#endif
 @end
 
 @implementation RCTPicker
@@ -21,10 +26,22 @@
 {
   if ((self = [super initWithFrame:frame])) {
     _color = [UIColor blackColor];
+#if !TARGET_OS_OSX
     _font = [UIFont systemFontOfSize:21]; // TODO: selected title default should be 23.5
+#else
+    _font = [UIFont systemFontOfSize:11];
+#endif
     _selectedIndex = NSNotFound;
     _textAlign = NSTextAlignmentCenter;
     self.delegate = self;
+    
+#if TARGET_OS_OSX
+    self.controlSize = NSControlSizeRegular;
+    self.editable = NO;
+    self.drawsBackground = NO;
+    self.usesDataSource = YES;
+    self.dataSource = self;
+#endif
   }
   return self;
 }
@@ -33,20 +50,55 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
 
 - (void)setItems:(NSArray<NSDictionary *> *)items
 {
+#if !TARGET_OS_OSX
   _items = [items copy];
   [self setNeedsLayout];
+#else
+  CGFloat maxHeight = 0.0;
+  NSMutableParagraphStyle *mutableParagraphStyle = [[NSMutableParagraphStyle alloc] init];
+  mutableParagraphStyle.alignment = _textAlign;
+  NSParagraphStyle *paragraphStyle = [mutableParagraphStyle copy];
+  NSMutableArray *mutableItems = [[NSMutableArray alloc] initWithCapacity:items.count];
+  for (NSDictionary *item in items) {
+    NSMutableDictionary *mutableItem = item.mutableCopy;
+    NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:[RCTConvert NSString:item[@"label"]]
+                                                                     attributes:@{NSForegroundColorAttributeName : [RCTConvert UIColor:item[@"textColor"]] ?: _color,
+                                                                                  NSFontAttributeName: _font,
+                                                                                  NSParagraphStyleAttributeName: paragraphStyle}];
+    NSSize size = attrString.size;
+    if (size.height > maxHeight) {
+      maxHeight = size.height;
+    }
+    mutableItem[@"label"] = attrString;
+    [mutableItems addObject:mutableItem.copy];
+  }
+  self.itemHeight = maxHeight;
+  _items = mutableItems.copy;
+  self.needsLayout = YES;
+#endif
 }
 
 - (void)setSelectedIndex:(NSInteger)selectedIndex
 {
   if (_selectedIndex != selectedIndex) {
+#if !TARGET_OS_OSX
     BOOL animated = _selectedIndex != NSNotFound; // Don't animate the initial value
+#endif
     _selectedIndex = selectedIndex;
     dispatch_async(dispatch_get_main_queue(), ^{
+#if !TARGET_OS_OSX
       [self selectRow:selectedIndex inComponent:0 animated:animated];
+#else
+      self.delegate = nil;
+      [self selectItemAtIndex:selectedIndex];
+      self.attributedStringValue = _items[selectedIndex][@"label"];
+      self.delegate = self;
+#endif
     });
   }
 }
+
+#if !TARGET_OS_OSX
 
 #pragma mark - UIPickerViewDataSource protocol
 
@@ -101,12 +153,45 @@ numberOfRowsInComponent:(__unused NSInteger)component
 - (void)pickerView:(__unused UIPickerView *)pickerView
       didSelectRow:(NSInteger)row inComponent:(__unused NSInteger)component
 {
-  _selectedIndex = row;
-  if (_onChange && _items.count > (NSUInteger)row) {
+  [self didSelectRowAtIndex:row];
+}
+
+#else
+
+#pragma mark - NSComboBoxDataSource protocol
+
+- (BOOL)usesDataSource
+{
+  return YES;
+}
+
+- (NSInteger)numberOfItemsInComboBox:(__unused NSComboBox *)theComboBox
+{
+  return _items.count;
+}
+
+- (id)comboBox:(__unused NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index
+{
+  return index >= 0 ? _items[index][@"label"] : nil;
+}
+
+#pragma mark - NSComboBoxDelegate methods
+
+- (void)comboBoxSelectionDidChange:(__unused NSNotification *)notification
+{
+  [self didSelectRowAtIndex:self.indexOfSelectedItem];
+}
+
+#endif
+
+- (void)didSelectRowAtIndex:(NSInteger)idx
+{
+  _selectedIndex = idx;
+  if (_onChange && _items.count > (NSUInteger)idx) {
     _onChange(@{
-      @"newIndex": @(row),
-      @"newValue": RCTNullIfNil(_items[row][@"value"]),
-    });
+                @"newIndex": @(idx),
+                @"newValue": RCTNullIfNil(_items[idx][@"value"]),
+                });
   }
 }
 

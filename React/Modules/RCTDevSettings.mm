@@ -24,6 +24,7 @@
 #import "RCTProfile.h"
 #import "RCTUtils.h"
 
+static NSString *const kRCTDevSettingDevModeEnabled = @"devModeEnabled";
 static NSString *const kRCTDevSettingProfilingEnabled = @"profilingEnabled";
 static NSString *const kRCTDevSettingHotLoadingEnabled = @"hotLoadingEnabled";
 static NSString *const kRCTDevSettingLiveReloadEnabled = @"liveReloadEnabled";
@@ -137,6 +138,9 @@ RCT_EXPORT_MODULE()
 {
   // default behavior is to use NSUserDefaults
   NSDictionary *defaultValues = @{
+#if DEBUG
+    kRCTDevSettingDevModeEnabled: @YES,
+#endif
     kRCTDevSettingShakeToShowDevMenu: @YES,
   };
   RCTDevSettingsUserDefaultsDataSource *dataSource = [[RCTDevSettingsUserDefaultsDataSource alloc] initWithDefaultValues:defaultValues];
@@ -201,6 +205,16 @@ RCT_EXPORT_MODULE()
 - (id)settingForKey:(NSString *)key
 {
   return [_dataSource settingForKey:key];
+}
+
+RCT_EXPORT_METHOD(setDevModeEnabled:(BOOL)enabled)
+{
+  [self _updateSettingWithValue:@(enabled) forKey:kRCTDevSettingDevModeEnabled];
+}
+
+- (BOOL)isDevModeEnabled
+{
+  return [[self settingForKey:kRCTDevSettingDevModeEnabled] boolValue];
 }
 
 - (BOOL)isRemoteDebuggingAvailable

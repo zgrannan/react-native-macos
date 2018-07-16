@@ -12,6 +12,7 @@
 'use strict';
 
 const AlertIOS = require('AlertIOS');
+const AlertMacOS = require('AlertMacOS');
 const NativeModules = require('NativeModules');
 const Platform = require('Platform');
 
@@ -44,6 +45,11 @@ type Options = {
  * On iOS you can specify any number of buttons. Each button can optionally
  * specify a style, which is one of 'default', 'cancel' or 'destructive'.
  *
+ * ## macOS
+ *
+ * On macOS you can specify any number of buttons. The alerts have a default
+ * warning style and run modally as a sheet.
+ *
  * ## Android
  *
  * On Android at most three buttons can be specified. Android has a concept
@@ -63,7 +69,7 @@ type Options = {
  *
  * Example usage:
  * ```
- * // Works on both iOS and Android
+ * // Works on iOS, macOS and Android
  * Alert.alert(
  *   'Alert Title',
  *   'My Alert Msg',
@@ -87,11 +93,13 @@ class Alert {
   ): void {
     if (Platform.OS === 'ios') {
       if (typeof type !== 'undefined') {
-        console.warn('Alert.alert() with a 5th "type" parameter is deprecated and will be removed. Use AlertIOS.prompt() instead.');
+        console.warn('Alert.alert() with a 4th "type" parameter is deprecated and will be removed. Use AlertIOS.prompt() instead.');
         AlertIOS.alert(title, message, buttons, type);
         return;
       }
       AlertIOS.alert(title, message, buttons);
+    } else if (Platform.OS === 'macos') {
+      AlertMacOS.alert(title, message, buttons);
     } else if (Platform.OS === 'android') {
       AlertAndroid.alert(title, message, buttons, options);
     }

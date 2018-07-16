@@ -12,6 +12,7 @@
  */
 'use strict';
 
+const Platform = require('Platform');
 const React = require('React');
 const View = require('View');
 const VirtualizedList = require('VirtualizedList');
@@ -54,6 +55,12 @@ type RequiredProps<SectionT: SectionBase> = {
 };
 
 type OptionalProps<SectionT: SectionBase> = {
+  /**
+   * Handles key down events and updates selection based on the key event
+   *
+   * @platform macos
+   */
+  enableSelectionOnKeyPress: boolean,
   /**
    * Rendered after the last item in the last section.
    */
@@ -105,6 +112,19 @@ type OptionalProps<SectionT: SectionBase> = {
    * sure to also set the `refreshing` prop correctly.
    */
   onRefresh?: ?Function,
+  /**
+   * If provided, processes key press and mouse click events to update selection state 
+   * and invokes the provided function to notify of selection state changes.
+   *
+   * @platform macos
+   */
+  onSelectionChanged: ?Function,
+  /**
+   * If provided, called when 'Enter' key is pressed on an item.
+   *
+   * @platform macos
+   */
+  onSelectionEntered: ?Function,
   /**
    * Called when the viewability of rows changes, as defined by the
    * `viewabilityConfig` prop.
@@ -255,6 +275,23 @@ class VirtualizedSectionList<SectionT: SectionBase> extends React.PureComponent<
     }
   };
 
+  _isItemSelected = (item: Item) : Boolean => {
+      let isSelected = false;
+      if (this.state.selectedRowIndexPath)
+      {
+          const selection = this.state.selectedRowIndexPath;
+          const sections = this.props.sections;
+          if (sections && selection.sectionIndex < sections.length) {
+              const section = sections[selection.sectionIndex];
+              if (selection.rowIndex < section.data.length) {
+                const selectedItem = section.data[selection.rowIndex];
+                isSelected = (item == selectedItem);
+              }
+          }
+      }
+      return isSelected;
+  }
+  
   _renderItem = ({item, index}: {item: Item, index: number}) => {
     const info = this._subExtractor(index);
     if (!info) {
@@ -273,7 +310,7 @@ class VirtualizedSectionList<SectionT: SectionBase> extends React.PureComponent<
     } else {
       const renderItem = info.section.renderItem || this.props.renderItem;
       const SeparatorComponent = this._getSeparatorComponent(index, info);
-      invariant(renderItem, 'no renderItem!');
+      invariant(renderItem, 'no renderItem!');  
       return (
         <ItemWithSeparator
           SeparatorComponent={SeparatorComponent}
@@ -282,6 +319,7 @@ class VirtualizedSectionList<SectionT: SectionBase> extends React.PureComponent<
           }
           cellKey={info.key}
           index={infoIndex}
+          isSelected={this._isItemSelected(item)}
           item={item}
           leadingItem={info.leadingItem}
           leadingSection={info.leadingSection}
@@ -333,7 +371,13 @@ class VirtualizedSectionList<SectionT: SectionBase> extends React.PureComponent<
       stickyHeaderIndices.push(v + offset);
       return v + section.data.length + 2; // Add two for the section header and footer.
     }, 0);
-
+    
+    let selectionIndex = null;
+    if (this.state && this.state.selectedRowIndexPath) {
+      selectionIndex = this.state.selectedRowIndexPath;
+    } else {
+      selectionIndex = {sectionIndex: 0, rowIndex: -1};
+    }
     return {
       childProps: {
         ...props,
@@ -350,7 +394,8 @@ class VirtualizedSectionList<SectionT: SectionBase> extends React.PureComponent<
           ? stickyHeaderIndices
           : undefined,
       },
-    };
+      selectedRowIndexPath: {sectionIndex: 0, rowIndex: -1},
+   };
   }
 
   constructor(props: Props<SectionT>, context: Object) {
@@ -361,10 +406,105 @@ class VirtualizedSectionList<SectionT: SectionBase> extends React.PureComponent<
   componentWillReceiveProps(nextProps: Props<SectionT>) {
     this.setState(this._computeState(nextProps));
   }
+  
+  _selectRowAboveIndexPath = (rowIndexPath) => {
+    let sectionIndex = rowIndexPath.sectionIndex;
+    if (sectionIndex >= this.props.sections.length) {
+      return rowIndexPath;
+    }
+    
+    const count = this.props.sections[sectionIndex].data.length;
+    let row = rowIndexPath.rowIndex;
+    let rowAbove = row - 1;
+    
+    if (rowAbove < 0) {
+        if (sectionIndex > 0) {
+            sectionIndex = sectionIndex - 1;
+            rowAbove = Math.max(0, this.props.sections[sectionIndex].data.length - 1);
+        } else {
+            rowAbove = row;
+        }
+    }
+    const nextIndexPath = {sectionIndex: sectionIndex, rowIndex: rowAbove};
+    this.setState( state => { return {selectedRowIndexPath: nextIndexPath}; });
+    return nextIndexPath;
+  }
+  
+  _selectRowBelowIndexPath = (rowIndexPath) => {
+    let sectionIndex = rowIndexPath.sectionIndex;
+    if (sectionIndex >= this.props.sections.length) {
+      return rowIndexPath;
+    }
+    
+    const count = this.props.sections[sectionIndex].data.length;
+    let row = rowIndexPath.rowIndex;
+    let rowBelow = row + 1;
+    
+    if (rowBelow > count - 1) {
+        if (sectionIndex < this.props.sections.length - 1) {
+           sectionIndex = sectionIndex + 1;
+           rowBelow = 0;
+        }
+        else {
+           rowBelow = row;
+        }
+    }
+    const nextIndexPath = {sectionIndex: sectionIndex, rowIndex: rowBelow};
+    this.setState( state => { return {selectedRowIndexPath: nextIndexPath}; });
+    return nextIndexPath;
+  }
+  
+  _ensureItemAtIndexPathIsVisible = (rowIndexPath) => {
+    let index = rowIndexPath.rowIndex + 1;
+    for (let ii = 0; ii < rowIndexPath.sectionIndex; ii++) {
+      index += this.props.sections[ii].data.length + 2;
+    }
+    this._listRef.ensureItemAtIndexIsVisible(index);
+  }
+  
+  _handleKeyDown = (e) => {
+    if (Platform.OS === 'macos') {
+      const event = e['nativeEvent'];
+      const key = event['key'];
+      let prevIndexPath = this.state.selectedRowIndexPath;
+      let nextIndexPath = null;
+      const sectionIndex = this.state.selectedRowIndexPath.sectionIndex;
+      const rowIndex = this.state.selectedRowIndexPath.rowIndex;
+           
+      if (key === 'DOWN_ARROW') {
+          nextIndexPath = this._selectRowBelowIndexPath(prevIndexPath);
+          this._ensureItemAtIndexPathIsVisible(nextIndexPath);
+          
+          if (this.props.onSelectionChanged) {
+              const item = this.props.sections[sectionIndex].data[rowIndex];
+              this.props.onSelectionChanged( {previousSelection: prevIndexPath, newSelection: nextIndexPath, item: item});
+          }
+      }
+      else if (key === 'UP_ARROW') {
+          nextIndexPath = this._selectRowAboveIndexPath(prevIndexPath);
+          this._ensureItemAtIndexPathIsVisible(nextIndexPath);
+          
+          if (this.props.onSelectionChanged) {
+              const item = this.props.sections[sectionIndex].data[rowIndex];
+              this.props.onSelectionChanged( {previousSelection: prevIndexPath, newSelection: nextIndexPath, item: item});
+          }
+      }
+      else if (key === 'ENTER') {
+          if (this.props.onSelectionEntered) {
+            const item = this.props.sections[sectionIndex].data[rowIndex];
+            this.props.onSelectionEntered(item);
+          }
+      }
+    }
+  }
 
   render() {
-    return (
-      <VirtualizedList {...this.state.childProps} ref={this._captureRef} />
+   let keyEventHandler = this.props.onKeyDown;
+   if (!keyEventHandler) {
+      keyEventHandler = this.props.enableSelectionOnKeyPress ? this._handleKeyDown : null; 
+   }
+   return (
+      <VirtualizedList {...this.state.childProps} ref={this._captureRef} onKeyDown={keyEventHandler} {...this.state.selectedRowIndexPath} />
     );
   }
 
@@ -476,11 +616,13 @@ class ItemWithSeparator extends React.Component<
       SeparatorComponent,
       item,
       index,
+      isSelected,
       section,
     } = this.props;
     const element = this.props.renderItem({
       item,
       index,
+      isSelected,
       section,
       separators: this._separators,
     });

@@ -320,14 +320,10 @@ class AutogrowingTextInputExample extends React.Component<{}> {
       width: 100,
       multiline: true,
       text: '',
-      contentSize: {
-        width: 0,
-        height: 0,
-      },
     };
   }
 
-  componentWillReceiveProps(props) {
+  componentDidReceiveProps(props) {
     this.setState({
       multiline: props.multiline,
     });
@@ -355,12 +351,10 @@ class AutogrowingTextInputExample extends React.Component<{}> {
           multiline={this.state.multiline}
           style={[style, {width: this.state.width + '%'}]}
           onChangeText={(value) => this.setState({text: value})}
-          onContentSizeChange={(event) => this.setState({contentSize: event.nativeEvent.contentSize})}
           {...props}
         />
         <Text>Plain text value representation:</Text>
         <Text>{this.state.text}</Text>
-        <Text>Content Size: {JSON.stringify(this.state.contentSize)}</Text>
       </View>
     );
   }

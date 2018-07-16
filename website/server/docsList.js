@@ -14,6 +14,7 @@ const components = [
   '../Libraries/Components/Button.js',
   '../Libraries/Components/CheckBox/CheckBox.android.js',
   '../Libraries/Components/DatePicker/DatePickerIOS.ios.js',
+  '../Libraries/Components/DatePickerMacOS/DatePickerMacOS.macos.js',
   '../Libraries/Components/DrawerAndroid/DrawerLayoutAndroid.android.js',
   '../Libraries/Lists/FlatList.js',
   '../Libraries/Image/Image.ios.js',

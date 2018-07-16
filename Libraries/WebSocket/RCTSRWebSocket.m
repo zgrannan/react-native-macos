@@ -17,7 +17,9 @@
 #import "RCTSRWebSocket.h"
 
 #import <Availability.h>
+#if !TARGET_OS_OSX
 #import <Endian.h>
+#endif
 
 #import <Security/SecRandom.h>
 

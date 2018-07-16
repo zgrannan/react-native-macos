@@ -15,7 +15,7 @@
 #import "RCTLog.h"
 #import "RCTShadowView.h"
 
-@implementation UIView (React)
+@implementation RCTPlatformView (React)
 
 - (NSNumber *)reactTag
 {
@@ -59,24 +59,24 @@
 
 - (NSNumber *)reactTagAtPoint:(CGPoint)point
 {
-  UIView *view = [self hitTest:point withEvent:nil];
+  RCTPlatformView *view = UIViewHitTestWithEvent(self, point, nil);
   while (view && !view.reactTag) {
     view = view.superview;
   }
   return view.reactTag;
 }
 
-- (NSArray<UIView *> *)reactSubviews
+- (NSArray<RCTPlatformView *> *)reactSubviews
 {
   return objc_getAssociatedObject(self, _cmd);
 }
 
-- (UIView *)reactSuperview
+- (RCTPlatformView *)reactSuperview
 {
   return self.superview;
 }
 
-- (void)insertReactSubview:(UIView *)subview atIndex:(NSInteger)atIndex
+- (void)insertReactSubview:(RCTPlatformView *)subview atIndex:(NSInteger)atIndex
 {
   // We access the associated object directly here in case someone overrides
   // the `reactSubviews` getter method and returns an immutable array.
@@ -88,7 +88,7 @@
   [subviews insertObject:subview atIndex:atIndex];
 }
 
-- (void)removeReactSubview:(UIView *)subview
+- (void)removeReactSubview:(RCTPlatformView *)subview
 {
   // We access the associated object directly here in case someone overrides
   // the `reactSubviews` getter method and returns an immutable array.
@@ -113,23 +113,37 @@
 
 - (UIUserInterfaceLayoutDirection)reactLayoutDirection
 {
+#if !TARGET_OS_OSX
   if ([self respondsToSelector:@selector(semanticContentAttribute)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     return [UIView userInterfaceLayoutDirectionForSemanticContentAttribute:self.semanticContentAttribute];
+#pragma clang diagnostic pop
   } else {
     return [objc_getAssociatedObject(self, @selector(reactLayoutDirection)) integerValue];
   }
+#else
+	return self.userInterfaceLayoutDirection;
+#endif
 }
 
 - (void)setReactLayoutDirection:(UIUserInterfaceLayoutDirection)layoutDirection
 {
+#if !TARGET_OS_OSX
   if ([self respondsToSelector:@selector(setSemanticContentAttribute:)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     self.semanticContentAttribute =
       layoutDirection == UIUserInterfaceLayoutDirectionLeftToRight ?
         UISemanticContentAttributeForceLeftToRight :
         UISemanticContentAttributeForceRightToLeft;
+#pragma clang diagnostic pop
   } else {
     objc_setAssociatedObject(self, @selector(reactLayoutDirection), @(layoutDirection), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   }
+#else
+	self.userInterfaceLayoutDirection	= layoutDirection;
+#endif
 }
 
 #pragma mark - zIndex
@@ -144,7 +158,7 @@
   self.layer.zPosition = reactZIndex;
 }
 
-- (NSArray<UIView *> *)reactZIndexSortedSubviews
+- (NSArray<RCTPlatformView *> *)reactZIndexSortedSubviews
 {
   // Check if sorting is required - in most cases it won't be.
   BOOL sortingRequired = NO;
@@ -167,13 +181,14 @@
 
 - (void)didUpdateReactSubviews
 {
-  for (UIView *subview in self.reactSubviews) {
+  for (RCTPlatformView *subview in self.reactSubviews) {
     [self addSubview:subview];
   }
 }
 
 - (void)reactSetFrame:(CGRect)frame
 {
+#if !TARGET_OS_OSX
   // These frames are in terms of anchorPoint = topLeft, but internally the
   // views are anchorPoint = center for easier scale and rotation animations.
   // Convert the frame so it works with anchorPoint = center.
@@ -191,6 +206,17 @@
 
   self.center = position;
   self.bounds = bounds;
+#else
+  // Avoid crashes due to nan coords
+  if (isnan(frame.origin.x) || isnan(frame.origin.y) ||
+      isnan(frame.size.width) || isnan(frame.size.height)) {
+    RCTLogError(@"Invalid layout for (%@)%@. frame: %@",
+                self.reactTag, self, NSStringFromCGRect(frame));
+    return;
+  }
+
+	self.frame = frame;
+#endif
 }
 
 - (void)reactSetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor
@@ -210,6 +236,7 @@
   return nil;
 }
 
+#if !TARGET_OS_OSX
 - (void)reactAddControllerToClosestParent:(UIViewController *)controller
 {
   if (!controller.parentViewController) {
@@ -225,6 +252,7 @@
     return;
   }
 }
+#endif
 
 /**
  * Focus manipulation.
@@ -290,7 +318,7 @@
 
 #pragma mark - Accessiblity
 
-- (UIView *)reactAccessibilityElement
+- (RCTPlatformView *)reactAccessibilityElement
 {
   return self;
 }

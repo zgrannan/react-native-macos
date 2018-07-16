@@ -310,6 +310,7 @@ RCT_ENUM_CONVERTER(NSWritingDirection, (@{
   @"rtl": @(NSWritingDirectionRightToLeft),
 }), NSWritingDirectionNatural, integerValue)
 
+#if !TARGET_OS_OSX
 RCT_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
   @"none": @(UITextAutocapitalizationTypeNone),
   @"words": @(UITextAutocapitalizationTypeWords),
@@ -396,6 +397,24 @@ RCT_ENUM_CONVERTER(UIBarStyle, (@{
   @"default": @(UIBarStyleDefault),
   @"black": @(UIBarStyleBlack),
 }), UIBarStyleDefault, integerValue)
+#endif
+#else
+RCT_MULTI_ENUM_CONVERTER(NSTextCheckingTypes, (@{
+  @"ortography": @(NSTextCheckingTypeOrthography),
+  @"spelling": @(NSTextCheckingTypeSpelling),
+  @"grammar": @(NSTextCheckingTypeGrammar),
+  @"calendarEvent": @(NSTextCheckingTypeDate),
+  @"address": @(NSTextCheckingTypeAddress),
+  @"link": @(NSTextCheckingTypeLink),
+  @"quote": @(NSTextCheckingTypeQuote),
+  @"dash": @(NSTextCheckingTypeDash),
+  @"replacement": @(NSTextCheckingTypeReplacement),
+  @"correction": @(NSTextCheckingTypeCorrection),
+  @"regularExpression": @(NSTextCheckingTypeRegularExpression),
+  @"phoneNumber": @(NSTextCheckingTypePhoneNumber),
+  @"transitInformation": @(NSTextCheckingTypeTransitInformation),
+}), NSTextCheckingTypeOrthography, unsignedLongLongValue)
+
 #endif
 
 static void convertCGStruct(const char *type, NSArray *fields, CGFloat *result, id json)
@@ -565,6 +584,36 @@ RCT_JSON_ARRAY_CONVERTER(NSNumber)
   return colors;
 }
 
+#if TARGET_OS_OSX
++ (NSArray<NSPasteboardType> *)NSPasteboardType:(id)json
+{
+  NSString *type = [self NSString:json];
+  if (!type) {
+    return @[];
+  }
+  
+  if ([type isEqualToString:@"fileUrl"]) {
+    return @[NSFilenamesPboardType];
+  }
+  
+  return @[];
+}
+
++ (NSArray<NSPasteboardType> *)NSPasteboardTypeArray:(id)json
+{
+  if ([json isKindOfClass:[NSString class]]) {
+    return [RCTConvert NSPasteboardType:json];
+  } else if ([json isKindOfClass:[NSArray class]]) {
+    NSMutableArray *mutablePastboardTypes = [[NSMutableArray alloc] init];
+    for (NSString *type in json) {
+      [mutablePastboardTypes addObjectsFromArray:[RCTConvert NSPasteboardType:type]];
+      return mutablePastboardTypes.copy;
+    }
+  }
+  return @[];
+}
+#endif
+
 static id RCTConvertPropertyListValue(id json)
 {
   if (!json || json == (id)kCFNull) {
@@ -683,13 +732,54 @@ RCT_ENUM_CONVERTER(RCTPointerEvents, (@{
 }), RCTPointerEventsUnspecified, integerValue)
 
 RCT_ENUM_CONVERTER(RCTAnimationType, (@{
+#if !TARGET_OS_OSX
   @"spring": @(RCTAnimationTypeSpring),
+#endif
   @"linear": @(RCTAnimationTypeLinear),
   @"easeIn": @(RCTAnimationTypeEaseIn),
   @"easeOut": @(RCTAnimationTypeEaseOut),
   @"easeInEaseOut": @(RCTAnimationTypeEaseInEaseOut),
+#if !TARGET_OS_OSX
   @"keyboard": @(RCTAnimationTypeKeyboard),
+#endif
 }), RCTAnimationTypeEaseInEaseOut, integerValue)
+
+#if TARGET_OS_OSX
++ (NSString*)accessibilityRoleFromTrait:(NSString*)trait
+{
+  // a subset of iOS accessibilityTraits map to macOS accessiblityRoles:
+  if ([trait isEqualToString:@"button"]) {
+    return NSAccessibilityButtonRole;
+  } else if ([trait isEqualToString:@"text"]) {
+    return NSAccessibilityStaticTextRole;
+  } else if ([trait isEqualToString:@"link"]) {
+    return NSAccessibilityLinkRole;
+  } else if ([trait isEqualToString:@"image"]) {
+    return NSAccessibilityImageRole;
+    // a set of RN accessibilityTraits are macOS specific accessiblity roles:
+  }	else if ([trait isEqualToString:@"group"]) {
+    return NSAccessibilityGroupRole;
+  } else if ([trait isEqualToString:@"list"]) {
+    return NSAccessibilityListRole;
+  }
+  return NSAccessibilityUnknownRole;
+}
+
++ (NSString *)accessibilityRoleFromTraits:(id)json
+{
+  if ([json isKindOfClass:[NSString class]]) {
+    return [RCTConvert accessibilityRoleFromTrait:json];
+  } else if ([json isKindOfClass:[NSArray class]]) {
+    for (NSString *trait in json) {
+      NSString *accessibilityRole = [RCTConvert accessibilityRoleFromTrait:trait];
+      if (![accessibilityRole isEqualToString:NSAccessibilityUnknownRole]) {
+        return accessibilityRole;
+      }
+    }
+  }
+  return NSAccessibilityUnknownRole;
+}
+#endif
 
 @end
 
@@ -733,25 +823,31 @@ RCT_ENUM_CONVERTER(RCTAnimationType, (@{
       RCTLogConvertError(json, @"an image. File not found.");
     }
   } else if ([scheme isEqualToString:@"data"]) {
-    image = [UIImage imageWithData:[NSData dataWithContentsOfURL:URL]];
+    image = UIImageWithData([NSData dataWithContentsOfURL:URL]);
   } else if ([scheme isEqualToString:@"http"] && imageSource.packagerAsset) {
-    image = [UIImage imageWithData:[NSData dataWithContentsOfURL:URL]];
+    image = UIImageWithData([NSData dataWithContentsOfURL:URL]);
   } else {
     RCTLogConvertError(json, @"an image. Only local files or data URIs are supported.");
     return nil;
   }
 
+  CGImageRef imageRef = UIImageGetCGImageRef(image);
+#if !TARGET_OS_OSX
   CGFloat scale = imageSource.scale;
   if (!scale && imageSource.size.width) {
     // If no scale provided, set scale to image width / source width
-    scale = CGImageGetWidth(image.CGImage) / imageSource.size.width;
+    scale = CGImageGetWidth(imageRef) / imageSource.size.width;
   }
-
   if (scale) {
-    image = [UIImage imageWithCGImage:image.CGImage
+    image = [UIImage imageWithCGImage:imageRef
                                 scale:scale
                           orientation:image.imageOrientation];
   }
+#else
+  if (!CGSizeEqualToSize(image.size, imageSource.size)) {
+    image = [[NSImage alloc] initWithCGImage:imageRef size:imageSource.size];
+  }
+#endif
 
   if (!CGSizeEqualToSize(imageSource.size, CGSizeZero) &&
       !CGSizeEqualToSize(imageSource.size, image.size)) {
@@ -766,7 +862,7 @@ RCT_ENUM_CONVERTER(RCTAnimationType, (@{
 
 + (CGImageRef)CGImage:(id)json
 {
-  return [self UIImage:json].CGImage;
+  return UIImageGetCGImageRef([self UIImage:json]);
 }
 
 @end

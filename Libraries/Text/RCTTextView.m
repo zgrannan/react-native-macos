@@ -19,7 +19,6 @@
 #import "RCTShadowText.h"
 #import "RCTText.h"
 #import "RCTTextSelection.h"
-#import "RCTUITextView.h"
 
 @interface RCTTextView () <RCTBackedTextInputDelegate>
 
@@ -27,11 +26,12 @@
 
 @implementation RCTTextView
 {
+#if TARGET_OS_OSX
+  UIScrollView *_scrollView;
+#endif
   RCTUITextView *_backedTextInput;
   RCTText *_richTextView;
   NSAttributedString *_pendingAttributedText;
-
-  NSString *_predictedText;
 
   BOOL _blockTextShouldChange;
   BOOL _nativeUpdatesInFlight;
@@ -51,17 +51,55 @@
     _backedTextInput.textColor = [UIColor blackColor];
     // This line actually removes 5pt (default value) left and right padding in UITextView.
     _backedTextInput.textContainer.lineFragmentPadding = 0;
+#if !TARGET_OS_OSX
 #if !TARGET_OS_TV
     _backedTextInput.scrollsToTop = NO;
 #endif
     _backedTextInput.scrollEnabled = YES;
+#else
+    _scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
+    _scrollView.backgroundColor = [UIColor clearColor];
+    _scrollView.drawsBackground = NO;
+    _scrollView.borderType = NSNoBorder;
+    _scrollView.hasHorizontalRuler = NO;
+    _scrollView.hasVerticalRuler = NO;
+    _scrollView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    
+    _backedTextInput.verticallyResizable = YES;
+    _backedTextInput.horizontallyResizable = YES;
+    _backedTextInput.textContainer.containerSize = NSMakeSize(CGFLOAT_MAX, CGFLOAT_MAX);
+    _backedTextInput.textContainer.widthTracksTextView = YES;
+#endif
+#if !TARGET_OS_OSX
+    _backedTextInput.scrollEnabled = YES;
+#endif
     _backedTextInput.textInputDelegate = self;
     _backedTextInput.font = self.fontAttributes.font;
 
+#if !TARGET_OS_OSX
     [self addSubview:_backedTextInput];
+#else
+    _scrollView.documentView = _backedTextInput;
+    _scrollView.contentView.postsBoundsChangedNotifications = YES;
+    [self addSubview:_scrollView];
+    
+    // a register for those notifications on the content view.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(boundDidChange:)
+                                                 name:NSViewBoundsDidChangeNotification
+                                               object:_scrollView.contentView];
+    
+#endif
   }
   return self;
 }
+
+#if TARGET_OS_OSX
+- (void)dealloc
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+#endif
 
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 RCT_NOT_IMPLEMENTED(- (instancetype)initWithCoder:(NSCoder *)aDecoder)
@@ -172,13 +210,18 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   // we temporarily block all textShouldChange events so they are not applied.
   _blockTextShouldChange = YES;
 
+#if !TARGET_OS_OSX
   UITextRange *selection = _backedTextInput.selectedTextRange;
+#else
+  NSRange selection = _backedTextInput.selectedRange;
+#endif
   NSInteger oldTextLength = _backedTextInput.attributedText.length;
 
   _backedTextInput.attributedText = _pendingAttributedText;
-  _predictedText = _pendingAttributedText.string;
+  [self setPredictedText:_pendingAttributedText.string];
   _pendingAttributedText = nil;
-
+  
+#if !TARGET_OS_OSX
   if (selection.empty) {
     // maintain cursor position relative to the end of the old text
     NSInteger start = [_backedTextInput offsetFromPosition:_backedTextInput.beginningOfDocument toPosition:selection.start];
@@ -188,8 +231,19 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
     [_backedTextInput setSelectedTextRange:[_backedTextInput textRangeFromPosition:position toPosition:position]
                             notifyDelegate:YES];
   }
-
+  
   [_backedTextInput layoutIfNeeded];
+#else
+  if (selection.length == 0) {
+    // maintain cursor position relative to the end of the old text
+    NSInteger start = selection.location;
+    NSInteger offsetFromEnd = oldTextLength - start;
+    NSInteger newOffset = MAX(0, _backedTextInput.attributedText.length - offsetFromEnd);
+    [_backedTextInput setSelectedTextRange:NSMakeRange(newOffset, 0)
+                            notifyDelegate:YES];
+  }
+  [_backedTextInput layoutSubtreeIfNeeded];
+#endif
 
   [self invalidateContentSize];
 
@@ -209,6 +263,24 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
   [self setNeedsLayout];
 }
 
+#if TARGET_OS_OSX
+- (void)setReactPaddingInsets:(UIEdgeInsets)reactPaddingInsets
+{
+  [super setReactPaddingInsets:reactPaddingInsets];
+  // We apply `paddingInsets` as `backedTextInputView`'s `textContainerInsets` on mac.
+  ((RCTUITextView*)self.backedTextInputView).textContainerInsets = reactPaddingInsets;
+  [self setNeedsLayout];
+}
+
+- (void)setReactBorderInsets:(UIEdgeInsets)reactBorderInsets
+{
+  [super setReactBorderInsets:reactBorderInsets];
+  // We apply `borderInsets` as `_scrollView` layout offset on mac.
+  _scrollView.frame = UIEdgeInsetsInsetRect(self.frame, reactBorderInsets);
+  [self setNeedsLayout];
+}
+#endif // TARGET_OS_OSX
+
 - (NSString *)text
 {
   return _backedTextInput.text;
@@ -218,12 +290,16 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
 {
   NSInteger eventLag = _nativeEventCount - _mostRecentEventCount;
   if (eventLag == 0 && ![text isEqualToString:_backedTextInput.text]) {
+#if !TARGET_OS_OSX
     UITextRange *selection = _backedTextInput.selectedTextRange;
+#else
+    NSRange selection = _backedTextInput.selectedRange;
+#endif
     NSInteger oldTextLength = _backedTextInput.text.length;
 
-    _predictedText = text;
+    [self setPredictedText:text];
     _backedTextInput.text = text;
-
+#if !TARGET_OS_OSX
     if (selection.empty) {
       // maintain cursor position relative to the end of the old text
       NSInteger start = [_backedTextInput offsetFromPosition:_backedTextInput.beginningOfDocument toPosition:selection.start];
@@ -233,6 +309,16 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
       [_backedTextInput setSelectedTextRange:[_backedTextInput textRangeFromPosition:position toPosition:position]
                               notifyDelegate:YES];
     }
+#else
+    if (selection.length == 0) {
+      // maintain cursor position relative to the end of the old text
+      NSInteger start = selection.location;
+      NSInteger offsetFromEnd = oldTextLength - start;
+      NSInteger newOffset = _backedTextInput.attributedText.length - offsetFromEnd;
+      [_backedTextInput setSelectedTextRange:NSMakeRange(newOffset, 0)
+                              notifyDelegate:YES];
+    }
+#endif
 
     [self invalidateContentSize];
   } else if (eventLag > RCTTextUpdateLagWarningThreshold) {
@@ -269,13 +355,18 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
         NSMutableString *newString = _backedTextInput.text.mutableCopy;
         [newString replaceCharactersInRange:range withString:limitedString];
         _backedTextInput.text = newString;
-        _predictedText = newString;
+        [self setPredictedText:newString];
 
         // Collapse selection at end of insert to match normal paste behavior
+#if !TARGET_OS_OSX
         UITextPosition *insertEnd = [_backedTextInput positionFromPosition:_backedTextInput.beginningOfDocument
                                                             offset:(range.location + allowedLength)];
         [_backedTextInput setSelectedTextRange:[_backedTextInput textRangeFromPosition:insertEnd toPosition:insertEnd]
                                 notifyDelegate:YES];
+#else
+        [_backedTextInput setSelectedTextRange:NSMakeRange(range.location + allowedLength, 0)
+                                notifyDelegate:YES];
+#endif
 
         [self textInputDidChange];
       }
@@ -285,17 +376,18 @@ static NSAttributedString *removeReactTagFromString(NSAttributedString *string)
 
   _nativeUpdatesInFlight = YES;
 
-  if (range.location + range.length > _predictedText.length) {
-    // _predictedText got out of sync in a bad way, so let's just force sync it.  Haven't been able to repro this, but
+  if (range.location + range.length > [[self predictedText] length]) {
+    // predictedText got out of sync in a bad way, so let's just force sync it.  Haven't been able to repro this, but
     // it's causing a real crash here: #6523822
-    _predictedText = _backedTextInput.text;
+    [self setPredictedText:_backedTextInput.text];
+   
   }
-
-  NSString *previousText = [_predictedText substringWithRange:range];
-  if (_predictedText) {
-    _predictedText = [_predictedText stringByReplacingCharactersInRange:range withString:text];
+  NSString *predictedText = [self predictedText];
+  NSString *previousText = [predictedText substringWithRange:range];
+  if (predictedText) {
+    [self setPredictedText:[predictedText stringByReplacingCharactersInRange:range withString:text]];
   } else {
-    _predictedText = text;
+    [self setPredictedText:text];
   }
 
   if (_onTextInput) {
@@ -352,12 +444,12 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
   // update the mismatched range.
   NSRange currentRange;
   NSRange predictionRange;
-  if (findMismatch(_backedTextInput.text, _predictedText, &currentRange, &predictionRange)) {
+  if (findMismatch(_backedTextInput.text, [self predictedText], &currentRange, &predictionRange)) {
     NSString *replacement = [_backedTextInput.text substringWithRange:currentRange];
     [self textInputShouldChangeTextInRange:predictionRange replacementText:replacement];
     // JS will assume the selection changed based on the location of our shouldChangeTextInRange, so reset it.
     [self textInputDidChangeSelection];
-    _predictedText = _backedTextInput.text;
+    [self setPredictedText:_backedTextInput.text];
   }
 
   _nativeUpdatesInFlight = NO;
@@ -407,5 +499,23 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     });
   }
 }
+  
+#if TARGET_OS_OSX
+  
+#pragma mark - Notification handling
+  
+- (void)boundDidChange:(NSNotification*)NSNotification
+{
+  [self scrollViewDidScroll:_scrollView];
+}
+  
+#pragma mark - NSResponder chain
+  
+- (BOOL)acceptsFirstResponder
+{
+  return _backedTextInput.acceptsFirstResponder;
+}
+  
+#endif
 
 @end

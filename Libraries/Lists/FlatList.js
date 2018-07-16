@@ -586,7 +586,7 @@ class FlatList<ItemT> extends React.PureComponent<Props<ItemT>, void> {
   _renderItem = (info: Object) => {
     const {renderItem, numColumns, columnWrapperStyle} = this.props;
     if (numColumns > 1) {
-      const {item, index} = info;
+      const {item, index, isSelected} = info;
       invariant(
         Array.isArray(item),
         'Expected array of items with numColumns > 1',
@@ -597,6 +597,7 @@ class FlatList<ItemT> extends React.PureComponent<Props<ItemT>, void> {
             const element = renderItem({
               item: it,
               index: index * numColumns + kk,
+              isSelected: isSelected,
               separators: info.separators,
             });
             return element && React.cloneElement(element, {key: kk});
