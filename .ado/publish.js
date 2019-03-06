@@ -5,8 +5,9 @@ const execSync = require('child_process').execSync;
 
 function exec(command) {
   try {
-  return execSync(command, {
-    stdio: 'inherit'
+    console.log(`Running command: ${command}`);
+    return execSync(command, {
+      stdio: 'inherit'
   });
   }
   catch(err) {
@@ -45,6 +46,8 @@ function doPublish() {
   pkgJson.version = releaseVersion;
   fs.writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, 2));
   console.log(`Updating package.json to version ${releaseVersion}`);
+
+  exec(`git checkout -b ${tempPublishBranch}`);
 
   exec(`git add ${pkgJsonPath}`);
   exec(`git commit -m "Applying package update to v${releaseVersion}`);
