@@ -54,7 +54,7 @@ function doPublish() {
   exec(`git push origin HEAD:${tempPublishBranch} --follow-tags --verbose`);
 
   // -------- Generating Android Artifacts with JavaDoc
-  exec('gradlew :installArchives');
+  exec('gradlew installArchives');
 
   // undo uncommenting javadoc setting
   exec('git checkout ReactAndroid/gradle.properties');
