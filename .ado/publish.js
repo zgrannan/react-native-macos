@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const publishBranchName = process.env.publishBranchName;
 
-const tempPublishBranch = `publish-${Data.now()}`;
+const tempPublishBranch = `publish-${Date.now()}`;
 
 const pkgJsonPath = path.resolve(__dirname, '../package.json');
 let pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
