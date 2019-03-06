@@ -69,13 +69,12 @@ jobs:
         displayName: 'npm auth'
         inputs:
           filename: npm
-          arguments: 'config set //office.pkgs.visualstudio.com/_packaging/Office/npm/:_authToken $(npmTokenOffice)'
+          arguments: 'config set $(publishnpmfeed)/:_authToken $(npmTokenOffice)'
 
       - task: CmdLine@2
         displayName: Do Publish
         inputs:
           script: node .ado/publish.js
-
 
       - task: CmdLine@1
         displayName: 'npm unauth'

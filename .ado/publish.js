@@ -60,9 +60,13 @@ function doPublish() {
   exec('git checkout ReactAndroid/gradle.properties');
 
   // Configure npm to publish to internal feed
-  fs.writeFileSync(path.resolve(__dirname, '../.npmrc'), `registry=${process.env.publishnpmfeed}\nalways-auth=true`);
+  const npmrcPath = path.resolve(__dirname, '../.npmrc');
+  const npmrcContents = `registry=https:${process.env.publishnpmfeed}/registry/\nalways-auth=true`;
+  console.log(`Creating ${npmrcPath} for publishing`);
+  fs.writeFileSync(npmrcPath, npmrcContents);
 
   exec(`npm publish`);
+  exec(`del ${npmrcPath}`);
   exec(`git tag v${releaseVersion}`);
   exec(`git push origin HEAD:${tempPublishBranch} --follow-tags --verbose`);
   exec(`git checkout ${publishBranchName}`);
