@@ -48,6 +48,7 @@ function doPublish() {
 
   exec(`git add ${pkgJsonPath}`);
   exec(`git commit -m "Applying package update to v${releaseVersion}`);
+  exec(`git tag v${releaseVersion}`);
   exec(`git push origin HEAD:${tempPublishBranch} --follow-tags --verbose`);
 
   // -------- Generating Android Artifacts with JavaDoc
@@ -113,13 +114,9 @@ function doPublish() {
         }
 
         exec(`del ${npmTarPath}`);
-        exec(`git tag v${releaseVersion}`);
-        exec(
-          `git push origin HEAD:${tempPublishBranch} --follow-tags --verbose`
-        );
         exec(`git checkout ${publishBranchName}`);
         exec(`git pull origin ${publishBranchName}`);
-        exec(`git merge ${publishBranchName} --no-edit`);
+        exec(`git merge ${tempPublishBranch} --no-edit`);
         exec(
           `git push origin HEAD:${publishBranchName} --follow-tags --verbose`
         );
