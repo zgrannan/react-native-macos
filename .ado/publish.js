@@ -47,9 +47,10 @@ function doPublish() {
   exec(`git checkout -b ${tempPublishBranch}`);
 
   exec(`git add ${pkgJsonPath}`);
-  exec(`git commit -m "Applying package update to v${releaseVersion}`);
+  exec(`git commit -m "Applying package update to ${releaseVersion}`);
   exec(`git tag v${releaseVersion}`);
   exec(`git push origin HEAD:${tempPublishBranch} --follow-tags --verbose`);
+  exec(`git push origin tag v${releaseVersion}`);
 
   // -------- Generating Android Artifacts with JavaDoc
   exec("gradlew installArchives");
