@@ -137,7 +137,7 @@ function doPublish() {
       },
       body: JSON.stringify({
         tag_name: `v${releaseVersion}`,
-        target_commitish: publishBranchName,
+        target_commitish: tempPublishBranch,
         name: `v${releaseVersion}`,
         body: `v${releaseVersion}`,
         draft: false,
