@@ -62,7 +62,8 @@ function doPublish() {
   const npmrcContents = `registry=https:${
     process.env.publishnpmfeed
   }/registry/\nalways-auth=true`;
-  console.log(`Creating ${npmrcPath} for publishing`);
+  console.log(`Creating ${npmrcPath} for publishing:`);
+  console.log(npmrcContents);
   fs.writeFileSync(npmrcPath, npmrcContents);
 
   exec(`npm publish`);
