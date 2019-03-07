@@ -69,7 +69,7 @@ jobs:
         displayName: 'npm auth'
         inputs:
           filename: npm
-          arguments: 'config set $(publishnpmfeed)/:_authToken $(npmTokenOffice)'
+          arguments: 'config set $(publishnpmfeed)/registry/:_authToken $(npmTokenOffice)'
 
       - task: CmdLine@2
         displayName: Do Publish
@@ -80,5 +80,5 @@ jobs:
         displayName: 'npm unauth'
         inputs:
           filename: npm
-          arguments: 'config set //office.pkgs.visualstudio.com/_packaging/Office/npm/:_authToken XXXXX'
+          arguments: 'config set $(publishnpmfeed)/registry/:_authToken XXXXX'
 
