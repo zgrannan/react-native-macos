@@ -128,22 +128,25 @@ function doPublish() {
     );
   };
 
+
+  const createReleaseRequestBody = {
+    tag_name: `v${releaseVersion}`,
+    target_commitish: tempPublishBranch,
+    name: `v${releaseVersion}`,
+    body: `v${releaseVersion}`,
+    draft: false,
+    prerelease: true
+  };
+  console.log('createReleaseRequestBody: ' + JSON.stringify(createReleaseRequestBody, null, 2));
+
   request.post(
     {
       url: "https://api.github.com/repos/Microsoft/react-native/releases",
       headers: {
         "User-Agent": userAgent,
-        Authorization: authHeader,
-        "Content-Type": "application/json"
+        Authorization: authHeader
       },
-      body: JSON.stringify({
-        tag_name: `v${releaseVersion}`,
-        target_commitish: tempPublishBranch,
-        name: `v${releaseVersion}`,
-        body: `v${releaseVersion}`,
-        draft: false,
-        prerelease: true
-      })
+      form: createReleaseRequestBody
     },
     function(err, res, body) {
       if (err) {
