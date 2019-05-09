@@ -6,12 +6,12 @@
 #pragma once
 
 #include <folly/Hash.h>
-#include <react/core/LayoutMetrics.h>
-#include <react/core/LocalData.h>
-#include <react/core/Props.h>
-#include <react/core/ReactPrimitives.h>
-#include <react/core/ShadowNode.h>
-#include <react/events/EventEmitter.h>
+#include <fabric/core/layout/LayoutMetrics.h>
+#include <fabric/core/shadownode/LocalData.h>
+#include <fabric/core/shadownode/Props.h>
+#include <fabric/core/primitives/ReactPrimitives.h>
+#include <fabric/core/shadownode/ShadowNode.h>
+#include <fabric/events/EventEmitter.h>
 
 namespace facebook {
 namespace react {

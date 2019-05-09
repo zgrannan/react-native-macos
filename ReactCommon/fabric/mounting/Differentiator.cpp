@@ -6,8 +6,8 @@
 #include "Differentiator.h"
 
 #include <better/map.h>
-#include <react/core/LayoutableShadowNode.h>
-#include <react/debug/SystraceSection.h>
+#include <fabric/core/layout/LayoutableShadowNode.h>
+#include <fabric/debug/SystraceSection.h>
 #include "ShadowView.h"
 
 namespace facebook {

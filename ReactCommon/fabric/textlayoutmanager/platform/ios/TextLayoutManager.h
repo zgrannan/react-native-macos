@@ -11,7 +11,7 @@
 
 #include <react/attributedstring/AttributedString.h>
 #include <react/attributedstring/ParagraphAttributes.h>
-#include <react/core/LayoutConstraints.h>
+#include <react/core/layout/LayoutConstraints.h>
 #include <react/uimanager/ContextContainer.h>
 
 namespace facebook {

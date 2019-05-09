@@ -8,8 +8,8 @@
 
 #include <memory>
 
-#include <react/core/LayoutMetrics.h>
-#include <react/core/ReactPrimitives.h>
+#include <fabric/core/layout/LayoutMetrics.h>
+#include <fabric/core/primitives/ReactPrimitives.h>
 #include "TouchEventEmitter.h"
 
 namespace facebook {

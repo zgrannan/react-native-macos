@@ -7,11 +7,11 @@
 
 #include "ViewProps.h"
 
-#include <react/components/view/conversions.h>
-#include <react/components/view/propsConversions.h>
-#include <react/core/propsConversions.h>
-#include <react/debug/debugStringConvertibleUtils.h>
-#include <react/graphics/conversions.h>
+#include <fabric/components/view/conversions.h>
+#include <fabric/components/view/propsConversions.h>
+#include <fabric/core/propsConversions.h>
+#include <fabric/debug/debugStringConvertibleUtils.h>
+#include <fabric/graphics/conversions.h>
 
 namespace facebook {
 namespace react {
@@ -79,21 +79,21 @@ ViewProps::ViewProps(const ViewProps &sourceProps, const RawProps &rawProps)
 
 BorderMetrics ViewProps::resolveBorderMetrics(bool isRTL) const {
   auto borderWidths = CascadedBorderWidths{
-      .left = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeLeft]),
-      .top = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeTop]),
-      .right = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeRight]),
-      .bottom = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeBottom]),
-      .start = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeStart]),
-      .end = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeEnd]),
-      .horizontal =
+      /*.left = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeLeft]),
+      /*.top = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeTop]),
+      /*.right = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeRight]),
+      /*.bottom = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeBottom]),
+      /*.start = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeStart]),
+      /*.end = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeEnd]),
+      /*.horizontal =*/
           optionalFloatFromYogaValue(yogaStyle.border[YGEdgeHorizontal]),
-      .vertical = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeVertical]),
-      .all = optionalFloatFromYogaValue(yogaStyle.border[YGEdgeAll])};
+      /*.vertical = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeVertical]),
+      /*.all = */optionalFloatFromYogaValue(yogaStyle.border[YGEdgeAll])};
 
-  return {.borderColors = borderColors.resolve(isRTL, {}),
-          .borderWidths = borderWidths.resolve(isRTL, 0),
-          .borderRadii = borderRadii.resolve(isRTL, 0),
-          .borderStyles = borderStyles.resolve(isRTL, BorderStyle::Solid)};
+  return {/*.borderColors = */borderColors.resolve(isRTL, {}),
+          /*.borderWidths = */borderWidths.resolve(isRTL, 0),
+          /*.borderRadii = */borderRadii.resolve(isRTL, 0),
+          /*.borderStyles = */borderStyles.resolve(isRTL, BorderStyle::Solid)};
 }
 
 #pragma mark - DebugStringConvertible

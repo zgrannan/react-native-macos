@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include <react/debug/DebugStringConvertible.h>
+#include <fabric/debug/DebugStringConvertible.h>
 
 namespace facebook {
 namespace react {
@@ -28,7 +28,8 @@ class DebugStringConvertibleItem : public DebugStringConvertible {
       const std::string &name = "",
       const std::string &value = "",
       const SharedDebugStringConvertibleList &props = {},
-      const SharedDebugStringConvertibleList &children = {});
+      const SharedDebugStringConvertibleList &children = {})
+      : name_(name), value_(value), props_(props), children_(children) {}
 
   std::string getDebugName() const override;
   std::string getDebugValue() const override;

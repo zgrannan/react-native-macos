@@ -7,9 +7,9 @@
 
 #include <memory>
 
-#include <react/core/ReactPrimitives.h>
-#include <react/core/ShadowNode.h>
-#include <react/mounting/ShadowViewMutation.h>
+#include <fabric/core/primitives/ReactPrimitives.h>
+#include <fabric/core/shadownode/ShadowNode.h>
+#include <fabric/mounting/ShadowViewMutation.h>
 
 namespace facebook {
 namespace react {

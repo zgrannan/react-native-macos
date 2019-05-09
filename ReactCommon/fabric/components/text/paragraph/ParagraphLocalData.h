@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include <react/attributedstring/AttributedString.h>
-#include <react/core/LocalData.h>
-#include <react/textlayoutmanager/TextLayoutManager.h>
+#include <fabric/attributedstring/AttributedString.h>
+#include <fabric/core/shadownode/LocalData.h>
+#include <fabric/textlayoutmanager/platform/android/TextLayoutManager.h>
 
 namespace facebook {
 namespace react {

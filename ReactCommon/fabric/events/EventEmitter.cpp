@@ -10,7 +10,7 @@
 #include <folly/dynamic.h>
 #include <jsi/JSIDynamic.h>
 #include <jsi/jsi.h>
-#include <react/debug/SystraceSection.h>
+#include <fabric/debug/SystraceSection.h>
 
 #include "RawEvent.h"
 

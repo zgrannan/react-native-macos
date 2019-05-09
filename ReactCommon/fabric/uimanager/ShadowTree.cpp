@@ -5,12 +5,12 @@
 
 #include "ShadowTree.h"
 
-#include <react/core/LayoutContext.h>
-#include <react/core/LayoutPrimitives.h>
-#include <react/debug/SystraceSection.h>
-#include <react/mounting/Differentiator.h>
-#include <react/mounting/ShadowViewMutation.h>
-#include <react/uimanager/TimeUtils.h>
+#include <fabric/core/layout/LayoutContext.h>
+#include <fabric/core/layout/LayoutPrimitives.h>
+#include <fabric/debug/SystraceSection.h>
+#include <fabric/mounting/Differentiator.h>
+#include <fabric/mounting/ShadowViewMutation.h>
+#include <fabric/uimanager/TimeUtils.h>
 
 #include "ShadowTreeDelegate.h"
 
@@ -89,12 +89,27 @@ ShadowTree::ShadowTree(
 
   rootShadowNode_ = std::make_shared<RootShadowNode>(
       ShadowNodeFragment{
-          .tag = surfaceId,
-          .rootTag = surfaceId,
-          .props = props,
-          .eventEmitter = noopEventEmitter,
+          /*.tag = */surfaceId,
+          /*.rootTag = */surfaceId,
+          /*.props = */props,
+          /*.eventEmitter = */noopEventEmitter,
       },
       nullptr);
+}
+
+namespace {
+
+
+SharedProps &nullSharedProps() {
+  static auto &instance = *new SharedProps();
+  return instance;
+}
+
+SharedEventEmitter &nullSharedEventEmitter() {
+  static auto &instance = *new SharedEventEmitter();
+  return instance;
+}
+
 }
 
 ShadowTree::~ShadowTree() {
@@ -103,7 +118,12 @@ ShadowTree::~ShadowTree() {
         return std::make_shared<RootShadowNode>(
             *oldRootShadowNode,
             ShadowNodeFragment{
-                .children = ShadowNode::emptySharedShadowNodeSharedList()});
+                0,
+                0,
+                nullSharedProps(),
+                nullSharedEventEmitter(),
+                               /*.children =*/
+                    ShadowNode::emptySharedShadowNodeSharedList()});
       },
       getTime());
 }

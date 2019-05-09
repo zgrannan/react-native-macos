@@ -9,9 +9,9 @@
 
 #include <folly/Conv.h>
 #include <folly/dynamic.h>
-#include <react/components/view/primitives.h>
-#include <react/core/LayoutMetrics.h>
-#include <react/graphics/Geometry.h>
+#include <fabric/components/view/primitives.h>
+#include <fabric/core/layout/LayoutMetrics.h>
+#include <fabric/graphics/Geometry.h>
 #include <yoga/YGEnums.h>
 #include <yoga/YGNode.h>
 #include <yoga/Yoga.h>

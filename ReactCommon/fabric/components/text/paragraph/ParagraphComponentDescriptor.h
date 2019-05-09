@@ -11,9 +11,9 @@
 #include "ParagraphShadowNode.h"
 
 #include <folly/container/EvictingCacheMap.h>
-#include <react/core/ConcreteComponentDescriptor.h>
-#include <react/textlayoutmanager/TextLayoutManager.h>
-#include <react/uimanager/ContextContainer.h>
+#include <fabric/core/componentdescriptor/ConcreteComponentDescriptor.h>
+#include <fabric/textlayoutmanager/TextLayoutManager.h>
+#include <fabric/uimanager/ContextContainer.h>
 
 namespace facebook {
 namespace react {

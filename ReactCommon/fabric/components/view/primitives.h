@@ -8,8 +8,8 @@
 #pragma once
 
 #include <folly/Optional.h>
-#include <react/graphics/Color.h>
-#include <react/graphics/Geometry.h>
+#include <fabric/graphics/platform/android/Color.h>
+#include <fabric/graphics/Geometry.h>
 #include <array>
 #include <cmath>
 
@@ -205,10 +205,10 @@ struct CascadedRectangleEdges {
         vertical.value_or(all.value_or(defaults));
 
     return Counterpart{
-        .left = left.value_or(leading.value_or(horizontalOrAllOrDefault)),
-        .right = right.value_or(trailing.value_or(horizontalOrAllOrDefault)),
-        .top = top.value_or(verticalOrAllOrDefault),
-        .bottom = bottom.value_or(verticalOrAllOrDefault)};
+        /*.left = */left.value_or(leading.value_or(horizontalOrAllOrDefault)),
+        /*.right = */right.value_or(trailing.value_or(horizontalOrAllOrDefault)),
+        /*.top = */top.value_or(verticalOrAllOrDefault),
+        /*.bottom = */bottom.value_or(verticalOrAllOrDefault)};
   }
 
   bool operator==(const CascadedRectangleEdges<T> &rhs) const {
@@ -261,13 +261,13 @@ struct CascadedRectangleCorners {
     const auto bottomTrailing = isRTL ? bottomStart : bottomEnd;
 
     return Counterpart{
-        .topLeft =
+        /*.topLeft =*/
             topLeft.value_or(topLeading.value_or(all.value_or(defaults))),
-        .topRight =
+        /*.topRight =*/
             topRight.value_or(topTrailing.value_or(all.value_or(defaults))),
-        .bottomLeft =
+        /*.bottomLeft =*/
             bottomLeft.value_or(topLeading.value_or(all.value_or(defaults))),
-        .bottomRight =
+        /*.bottomRight =*/
             bottomRight.value_or(topTrailing.value_or(all.value_or(defaults)))};
   }
 

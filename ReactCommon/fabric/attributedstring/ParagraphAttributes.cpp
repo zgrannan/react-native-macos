@@ -7,10 +7,10 @@
 
 #include "ParagraphAttributes.h"
 
-#include <react/attributedstring/conversions.h>
-#include <react/debug/debugStringConvertibleUtils.h>
-#include <react/graphics/conversions.h>
-#include <react/utils/FloatComparison.h>
+#include <fabric/attributedstring/conversions.h>
+#include <fabric/debug/debugStringConvertibleUtils.h>
+#include <fabric/graphics/conversions.h>
+#include <utils/FloatComparison.h>
 
 namespace facebook {
 namespace react {

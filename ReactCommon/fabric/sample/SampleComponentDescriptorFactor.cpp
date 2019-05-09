@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include <react/uimanager/ComponentDescriptorFactory.h>
-#include <react/uimanager/ComponentDescriptorRegistry.h>
-#include <react/uimanager/ContextContainer.h>
+#include <fabric/uimanager/ComponentDescriptorFactory.h>
+#include <fabric/uimanager/ComponentDescriptorRegistry.h>
+#include <fabric/uimanager/ContextContainer.h>
 
 namespace facebook {
 namespace react {
@@ -20,7 +20,7 @@ ComponentRegistryFactory getDefaultComponentRegistryFactory() {
             const SharedContextContainer &contextContainer) {
     auto registry = std::make_shared<ComponentDescriptorRegistry>();
     return registry;
-  }
+  };
 }
 
 } // namespace react

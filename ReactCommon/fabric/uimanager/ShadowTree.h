@@ -9,12 +9,12 @@
 #include <memory>
 #include <shared_mutex>
 
-#include <react/components/root/RootShadowNode.h>
-#include <react/core/LayoutConstraints.h>
-#include <react/core/ReactPrimitives.h>
-#include <react/core/ShadowNode.h>
-#include <react/mounting/ShadowViewMutation.h>
-#include <react/uimanager/ShadowTreeDelegate.h>
+#include <fabric/components/root/RootShadowNode.h>
+#include <fabric/core/layout/LayoutConstraints.h>
+#include <fabric/core/primitives/ReactPrimitives.h>
+#include <fabric/core/shadownode/ShadowNode.h>
+#include <fabric/mounting/ShadowViewMutation.h>
+#include <fabric/uimanager/ShadowTreeDelegate.h>
 
 namespace facebook {
 namespace react {

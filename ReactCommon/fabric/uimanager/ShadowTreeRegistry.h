@@ -8,8 +8,8 @@
 #include <folly/SharedMutex.h>
 #include <shared_mutex>
 
-#include <react/core/ReactPrimitives.h>
-#include <react/uimanager/ShadowTree.h>
+#include <fabric/core/primitives/ReactPrimitives.h>
+#include <fabric/uimanager/ShadowTree.h>
 
 namespace facebook {
 namespace react {

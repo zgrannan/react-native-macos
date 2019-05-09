@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <react/imagemanager/ImageResponse.h>
+#include <fabric/imagemanager/ImageResponse.h>
 
 namespace facebook {
 namespace react {

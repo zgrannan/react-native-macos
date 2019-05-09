@@ -9,9 +9,9 @@
 
 #include <folly/container/EvictingCacheMap.h>
 
-#include <react/attributedstring/AttributedString.h>
-#include <react/attributedstring/ParagraphAttributes.h>
-#include <react/core/LayoutConstraints.h>
+#include <fabric/attributedstring/AttributedString.h>
+#include <fabric/attributedstring/ParagraphAttributes.h>
+#include <fabric/core/layout/LayoutConstraints.h>
 
 namespace facebook {
 namespace react {

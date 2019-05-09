@@ -10,7 +10,7 @@
 
 #include <folly/dynamic.h>
 #include <jsi/jsi.h>
-#include <react/events/primitives.h>
+#include <fabric/events/primitives.h>
 
 namespace facebook {
 namespace react {

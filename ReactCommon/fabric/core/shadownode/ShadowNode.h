@@ -11,12 +11,12 @@
 #include <string>
 #include <vector>
 
-#include <react/core/LocalData.h>
-#include <react/core/Props.h>
-#include <react/core/ReactPrimitives.h>
-#include <react/core/Sealable.h>
-#include <react/debug/DebugStringConvertible.h>
-#include <react/events/EventEmitter.h>
+#include <fabric/core/shadownode/LocalData.h>
+#include <fabric/core/shadownode/Props.h>
+#include <fabric/core/primitives/ReactPrimitives.h>
+#include <fabric/core/primitives/Sealable.h>
+#include <fabric/debug/DebugStringConvertible.h>
+#include <fabric/events/EventEmitter.h>
 
 namespace facebook {
 namespace react {

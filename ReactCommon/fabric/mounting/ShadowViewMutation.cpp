@@ -11,32 +11,41 @@ namespace facebook {
 namespace react {
 
 ShadowViewMutation ShadowViewMutation::CreateMutation(ShadowView shadowView) {
-  return ShadowViewMutation{
-      .type = Create, .newChildShadowView = shadowView, .index = -1};
+  return ShadowViewMutation{/*.type = */ Create,
+                            /*.newChildShadowView = */ shadowView,
+                            {},
+                            {},
+                            /*.index = */ - 1};
 }
 
 ShadowViewMutation ShadowViewMutation::DeleteMutation(ShadowView shadowView) {
-  return {.type = Delete, .oldChildShadowView = shadowView, .index = -1};
+  return {/*.type = */ Delete,
+          /*.oldChildShadowView = */ shadowView,
+          {},
+          {},
+          /*.index = */ -1};
 }
 
 ShadowViewMutation ShadowViewMutation::InsertMutation(
     ShadowView parentShadowView,
     ShadowView childShadowView,
     int index) {
-  return {.type = Insert,
-          .parentShadowView = parentShadowView,
-          .newChildShadowView = childShadowView,
-          .index = index};
+  return {/*.type = */ Insert,
+          /*.parentShadowView = */ parentShadowView,
+          /*.newChildShadowView = */ childShadowView,
+          {},
+          /*.index = */ index};
 }
 
 ShadowViewMutation ShadowViewMutation::RemoveMutation(
     ShadowView parentShadowView,
     ShadowView childShadowView,
     int index) {
-  return {.type = Remove,
-          .parentShadowView = parentShadowView,
-          .oldChildShadowView = childShadowView,
-          .index = index};
+  return {/*.type = */ Remove,
+          /*.parentShadowView = */ parentShadowView,
+          /*.oldChildShadowView = */ childShadowView,
+          {},
+          /*.index = */ index};
 }
 
 ShadowViewMutation ShadowViewMutation::UpdateMutation(
@@ -44,11 +53,11 @@ ShadowViewMutation ShadowViewMutation::UpdateMutation(
     ShadowView oldChildShadowView,
     ShadowView newChildShadowView,
     int index) {
-  return {.type = Update,
-          .parentShadowView = parentShadowView,
-          .oldChildShadowView = oldChildShadowView,
-          .newChildShadowView = newChildShadowView,
-          .index = index};
+  return {/*.type = */Update,
+          /*.parentShadowView = */parentShadowView,
+          /*.oldChildShadowView = */oldChildShadowView,
+          /*.newChildShadowView = */newChildShadowView,
+          /*.index = */index};
 }
 
 } // namespace react

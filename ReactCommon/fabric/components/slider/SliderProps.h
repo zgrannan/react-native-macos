@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include <react/components/view/ViewProps.h>
-#include <react/graphics/Color.h>
-#include <react/imagemanager/primitives.h>
+#include <fabric/components/view/ViewProps.h>
+#include <fabric/graphics/platform/android/Color.h>
+#include <fabric/imagemanager/primitives.h>
 
 namespace facebook {
 namespace react {

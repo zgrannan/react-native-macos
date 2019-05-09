@@ -10,16 +10,14 @@
 #include <limits>
 
 #include <folly/Hash.h>
-#include <react/attributedstring/primitives.h>
-#include <react/debug/DebugStringConvertible.h>
-#include <react/graphics/Geometry.h>
+#include <fabric/attributedstring/primitives.h>
+#include <fabric/debug/DebugStringConvertible.h>
+#include <fabric/graphics/Geometry.h>
 
 namespace facebook {
 namespace react {
 
-class ParagraphAttributes;
-
-using SharedParagraphAttributes = std::shared_ptr<const ParagraphAttributes>;
+// class ParagraphAttributes;
 
 /*
  * Represents all visual attributes of a paragraph of text.
@@ -63,6 +61,8 @@ class ParagraphAttributes : public DebugStringConvertible {
   SharedDebugStringConvertibleList getDebugProps() const override;
 #endif
 };
+
+using SharedParagraphAttributes = std::shared_ptr<const ParagraphAttributes>;
 
 } // namespace react
 } // namespace facebook

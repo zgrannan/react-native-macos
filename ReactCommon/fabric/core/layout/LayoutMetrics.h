@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <react/core/LayoutPrimitives.h>
-#include <react/graphics/Geometry.h>
+#include <fabric/core/layout/LayoutPrimitives.h>
+#include <fabric/graphics/Geometry.h>
 
 namespace facebook {
 namespace react {
@@ -57,7 +57,7 @@ struct LayoutMetrics {
  * Represents some undefined, not-yet-computed or meaningless value of
  * `LayoutMetrics` type.
  */
-static const LayoutMetrics EmptyLayoutMetrics = {.frame = {.size = {-1, -1}}};
+static const LayoutMetrics EmptyLayoutMetrics = {/*.frame = */{/*.size = */{-1, -1}}};
 
 } // namespace react
 } // namespace facebook

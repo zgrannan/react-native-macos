@@ -12,10 +12,10 @@
 
 #include <yoga/YGNode.h>
 
-#include <react/components/view/YogaStylableProps.h>
-#include <react/core/LayoutableShadowNode.h>
-#include <react/core/Sealable.h>
-#include <react/debug/DebugStringConvertible.h>
+#include <fabric/components/view/yoga/YogaStylableProps.h>
+#include <fabric/core/layout/LayoutableShadowNode.h>
+#include <fabric/core/primitives/Sealable.h>
+#include <fabric/debug/DebugStringConvertible.h>
 
 namespace facebook {
 namespace react {

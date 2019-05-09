@@ -8,7 +8,7 @@
 #pragma once
 
 #include <folly/dynamic.h>
-#include <react/components/view/AccessibilityPrimitives.h>
+#include <fabric/components/view/accessibility/AccessibilityPrimitives.h>
 
 namespace facebook {
 namespace react {

@@ -5,8 +5,8 @@
 
 #include "ComponentDescriptorRegistry.h"
 
-#include <react/core/ShadowNodeFragment.h>
-#include <react/uimanager/primitives.h>
+#include <fabric/core/shadownode/ShadowNodeFragment.h>
+#include <fabric/uimanager/primitives.h>
 
 namespace facebook {
 namespace react {
@@ -114,11 +114,14 @@ SharedShadowNode ComponentDescriptorRegistry::createNode(
   const SharedComponentDescriptor &componentDescriptor = (*this)[componentName];
 
   SharedShadowNode shadowNode = componentDescriptor->createShadowNode(
-      {.tag = tag,
-       .rootTag = rootTag,
-       .eventEmitter =
+      {/*.tag = */tag,
+       /*.rootTag = */rootTag,
+      /*.props = */
+      componentDescriptor
+          ->cloneProps(nullptr, RawProps(props)),
+       /*.eventEmitter =*/
            componentDescriptor->createEventEmitter(std::move(eventTarget), tag),
-       .props = componentDescriptor->cloneProps(nullptr, RawProps(props))});
+       });
   return shadowNode;
 }
 

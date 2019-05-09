@@ -10,7 +10,7 @@
 #include <tuple>
 
 #include <folly/Hash.h>
-#include <react/graphics/Float.h>
+#include <fabric/graphics/platform/android/Float.h>
 
 namespace facebook {
 namespace react {

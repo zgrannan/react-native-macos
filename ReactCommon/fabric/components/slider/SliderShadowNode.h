@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include <react/components/slider/SliderEventEmitter.h>
-#include <react/components/slider/SliderProps.h>
-#include <react/components/view/ConcreteViewShadowNode.h>
-#include <react/imagemanager/ImageManager.h>
-#include <react/imagemanager/primitives.h>
+#include <fabric/components/slider/SliderEventEmitter.h>
+#include <fabric/components/slider/SliderProps.h>
+#include <fabric/components/view/ConcreteViewShadowNode.h>
+#include <fabric/imagemanager/ImageManager.h>
+#include <fabric/imagemanager/primitives.h>
 
 namespace facebook {
 namespace react {

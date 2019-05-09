@@ -12,12 +12,12 @@ namespace react {
 
 #if RN_DEBUG_STRING_CONVERTIBLE
 
-DebugStringConvertibleItem::DebugStringConvertibleItem(
-    const std::string &name,
-    const std::string &value,
-    const SharedDebugStringConvertibleList &props,
-    const SharedDebugStringConvertibleList &children)
-    : name_(name), value_(value), props_(props), children_(children) {}
+//DebugStringConvertibleItem::DebugStringConvertibleItem(
+//    const std::string &name,
+//    const std::string &value,
+//    const SharedDebugStringConvertibleList &props,
+//    const SharedDebugStringConvertibleList &children)
+//    : name_(name), value_(value), props_(props), children_(children) {}
 
 std::string DebugStringConvertibleItem::getDebugName() const {
   return name_;

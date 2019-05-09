@@ -9,8 +9,8 @@
 
 #include <memory>
 
-#include <react/components/view/AccessibilityProps.h>
-#include <react/core/ShadowNode.h>
+#include <fabric/components/view/accessibility/AccessibilityProps.h>
+#include <fabric/core/shadownode/ShadowNode.h>
 
 namespace facebook {
 namespace react {

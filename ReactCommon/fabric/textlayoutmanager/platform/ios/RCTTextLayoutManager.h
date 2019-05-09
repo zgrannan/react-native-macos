@@ -9,7 +9,7 @@
 
 #import <react/attributedstring/AttributedString.h>
 #import <react/attributedstring/ParagraphAttributes.h>
-#import <react/core/LayoutConstraints.h>
+#import <react/core/layout/LayoutConstraints.h>
 #import <react/graphics/Geometry.h>
 
 NS_ASSUME_NONNULL_BEGIN

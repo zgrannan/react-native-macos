@@ -10,11 +10,11 @@
 #include <algorithm>
 #include <memory>
 
-#include <react/components/view/conversions.h>
-#include <react/core/LayoutConstraints.h>
-#include <react/core/LayoutContext.h>
-#include <react/debug/DebugStringConvertibleItem.h>
-#include <react/debug/SystraceSection.h>
+#include <fabric/components/view/conversions.h>
+#include <fabric/core/layout/LayoutConstraints.h>
+#include <fabric/core/layout/LayoutContext.h>
+#include <fabric/debug/DebugStringConvertibleItem.h>
+#include <fabric/debug/SystraceSection.h>
 #include <yoga/Yoga.h>
 
 namespace facebook {

@@ -7,8 +7,8 @@
 
 #include "RootShadowNode.h"
 
-#include <react/components/view/conversions.h>
-#include <react/debug/SystraceSection.h>
+#include <fabric/components/view/conversions.h>
+#include <fabric/debug/SystraceSection.h>
 
 namespace facebook {
 namespace react {
@@ -31,8 +31,22 @@ UnsharedRootShadowNode RootShadowNode::clone(
   auto props = std::make_shared<const RootProps>(
       *getProps(), layoutConstraints, layoutContext);
   auto newRootShadowNode = std::make_shared<RootShadowNode>(
-      *this, ShadowNodeFragment{.props = props});
+      *this, ShadowNodeFragment{/*.props = */0, 0, props});
   return newRootShadowNode;
+}
+
+namespace {
+
+SharedProps &nullSharedProps() {
+  static auto &instance = *new SharedProps();
+  return instance;
+}
+
+SharedEventEmitter &nullSharedEventEmitter() {
+  static auto &instance = *new SharedEventEmitter();
+  return instance;
+}
+
 }
 
 UnsharedRootShadowNode RootShadowNode::clone(
@@ -57,11 +71,20 @@ UnsharedRootShadowNode RootShadowNode::clone(
     sharedChildren = std::make_shared<SharedShadowNodeList>(children);
 
     oldChild = ancestor.get().shared_from_this();
-    newChild = oldChild->clone(ShadowNodeFragment{.children = sharedChildren});
+    newChild = oldChild->clone(ShadowNodeFragment{/*.children = */ 0,
+                                                  0,
+                                                  nullSharedProps(),
+                                                  nullSharedEventEmitter()
+                                                  ,sharedChildren});
   }
 
   return std::make_shared<RootShadowNode>(
-      *this, ShadowNodeFragment{.children = sharedChildren});
+      *this,
+      ShadowNodeFragment{0,
+                         0,
+                         nullSharedProps(),
+                         nullSharedEventEmitter(),
+                         sharedChildren});
 }
 
 } // namespace react

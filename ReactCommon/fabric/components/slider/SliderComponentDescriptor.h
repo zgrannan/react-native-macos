@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <react/components/slider/SliderShadowNode.h>
-#include <react/core/ConcreteComponentDescriptor.h>
+#include <fabric/components/slider/SliderShadowNode.h>
+#include <fabric/core/componentdescriptor/ConcreteComponentDescriptor.h>
 
 namespace facebook {
 namespace react {

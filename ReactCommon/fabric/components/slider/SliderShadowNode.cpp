@@ -7,9 +7,9 @@
 
 #include "SliderShadowNode.h"
 
-#include <react/components/slider/SliderLocalData.h>
-#include <react/components/slider/SliderShadowNode.h>
-#include <react/core/LayoutContext.h>
+#include <fabric/components/slider/SliderLocalData.h>
+#include <fabric/components/slider/SliderShadowNode.h>
+#include <fabric/core/layout/LayoutContext.h>
 
 namespace facebook {
 namespace react {

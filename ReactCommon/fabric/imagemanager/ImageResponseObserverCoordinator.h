@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <react/imagemanager/ImageResponse.h>
-#include <react/imagemanager/ImageResponseObserver.h>
+#include <fabric/imagemanager/ImageResponse.h>
+#include <fabric/imagemanager/ImageResponseObserver.h>
 
 #include <folly/SharedMutex.h>
 #include <shared_mutex>

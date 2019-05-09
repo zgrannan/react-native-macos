@@ -8,8 +8,8 @@
 #pragma once
 
 #include <folly/dynamic.h>
-#include <react/core/RawProps.h>
-#include <react/core/RawValue.h>
+#include <fabric/core/primitives/RawProps.h>
+#include <fabric/core/primitives/RawValue.h>
 #include <memory>
 #include <string>
 #include <unordered_map>

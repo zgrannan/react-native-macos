@@ -10,7 +10,7 @@
 #include <folly/dynamic.h>
 #include <jsi/jsi.h>
 
-#include <react/events/EventTarget.h>
+#include <fabric/events/EventTarget.h>
 
 namespace facebook {
 namespace react {

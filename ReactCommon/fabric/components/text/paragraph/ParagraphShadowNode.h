@@ -8,14 +8,14 @@
 #pragma once
 
 #include <folly/Optional.h>
-#include <react/components/text/ParagraphMeasurementCache.h>
-#include <react/components/text/ParagraphProps.h>
-#include <react/components/text/TextShadowNode.h>
-#include <react/components/view/ConcreteViewShadowNode.h>
-#include <react/core/ConcreteShadowNode.h>
-#include <react/core/LayoutContext.h>
-#include <react/core/ShadowNode.h>
-#include <react/textlayoutmanager/TextLayoutManager.h>
+#include <fabric/components/text/paragraph/ParagraphMeasurementCache.h>
+#include <fabric/components/text/paragraph/ParagraphProps.h>
+#include <fabric/components/text/text/TextShadowNode.h>
+#include <fabric/components/view/ConcreteViewShadowNode.h>
+#include <fabric/core/shadownode/ConcreteShadowNode.h>
+#include <fabric/core/layout/LayoutContext.h>
+#include <fabric/core/shadownode/ShadowNode.h>
+#include <fabric/textlayoutmanager/platform/android/TextLayoutManager.h>
 
 namespace facebook {
 namespace react {

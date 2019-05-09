@@ -8,9 +8,9 @@
 #pragma once
 
 #include <folly/dynamic.h>
-#include <react/core/RawProps.h>
-#include <react/graphics/Color.h>
-#include <react/graphics/Geometry.h>
+#include <fabric/core/primitives/RawProps.h>
+#include <fabric/graphics/platform/android/Color.h>
+#include <fabric/graphics/Geometry.h>
 
 namespace facebook {
 namespace react {

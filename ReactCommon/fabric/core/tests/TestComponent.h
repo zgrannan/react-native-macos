@@ -10,11 +10,11 @@
 #include <memory>
 
 #include <folly/dynamic.h>
-#include <react/core/ConcreteComponentDescriptor.h>
-#include <react/core/ConcreteShadowNode.h>
-#include <react/core/LocalData.h>
-#include <react/core/RawProps.h>
-#include <react/core/ShadowNode.h>
+#include <fabric/core/componentdescriptor/ConcreteComponentDescriptor.h>
+#include <fabric/core/shadownode/ConcreteShadowNode.h>
+#include <fabric/core/shadownode/LocalData.h>
+#include <fabric/core/primitives/RawProps.h>
+#include <fabric/core/shadownode/ShadowNode.h>
 
 using namespace facebook::react;
 

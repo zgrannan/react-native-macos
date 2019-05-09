@@ -10,7 +10,7 @@
 #include <folly/dynamic.h>
 #include <jsi/JSIDynamic.h>
 #include <jsi/jsi.h>
-#include <react/core/RawValue.h>
+#include <fabric/core/primitives/RawValue.h>
 
 namespace facebook {
 namespace react {

@@ -7,16 +7,29 @@
 
 #include <jsi/jsi.h>
 
-#include <react/core/LayoutContext.h>
-#include <react/debug/SystraceSection.h>
-#include <react/uimanager/ComponentDescriptorRegistry.h>
-#include <react/uimanager/TimeUtils.h>
-#include <react/uimanager/UIManager.h>
-#include <react/uimanager/UIManagerBinding.h>
-#include <react/uimanager/UITemplateProcessor.h>
+#include <fabric/core/layout/LayoutContext.h>
+#include <fabric/debug/SystraceSection.h>
+#include <fabric/uimanager/ComponentDescriptorRegistry.h>
+#include <fabric/uimanager/TimeUtils.h>
+#include <fabric/uimanager/UIManager.h>
+#include <fabric/uimanager/UIManagerBinding.h>
+#include <fabric/uimanager/UITemplateProcessor.h>
 
 namespace facebook {
 namespace react {
+namespace {
+
+SharedProps &nullSharedProps() {
+  static auto &instance = *new SharedProps();
+  return instance;
+}
+
+SharedEventEmitter &nullSharedEventEmitter() {
+  static auto &instance = *new SharedEventEmitter();
+  return instance;
+}
+
+} // namespace
 
 Scheduler::Scheduler(
     const SharedContextContainer &contextContainer,
@@ -110,9 +123,12 @@ void Scheduler::renderTemplateToSurface(
           [&](const SharedRootShadowNode &oldRootShadowNode) {
             return std::make_shared<RootShadowNode>(
                 *oldRootShadowNode,
-                ShadowNodeFragment{.children =
-                                       std::make_shared<SharedShadowNodeList>(
-                                           SharedShadowNodeList{tree})});
+                ShadowNodeFragment{0,
+                                   0,
+                                   nullSharedProps(),
+                                   nullSharedEventEmitter(), /*.children =*/
+                                   std::make_shared<SharedShadowNodeList>(
+                                       SharedShadowNodeList{tree})});
           },
           commitStartTime);
     });
@@ -134,8 +150,12 @@ void Scheduler::stopSurface(SurfaceId surfaceId) const {
               return std::make_shared<RootShadowNode>(
                   *oldRootShadowNode,
                   ShadowNodeFragment{
-                      .children =
-                          ShadowNode::emptySharedShadowNodeSharedList()});
+                      0,
+                      0,
+                      nullSharedProps(),
+                      nullSharedEventEmitter(),
+                      /*.children =*/
+                      ShadowNode::emptySharedShadowNodeSharedList()});
             },
             commitStartTime);
       });
@@ -228,7 +248,11 @@ void Scheduler::uiManagerDidFinishTransaction(
         [&](const SharedRootShadowNode &oldRootShadowNode) {
           return std::make_shared<RootShadowNode>(
               *oldRootShadowNode,
-              ShadowNodeFragment{.children = rootChildNodes});
+              ShadowNodeFragment{0,
+                                 0,
+                                 nullSharedProps(),
+                                 nullSharedEventEmitter(),
+                                 /*.children = */ rootChildNodes});
         },
         startCommitTime);
   });

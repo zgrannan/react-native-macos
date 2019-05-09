@@ -9,9 +9,9 @@
 
 #include <string>
 
-#include <react/core/ShadowNodeFragment.h>
-#include <react/debug/DebugStringConvertible.h>
-#include <react/debug/debugStringConvertibleUtils.h>
+#include <fabric/core/shadownode/ShadowNodeFragment.h>
+#include <fabric/debug/DebugStringConvertible.h>
+#include <fabric/debug/debugStringConvertibleUtils.h>
 
 namespace facebook {
 namespace react {
@@ -31,7 +31,9 @@ ShadowNode::ShadowNode(
       rootTag_(fragment.rootTag),
       props_(fragment.props),
       eventEmitter_(fragment.eventEmitter),
-      children_(fragment.children ?: emptySharedShadowNodeSharedList()),
+      children_(
+          fragment.children ? fragment.children
+                            : emptySharedShadowNodeSharedList()),
       cloneFunction_(cloneFunction),
       childrenAreShared_(true),
       revision_(1) {
@@ -42,12 +44,17 @@ ShadowNode::ShadowNode(
 ShadowNode::ShadowNode(
     const ShadowNode &sourceShadowNode,
     const ShadowNodeFragment &fragment)
-    : tag_(fragment.tag ?: sourceShadowNode.tag_),
-      rootTag_(fragment.rootTag ?: sourceShadowNode.rootTag_),
-      props_(fragment.props ?: sourceShadowNode.props_),
-      eventEmitter_(fragment.eventEmitter ?: sourceShadowNode.eventEmitter_),
-      children_(fragment.children ?: sourceShadowNode.children_),
-      localData_(fragment.localData ?: sourceShadowNode.localData_),
+    : tag_(fragment.tag ? fragment.tag : sourceShadowNode.tag_),
+      rootTag_(fragment.rootTag ? fragment.rootTag : sourceShadowNode.rootTag_),
+      props_(fragment.props ? fragment.props : sourceShadowNode.props_),
+      eventEmitter_(
+          fragment.eventEmitter ? fragment.eventEmitter
+                                : sourceShadowNode.eventEmitter_),
+      children_(
+          fragment.children ? fragment.children : sourceShadowNode.children_),
+      localData_(
+          fragment.localData ? fragment.localData
+                             : sourceShadowNode.localData_),
       cloneFunction_(sourceShadowNode.cloneFunction_),
       childrenAreShared_(true),
       revision_(sourceShadowNode.revision_ + 1) {

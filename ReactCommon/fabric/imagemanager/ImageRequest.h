@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include <react/imagemanager/ImageResponse.h>
-#include <react/imagemanager/ImageResponseObserver.h>
-#include <react/imagemanager/ImageResponseObserverCoordinator.h>
-#include <react/imagemanager/primitives.h>
+#include <fabric/imagemanager/ImageResponse.h>
+#include <fabric/imagemanager/ImageResponseObserver.h>
+#include <fabric/imagemanager/ImageResponseObserverCoordinator.h>
+#include <fabric/imagemanager/primitives.h>
 
 namespace facebook {
 namespace react {

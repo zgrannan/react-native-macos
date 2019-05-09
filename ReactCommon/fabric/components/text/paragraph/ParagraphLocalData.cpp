@@ -7,8 +7,8 @@
 
 #include "ParagraphLocalData.h"
 
-#include <react/components/text/conversions.h>
-#include <react/debug/debugStringConvertibleUtils.h>
+#include <fabric/components/text/paragraph/conversions.h>
+#include <fabric/debug/debugStringConvertibleUtils.h>
 
 namespace facebook {
 namespace react {

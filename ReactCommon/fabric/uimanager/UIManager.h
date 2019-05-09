@@ -6,10 +6,10 @@
 #include <folly/dynamic.h>
 #include <jsi/jsi.h>
 
-#include <react/core/ShadowNode.h>
-#include <react/uimanager/ComponentDescriptorRegistry.h>
-#include <react/uimanager/ShadowTreeRegistry.h>
-#include <react/uimanager/UIManagerDelegate.h>
+#include <fabric/core/shadownode/ShadowNode.h>
+#include <fabric/uimanager/ComponentDescriptorRegistry.h>
+#include <fabric/uimanager/ShadowTreeRegistry.h>
+#include <fabric/uimanager/UIManagerDelegate.h>
 
 namespace facebook {
 namespace react {

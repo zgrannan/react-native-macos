@@ -12,11 +12,11 @@
 
 #include <folly/Hash.h>
 #include <folly/Optional.h>
-#include <react/attributedstring/TextAttributes.h>
-#include <react/core/Sealable.h>
-#include <react/core/ShadowNode.h>
-#include <react/debug/DebugStringConvertible.h>
-#include <react/mounting/ShadowView.h>
+#include <fabric/attributedstring/TextAttributes.h>
+#include <fabric/core/primitives/Sealable.h>
+#include <fabric/core/shadownode/ShadowNode.h>
+#include <fabric/debug/DebugStringConvertible.h>
+#include <fabric/mounting/ShadowView.h>
 
 namespace facebook {
 namespace react {

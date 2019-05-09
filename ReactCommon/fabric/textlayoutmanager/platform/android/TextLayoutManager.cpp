@@ -7,11 +7,11 @@
 
 #include "TextLayoutManager.h"
 
-#include <react/attributedstring/conversions.h>
-#include <react/core/conversions.h>
-#include <react/jni/ReadableNativeMap.h>
+#include <fabric/attributedstring/conversions.h>
+#include <fabric/core/conversions.h>
+// #include <fabric/jni/ReadableNativeMap.h>
 
-using namespace facebook::jni;
+// using namespace facebook::jni;
 
 namespace facebook {
 namespace react {
@@ -26,7 +26,7 @@ Size TextLayoutManager::measure(
     AttributedString attributedString,
     ParagraphAttributes paragraphAttributes,
     LayoutConstraints layoutConstraints) const {
-  const jni::global_ref<jobject> &fabricUIManager =
+  /*const jni::global_ref<jobject> &fabricUIManager =
       contextContainer_->getInstance<jni::global_ref<jobject>>(
           "FabricUIManager");
 
@@ -56,7 +56,8 @@ Size TextLayoutManager::measure(
       minWidth,
       maxWidth,
       minHeight,
-      maxHeight));
+      maxHeight));*/
+  return Size();
 }
 
 } // namespace react

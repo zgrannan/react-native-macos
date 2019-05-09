@@ -8,8 +8,8 @@
 #pragma once
 
 #include <folly/Hash.h>
-#include <react/core/LayoutPrimitives.h>
-#include <react/graphics/Geometry.h>
+#include <fabric/core/layout/LayoutPrimitives.h>
+#include <fabric/graphics/Geometry.h>
 
 namespace facebook {
 namespace react {

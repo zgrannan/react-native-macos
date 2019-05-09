@@ -12,12 +12,12 @@
 
 #include <folly/Hash.h>
 #include <folly/Optional.h>
-#include <react/attributedstring/primitives.h>
-#include <react/core/LayoutPrimitives.h>
-#include <react/core/ReactPrimitives.h>
-#include <react/debug/DebugStringConvertible.h>
-#include <react/graphics/Color.h>
-#include <react/graphics/Geometry.h>
+#include <fabric/attributedstring/primitives.h>
+#include <fabric/core/layout/LayoutPrimitives.h>
+#include <fabric/core/primitives/ReactPrimitives.h>
+#include <fabric/debug/DebugStringConvertible.h>
+#include <fabric/graphics/platform/android/Color.h>
+#include <fabric/graphics/Geometry.h>
 
 namespace facebook {
 namespace react {
