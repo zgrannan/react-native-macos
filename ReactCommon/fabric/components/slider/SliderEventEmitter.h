@@ -11,11 +11,12 @@
 namespace facebook {
 namespace react {
 
-class SwitchEventEmitter : public ViewEventEmitter {
+class SliderEventEmitter : public ViewEventEmitter {
  public:
   using ViewEventEmitter::ViewEventEmitter;
 
-  void onChange(const bool &value) const;
+  void onValueChange(float value) const;
+  void onSlidingComplete(float value) const;
 };
 
 } // namespace react

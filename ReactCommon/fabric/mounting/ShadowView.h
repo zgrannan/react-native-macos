@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <folly/Hash.h>
 #include <react/core/LayoutMetrics.h>
 #include <react/core/LocalData.h>
 #include <react/core/Props.h>
@@ -34,7 +35,7 @@ struct ShadowView final {
 
   ComponentName componentName = "";
   ComponentHandle componentHandle = 0;
-  Tag tag = -1;
+  Tag tag = -1; // Tag does not change during the lifetime of a shadow view.
   SharedProps props = {};
   SharedEventEmitter eventEmitter = {};
   LayoutMetrics layoutMetrics = EmptyLayoutMetrics;
@@ -59,3 +60,22 @@ using ShadowViewNodePairList = std::vector<ShadowViewNodePair>;
 
 } // namespace react
 } // namespace facebook
+
+namespace std {
+
+template <>
+struct hash<facebook::react::ShadowView> {
+  size_t operator()(const facebook::react::ShadowView &shadowView) const {
+    auto seed = size_t{0};
+    folly::hash::hash_combine(
+        seed,
+        shadowView.componentHandle,
+        shadowView.tag,
+        shadowView.props,
+        shadowView.eventEmitter,
+        shadowView.localData);
+    return seed;
+  }
+};
+
+} // namespace std

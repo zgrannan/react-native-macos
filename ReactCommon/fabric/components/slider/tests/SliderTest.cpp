@@ -9,6 +9,6 @@
 
 #include <gtest/gtest.h>
 
-TEST(SwitchTest, testSomething) {
+TEST(SliderTest, testSomething) {
   // TODO
 }

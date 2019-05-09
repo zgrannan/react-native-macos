@@ -5,12 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include "SwitchShadowNode.h"
+#include <memory>
 
-namespace facebook {
-namespace react {
+#include <gtest/gtest.h>
 
-extern const char SwitchComponentName[] = "Switch";
-
-} // namespace react
-} // namespace facebook
+TEST(MountingTest, testSomething) {
+  // TODO
+}
