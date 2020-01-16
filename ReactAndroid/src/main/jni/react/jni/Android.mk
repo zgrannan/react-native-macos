@@ -35,39 +35,9 @@ LOCAL_STATIC_LIBRARIES := libreactnative jsi libjscallinvokerholder
 # LOCAL_SHARED_LIBRARIES variable.
 LOCAL_MODULE := reactnativejni
 
-LOCAL_SRC_FILES := \
-  CatalystInstanceImpl.cpp \
-  CxxModuleWrapper.cpp \
-  JavaModuleWrapper.cpp \
-  JReactMarker.cpp \
-  JSLogging.cpp \
-  JMessageQueueThread.cpp \
-  JSLoader.cpp \
-  JniJSModulesUnbundle.cpp \
-  MethodInvoker.cpp \
-  ModuleRegistryBuilder.cpp \
-  NativeArray.cpp \
-  NativeCommon.cpp \
-  NativeDeltaClient.cpp \
-  NativeMap.cpp \
-  OnLoad.cpp \
-  ProxyExecutor.cpp \
-  ReadableNativeArray.cpp \
-  ReadableNativeMap.cpp \
-  WritableNativeArray.cpp \
-  WritableNativeMap.cpp \
-
-LOCAL_V8_FILES := \
-  InstanceManager.cpp \
-  AndroidV8Factory.cpp
-  
-ifeq ($(JS_ENGINE), V8)
-  LOCAL_SRC_FILES += $(LOCAL_V8_FILES)
-  LOCAL_STATIC_LIBRARIES += v8runtime
-else ifeq ($(JS_ENGINE), JSC)
-  LOCAL_SHARED_LIBRARIES += libjsc
-  LOCAL_STATIC_LIBRARIES += jscruntime
-endif
+# Compile all local c++ files.
+LOCAL_SRC_FILES := $(wildcard *.cpp)
+LOCAL_STATIC_LIBRARIES += v8runtime
 
 # Build the files in this directory as a shared library
 include $(BUILD_SHARED_LIBRARY)
@@ -90,9 +60,6 @@ $(call import-module,privatedata)
 $(call import-module,fb)
 $(call import-module,fbgloginit)
 $(call import-module,folly)
-ifeq ($(JS_ENGINE), JSC)
-  $(call import-module,jsc)
-endif
 $(call import-module,yogajni)
 $(call import-module,jsi)
 $(call import-module,jsiexecutor)
@@ -103,9 +70,4 @@ include $(REACT_SRC_DIR)/turbomodule/core/jni/Android.mk
 # TODO(ramanpreet):
 #   Why doesn't this import-module call generate a jscexecutor.so file?
 # $(call import-module,jscexecutor)
-
-ifeq ($(JS_ENGINE), JSC)
-  include $(REACT_SRC_DIR)/jscexecutor/Android.mk
-else ifeq ($(JS_ENGINE), V8)
-  include $(REACT_SRC_DIR)/v8executor/Android.mk
-endif
+include $(REACT_SRC_DIR)/v8executor/Android.mk
