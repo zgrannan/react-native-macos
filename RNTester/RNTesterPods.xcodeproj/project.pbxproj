@@ -18,8 +18,6 @@
 		5101985723AD9EE600118BF1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5101985523AD9EE600118BF1 /* Main.storyboard */; };
 		5101985A23AD9F5B00118BF1 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5101985923AD9F5B00118BF1 /* ViewController.m */; };
 		5101985B23ADA00B00118BF1 /* legacy_image@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3D2AFAF41D646CF80089D1A3 /* legacy_image@2x.png */; };
-		5101986823ADA13C00118BF1 /* ImageInBundle.png in Resources */ = {isa = PBXBuildFile; fileRef = 3D13F8441D6F6AF200E69E0E /* ImageInBundle.png */; };
-		5101986923ADA13C00118BF1 /* OtherImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3D13F8451D6F6AF200E69E0E /* OtherImages.xcassets */; };
 		5101986A23ADA15700118BF1 /* RNTesterBundle-macOS.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5101986223ADA0FC00118BF1 /* RNTesterBundle-macOS.bundle */; };
 		5C60EB1C226440DB0018C04F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5C60EB1B226440DB0018C04F /* AppDelegate.mm */; };
 		5CB07C9B226467E60039471C /* RNTesterTurboModuleProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CB07C99226467E60039471C /* RNTesterTurboModuleProvider.mm */; };
@@ -665,6 +663,7 @@
 				TargetAttributes = {
 					E7DB209E22B2BA84005AC45F = {
 						CreatedOnToolsVersion = 10.2.1;
+					};
 					E7DB215222B2F332005AC45F = {
 						CreatedOnToolsVersion = 10.2.1;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
@@ -746,8 +745,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5101986823ADA13C00118BF1 /* ImageInBundle.png in Resources */,
-				5101986923ADA13C00118BF1 /* OtherImages.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -795,6 +792,28 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-RNTesterIntegrationTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		26ED73F8C59C75926FA607C9 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RNTester-macOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

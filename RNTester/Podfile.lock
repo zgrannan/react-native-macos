@@ -183,6 +183,11 @@ PODS:
     - glog
     - React-jsinspector (= 0.61.3)
   - React-jsi (0.61.3):
+    - boost-for-react-native (= 1.63.0)
+    - DoubleConversion
+    - Folly (= 2018.10.22.00)
+    - glog
+    - React-jsi/Default (= 0.61.3)
   - React-jscallinvoker (1000.0.0):
     - Folly (= 2018.10.22.00)
     - React-cxxreact (= 1000.0.0)
@@ -290,7 +295,6 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/samples (from `../ReactCommon`)
   - Yoga (from `../ReactCommon/yoga`)
 
-  https://github.com/CocoaPods/Specs.git:
 EXTERNAL SOURCES:
   boost-for-react-native:
     :podspec: "../third-party-podspecs/boost-for-react-native.podspec"
@@ -384,6 +388,6 @@ SPEC CHECKSUMS:
   ReactCommon: c2c63d9290b422ca6ad5b3663073a015dd892ae9
   Yoga: 02036f6383c0008edb7ef0773a0e6beb6ce82bd1
 
-PODFILE CHECKSUM: 060903e270072f1e192b064848e6c34528af1c87
+PODFILE CHECKSUM: d10549a91f1ecde1496088874e41348b2cd79f9f
 
-COCOAPODS: 1.8.1
+COCOAPODS: 1.8.4
