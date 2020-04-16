@@ -23,6 +23,7 @@ import type {TVViewProps} from '../AppleTV/TVViewPropTypes';
 import type {
   AccessibilityRole,
   AccessibilityStates,
+  AccessibilityState,
   AccessibilityActionEvent,
   AccessibilityActionInfo,
   AccessibilityNodeInfoProp, // TODO(android ISS)
@@ -366,8 +367,9 @@ type AndroidViewProps = $ReadOnly<{|
   nextFocusUp?: ?number,
 
   /**
-   * When `clickable` is true, the system will try to invoke this function
+   * Whether this `View` should be focusable with a non-touch input device, eg. receive focus with a hardware keyboard.
    * when the user performs a click.
+  focusable?: boolean,
    *
    * @platform android
    */
@@ -472,6 +474,7 @@ export type ViewProps = $ReadOnly<{|
    * Indicates to accessibility services that UI Component is in a specific State.
    */
   accessibilityStates?: ?AccessibilityStates,
+  accessibilityState?: ?AccessibilityState,
 
   /**
    * Provides an array of custom actions available for accessibility.

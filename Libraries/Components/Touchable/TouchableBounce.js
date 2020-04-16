@@ -181,7 +181,9 @@ const TouchableBounce = ((createReactClass({
         accessibilityHint={this.props.accessibilityHint}
         accessibilityRole={this.props.accessibilityRole}
         accessibilityStates={this.props.accessibilityStates}
-        onAccessibilityTap={this.props.onAccessibilityTap} // TODO(OSS Candidate ISS#2710739)
+        accessibilityState={this.props.accessibilityState}
+        accessibilityActions={this.props.accessibilityActions}
+        onAccessibilityAction={this.props.onAccessibilityAction}
         acceptsKeyboardFocus={
           (this.props.acceptsKeyboardFocus === undefined ||
             this.props.acceptsKeyboardFocus) &&
@@ -196,8 +198,8 @@ const TouchableBounce = ((createReactClass({
         nativeID={this.props.nativeID}
         testID={this.props.testID}
         hitSlop={this.props.hitSlop}
-        clickable={
-          this.props.clickable !== false &&
+        focusable={
+          this.props.focusable !== false &&
           this.props.onPress !== undefined &&
           !this.props.disabled
         }

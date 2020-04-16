@@ -5,6 +5,11 @@
 
 package com.facebook.react.modules.systeminfo;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Build;
+import com.facebook.common.logging.FLog;
+import com.facebook.react.R;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -12,11 +17,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.Build;
-
-import com.facebook.common.logging.FLog;
 import com.facebook.react.R;
-
 public class AndroidInfoHelpers {
 
   public static final String EMULATOR_LOCALHOST = "10.0.2.2";
@@ -55,7 +56,20 @@ public class AndroidInfoHelpers {
     return getServerIpAddress(getInspectorProxyPort(context));
   }
 
-  // WARNING(festevezga): This RN helper method has been copied to another FB-only target. Any changes should be applied to both.
+  public static String getAdbReverseTcpCommand(Integer port) {
+    return "adb reverse tcp:" + port + " tcp:" + port;
+  }
+
+  public static String getAdbReverseTcpCommand(Context context) {
+    return getAdbReverseTcpCommand(getDevServerPort(context));
+  }
+
+  public static String getInspectorProxyHost(Context context) {
+    return getServerIpAddress(getInspectorProxyPort(context));
+  }
+
+  // WARNING(festevezga): This RN helper method has been copied to another FB-only target. Any
+  // changes should be applied to both.
   public static String getFriendlyDeviceName() {
     if (isRunningOnGenymotion()) {
       // Genymotion already has a friendly name by default
@@ -63,6 +77,16 @@ public class AndroidInfoHelpers {
     } else {
       return Build.MODEL + " - " + Build.VERSION.RELEASE + " - API " + Build.VERSION.SDK_INT;
     }
+  }
+
+  private static Integer getDevServerPort(Context context) {
+    Resources resources = context.getResources();
+    return resources.getInteger(R.integer.react_native_dev_server_port);
+  }
+
+  private static Integer getInspectorProxyPort(Context context) {
+    Resources resources = context.getResources();
+    return resources.getInteger(R.integer.react_native_dev_server_port);
   }
 
   private static Integer getDevServerPort(Context context) {
@@ -95,6 +119,7 @@ public class AndroidInfoHelpers {
   }
 
   private static String metroHostPropValue = null;
+
   private static synchronized String getMetroHostPropValue() {
     if (metroHostPropValue != null) {
       return metroHostPropValue;

@@ -136,9 +136,3 @@ export type ScrollEvent = SyntheticEvent<
     preferredScrollerStyle?: string, // TODO(macOS)
   |}>,
 >;
-
-export type SwitchChangeEvent = SyntheticEvent<
-  $ReadOnly<{|
-    value: boolean,
-  |}>,
->;

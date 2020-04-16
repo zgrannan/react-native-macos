@@ -21,7 +21,6 @@ const ensurePositiveDelayProps = require('./ensurePositiveDelayProps');
 
 const {
   DeprecatedAccessibilityRoles,
-  DeprecatedAccessibilityStates,
 } = require('../../DeprecatedPropTypes/DeprecatedViewAccessibility');
 
 import type {
@@ -33,6 +32,9 @@ import type {EdgeInsetsProp} from '../../StyleSheet/EdgeInsetsPropType';
 import type {
   AccessibilityRole,
   AccessibilityStates,
+  AccessibilityState,
+  AccessibilityActionInfo,
+  AccessibilityActionEvent,
 } from '../View/ViewAccessibility';
 
 // [TODO(macOS ISS#2323203)
@@ -57,6 +59,9 @@ const OVERRIDE_PROPS = [
   'accessibilityIgnoresInvertColors',
   'accessibilityRole',
   'accessibilityStates',
+  'accessibilityState',
+  'accessibilityActions',
+  'onAccessibilityAction',
   'hitSlop',
   'nativeID',
   'onBlur',
@@ -72,6 +77,8 @@ export type Props = $ReadOnly<{|
   accessibilityIgnoresInvertColors?: ?boolean,
   accessibilityRole?: ?AccessibilityRole,
   accessibilityStates?: ?AccessibilityStates,
+  accessibilityState?: ?AccessibilityState,
+  accessibilityActions?: ?$ReadOnlyArray<AccessibilityActionInfo>,
   children?: ?React.Node,
   delayLongPress?: ?number,
   delayPressIn?: ?number,
@@ -87,7 +94,7 @@ export type Props = $ReadOnly<{|
   onPress?: ?(event: PressEvent) => mixed,
   onPressIn?: ?(event: PressEvent) => mixed,
   onPressOut?: ?(event: PressEvent) => mixed,
-  onAccessibilityTap?: ?Function, // TODO(OSS Candidate ISS#2710739)
+  onAccessibilityAction?: ?(event: AccessibilityActionEvent) => void,
   acceptsKeyboardFocus?: ?boolean, // [TODO(macOS ISS#2323203)
   onMouseEnter?: ?Function,
   onMouseLeave?: ?Function,
@@ -119,10 +126,10 @@ const TouchableWithoutFeedback = ((createReactClass({
     accessibilityHint: PropTypes.string,
     accessibilityIgnoresInvertColors: PropTypes.bool,
     accessibilityRole: PropTypes.oneOf(DeprecatedAccessibilityRoles),
-    accessibilityStates: PropTypes.arrayOf(
-      PropTypes.oneOf(DeprecatedAccessibilityStates),
-    ),
-    onAccessibilityTap: PropTypes.func, // TODO(OSS Candidate ISS#2710739)
+    accessibilityStates: PropTypes.array,
+    accessibilityState: PropTypes.object,
+    accessibilityActions: PropTypes.array,
+    onAccessibilityAction: PropTypes.func,
     tabIndex: PropTypes.number, // TODO(macOS/win ISS#2323203)
     /**
      * When `accessible` is true (which is the default) this may be called when
@@ -316,6 +323,22 @@ const TouchableWithoutFeedback = ((createReactClass({
       accessibilityHint: this.props.accessibilityHint,
       accessibilityRole: this.props.accessibilityRole,
       accessibilityStates: this.props.accessibilityStates,
+      onAccessibilityAction: this.props.onAccessibilityAction, // TODO(OSS Candidate ISS#2710739)
+      acceptsKeyboardFocus:
+        (this.props.acceptsKeyboardFocus === undefined ||
+          this.props.acceptsKeyboardFocus) &&
+        !this.props.disabled, // TODO(macOS ISS#2323203)
+      enableFocusRing:
+        this.props.enableFocusRing === true && !this.props.disabled, // TODO(macOS ISS#2323203)
+      tabIndex: this.props.tabIndex, // TODO(win ISS#2323203)
+      nativeID: this.props.nativeID,
+      testID: this.props.testID,
+      onLayout: this.props.onLayout,
+      hitSlop: this.props.hitSlop,
+      focusable:
+        this.props.focusable !== false && this.props.onPress !== undefined,
+      accessibilityRole: this.props.accessibilityRole,
+      accessibilityStates: this.props.accessibilityStates,
       onAccessibilityTap: this.props.onAccessibilityTap, // TODO(OSS Candidate ISS#2710739)
       acceptsKeyboardFocus:
         (this.props.acceptsKeyboardFocus === undefined ||
@@ -328,8 +351,6 @@ const TouchableWithoutFeedback = ((createReactClass({
       testID: this.props.testID,
       onLayout: this.props.onLayout,
       hitSlop: this.props.hitSlop,
-      clickable:
-        this.props.clickable !== false && this.props.onPress !== undefined,
       onStartShouldSetResponder: this.touchableHandleStartShouldSetResponder,
       onResponderTerminationRequest: this
         .touchableHandleResponderTerminationRequest,

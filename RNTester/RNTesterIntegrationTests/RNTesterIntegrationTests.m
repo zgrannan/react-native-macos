@@ -76,6 +76,7 @@ RCT_TEST_ONLY_WITH_PACKAGER(WebSocketTest) // Requires a WebSocket test server, 
 #if !TARGET_OS_OSX // ios specific
 RCT_TEST(AccessibilityManagerTest)
 #endif
+RCT_TEST(GlobalEvalWithSourceUrlTest)
 
 @end
 

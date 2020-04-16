@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#import "RCTTextView.h"
+#import <React/RCTTextView.h>
 
 #if !TARGET_OS_OSX // TODO(macOS ISS#2323203)
 #import <MobileCoreServices/UTCoreTypes.h>
@@ -17,7 +17,7 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 
-#import "RCTTextShadowView.h"
+#import <React/RCTTextShadowView.h>
 
 @interface RCTTextTiledLayer : CATiledLayer
 

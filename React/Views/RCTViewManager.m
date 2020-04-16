@@ -128,7 +128,7 @@ RCT_EXPORT_VIEW_PROPERTY(hasTVPreferredFocus, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(tvParallaxProperties, NSDictionary)
 #endif
 
-// Acessibility related properties
+// Accessibility related properties
 #if !TARGET_OS_OSX
 RCT_REMAP_VIEW_PROPERTY(accessible, reactAccessibilityElement.isAccessibilityElement, BOOL)
 #else // [TODO(macOS ISS#2323203)
@@ -252,6 +252,38 @@ RCT_CUSTOM_VIEW_PROPERTY(accessibilityStates, NSArray<NSString *>, RCTView)
     view.reactAccessibilityElement.accessibilityStates = newStates;
   } else {
     view.reactAccessibilityElement.accessibilityStates = nil;
+  }
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(accessibilityState, NSDictionary, RCTView)
+{
+  NSDictionary<NSString *, id> *state = json ? [RCTConvert NSDictionary:json] : nil;
+  NSMutableDictionary<NSString *, id> *newState = [[NSMutableDictionary<NSString *, id> alloc] init];
+
+  if (!state) {
+    return;
+  }
+
+  const UIAccessibilityTraits AccessibilityStatesMask = UIAccessibilityTraitNotEnabled | UIAccessibilityTraitSelected;
+  view.reactAccessibilityElement.accessibilityTraits = view.reactAccessibilityElement.accessibilityTraits & ~AccessibilityStatesMask;
+
+  for (NSString *s in state) {
+    id val = [state objectForKey:s];
+    if (!val) {
+      continue;
+    }
+    if ([s isEqualToString:@"selected"] && [val isKindOfClass:[NSNumber class]] && [val boolValue]) {
+      view.reactAccessibilityElement.accessibilityTraits |= UIAccessibilityTraitSelected;
+    } else if ([s isEqualToString:@"disabled"] && [val isKindOfClass:[NSNumber class]] && [val boolValue]) {
+      view.reactAccessibilityElement.accessibilityTraits |= UIAccessibilityTraitNotEnabled;
+    } else {
+      newState[s] = val;
+    }
+  }
+  if (newState.count > 0) {
+    view.reactAccessibilityElement.accessibilityState = newState;
+  } else {
+    view.reactAccessibilityElement.accessibilityState = nil;
   }
 #endif
 }

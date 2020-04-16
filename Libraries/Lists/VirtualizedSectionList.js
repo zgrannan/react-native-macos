@@ -145,10 +145,19 @@ type OptionalProps<SectionT: SectionBase<any>> = {
 export type Props<SectionT> = RequiredProps<SectionT> &
   OptionalProps<SectionT> &
   VirtualizedListProps;
+export type ScrollToLocationParamsType = {|
+  animated?: ?boolean,
+  itemIndex: number,
+  sectionIndex: number,
+  viewOffset?: number,
+  viewPosition?: number,
+|};
 
-type DefaultProps = typeof VirtualizedList.defaultProps & {
+type DefaultProps = {|
+  ...typeof VirtualizedList.defaultProps,
   data: $ReadOnlyArray<Item>,
-};
+|};
+
 type State = {
   childProps: VirtualizedListProps,
   selectedRowIndexPath: SelectedRowIndexPathType, // TODO(macOS ISS#2323203)
@@ -158,7 +167,7 @@ type State = {
  * Right now this just flattens everything into one list and uses VirtualizedList under the
  * hood. The only operation that might not scale well is concatting the data arrays of all the
  * sections when new props are received, which should be plenty fast for up to ~10,000 items.
- */
+ */åß
 class VirtualizedSectionList<
   SectionT: SectionBase<any>,
 > extends React.PureComponent<Props<SectionT>, State> {
@@ -167,22 +176,17 @@ class VirtualizedSectionList<
     data: [],
   };
 
-  scrollToLocation(params: {
-    animated?: ?boolean,
-    itemIndex: number,
-    sectionIndex: number,
-    viewPosition?: number,
-  }) {
+  scrollToLocation(params: ScrollToLocationParamsType) {
     let index = params.itemIndex;
     for (let i = 0; i < params.sectionIndex; i++) {
       index += this.props.getItemCount(this.props.sections[i].data) + 2;
     }
-    let viewOffset = 0;
+    let viewOffset = params.viewOffset || 0;
     if (params.itemIndex > 0 && this.props.stickySectionHeadersEnabled) {
       const frame = this._listRef._getFrameMetricsApprox(
         index - params.itemIndex,
       );
-      viewOffset = frame.length;
+      viewOffset += frame.length;
     }
     const toIndexParams = {
       ...params,
@@ -339,7 +343,7 @@ class VirtualizedSectionList<
     }
   }; // ]TODO(macOS ISS#2323203)
 
-  render() {
+  render(): React.Node {
     let keyEventHandler = this.props.onScrollKeyDown; // [TODO(macOS ISS#2323203)
     if (!keyEventHandler) {
       keyEventHandler = this.props.enableSelectionOnKeyPress

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#import "RCTImageView.h"
+#import <React/RCTImageView.h>
 
 #import <React/RCTBridge.h>
 #import <React/RCTConvert.h>
@@ -14,9 +14,10 @@
 #import <React/RCTUtils.h>
 #import <React/UIView+React.h>
 
-#import "RCTImageBlurUtils.h"
-#import "RCTImageLoader.h"
-#import "RCTImageUtils.h"
+#import <React/RCTUIImageViewAnimated.h>
+#import <React/RCTImageBlurUtils.h>
+#import <React/RCTImageUtils.h>
+#import <React/RCTImageLoaderProtocol.h>
 
 /**
  * Determines whether an image of `currentSize` should be reloaded for display
@@ -130,13 +131,9 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
 #if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
   // Whether observing changes to the window's backing scale
   BOOL _subscribedToWindowBackingNotifications;
-#endif // ]TODO(macOS ISS#2323203)
-
-#if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
-  NSImageView *_imageView;
-#else
-  UIImageView *_imageView;
 #endif // [TODO(macOS ISS#2323203)
+
+  RCTUIImageViewAnimated *_imageView;
 }
 
 - (instancetype)initWithBridge:(RCTBridge *)bridge
@@ -150,7 +147,6 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
 #if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
     self.wantsLayer = YES;
 #endif
-
 #if !TARGET_OS_OSX // ]TODO(macOS ISS#2323203)
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self
@@ -161,7 +157,7 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
                selector:@selector(clearImageIfDetached)
                    name:UIApplicationDidEnterBackgroundNotification
                  object:nil];
-    _imageView = [[UIImageView alloc] init];
+    _imageView = [[RCTUIImageViewAnimated alloc] init];
 #else
     _imageView = [[NSImageView alloc] init];
 #endif // TODO(macOS ISS#2323203)
@@ -329,7 +325,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
 - (void)clearImage
 {
   [self cancelImageLoad];
-  [_imageView.layer removeAnimationForKey:@"contents"];
   self.image = nil;
   _imageSource = nil;
 }
@@ -442,14 +437,14 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
     };
 
     _reloadImageCancellationBlock =
-    [_bridge.imageLoader loadImageWithURLRequest:source.request
-                                            size:imageSize
-                                           scale:imageScale
-                                         clipped:NO
-                                      resizeMode:_resizeMode
-                                   progressBlock:progressHandler
-                                partialLoadBlock:partialLoadHandler
-                                 completionBlock:completionHandler];
+    [[_bridge moduleForName:@"ImageLoader"] loadImageWithURLRequest:source.request
+                                                                        size:imageSize
+                                                                       scale:imageScale
+                                                                     clipped:NO
+                                                                  resizeMode:_resizeMode
+                                                               progressBlock:progressHandler
+                                                            partialLoadBlock:partialLoadHandler
+                                                             completionBlock:completionHandler];
   } else {
     [self clearImage];
   }
@@ -463,6 +458,10 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
   }
 
   if (error) {
+    RCTExecuteOnMainQueue(^{
+      self.image = nil;
+    });
+
     if (_onError) {
       _onError(@{ @"error": error.localizedDescription });
     }
@@ -478,23 +477,12 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
       self->_pendingImageSource = nil;
     }
 
-    [self->_imageView.layer removeAnimationForKey:@"contents"];
-    if (image.reactKeyframeAnimation) {
-      CGImageRef posterImageRef = (__bridge CGImageRef)[image.reactKeyframeAnimation.values firstObject];
-      if (!posterImageRef) {
-        return;
-      }
-      // Apply renderingMode to animated image.
 #if TARGET_OS_OSX // TODO(macOS ISS#2323203)
       // NSImages don't have rendering modes, so ignore
       self->_imageView.image = [[NSImage alloc] initWithCGImage:posterImageRef size:NSZeroSize /* shorthand for same size as CGImageRef */];
 #else // TODO(macOS ISS#2323203)
-      self->_imageView.image = [[UIImage imageWithCGImage:posterImageRef] imageWithRenderingMode:self->_renderingMode];
 #endif // TODO(macOS ISS#2323203)
-      [self->_imageView.layer addAnimation:image.reactKeyframeAnimation forKey:@"contents"];
-    } else {
-      self.image = image;
-    }
+    self.image = image;
 
     if (isPartialLoad) {
       if (self->_onPartialLoad) {
