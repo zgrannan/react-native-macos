@@ -7,7 +7,7 @@
 
 #import "RCTSampleTurboModule.h"
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h> // TODO(macOS ISS#2323203)
 
 using namespace facebook::react;
 
@@ -45,8 +45,13 @@ RCT_EXPORT_MODULE()
 
 - (NSDictionary *)getConstants
 {
+#if !TARGET_OS_OSX // TODO(macOS ISS#2323203)
   UIScreen *mainScreen = UIScreen.mainScreen;
   CGSize screenSize = mainScreen.bounds.size;
+#else // [TODO(macOS ISS#2323203)
+  NSScreen *mainScreen = NSScreen.mainScreen;
+  CGSize screenSize = mainScreen.frame.size;
+#endif // ]TODO(macOS ISS#2323203)
 
   return @{
     @"const1" : @YES,

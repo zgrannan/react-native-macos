@@ -32,6 +32,4 @@ Pod::Spec.new do |s|
   s.header_dir             = "RCTText"
 
   s.dependency "React-Core/RCTTextHeaders", version
-
-  s.osx.exclude_files      = "TextInput/RCTInputAccessory{,Shadow}View*.{h,m}"
 end
