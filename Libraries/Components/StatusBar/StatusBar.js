@@ -17,7 +17,7 @@ const processColor = require('../../StyleSheet/processColor');
 
 import NativeStatusBarManager from './NativeStatusBarManager';
 
-import type {ColorValue} from 'StyleSheetTypes'; // TODO(macOS ISS#2323203)
+import type {ColorValue} from '../../StyleSheet/StyleSheetTypes'; // TODO(macOS ISS#2323203)
 
 /**
  * Status bar style

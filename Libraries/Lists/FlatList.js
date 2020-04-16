@@ -656,7 +656,7 @@ class FlatList<ItemT> extends React.PureComponent<Props<ItemT>, void> {
                 const element = renderer({
                   item: it,
                   index: index * numColumns + kk,
-              isSelected: isSelected, // TODO(macOS ISS#2323203)
+                  isSelected: isSelected, // TODO(macOS ISS#2323203)
                   separators: info.separators,
                 });
                 return element != null ? (

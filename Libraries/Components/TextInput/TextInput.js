@@ -124,25 +124,25 @@ export type EditingEvent = SyntheticEvent<
   |}>,
 >;
 
-  // iOS+macOS
-  // iOS-only
-  // macOS-only // [TODO(macOS ISS#2323203)
-  'ortography',
-  'spelling',
-  'grammar',
-  'quote',
-  'dash',
-  'replacement',
-  'correction',
-  'regularExpression',
-  'transitInformation', // ]TODO(macOS ISS#2323203)
 type DataDetectorTypesType =
+  // iOS+macOS
   | 'phoneNumber'
   | 'link'
   | 'address'
   | 'calendarEvent'
+  // iOS-only
   | 'none'
-  | 'all';
+  | 'all'
+  // macOS-only // [TODO(macOS ISS#2323203)
+  | 'ortography'
+  | 'spelling'
+  | 'grammar'
+  | 'quote'
+  | 'dash'
+  | 'replacement'
+  | 'correction'
+  | 'regularExpression'
+  | 'transitInformation'; // ]TODO(macOS ISS#2323203)
 
 export type KeyboardType =
   // Cross Platform
@@ -672,7 +672,7 @@ type Props = $ReadOnly<{|
    * multiline fields. Note that for multiline fields, setting `blurOnSubmit`
    * to `true` means that pressing return will blur the field and trigger the
    * `onSubmitEditing` event instead of inserting a newline into the field.
-     * Ignored on Android, if Hardware Keyboard is connected. // TODO(android ISS)
+   * Ignored on Android, if Hardware Keyboard is connected. // TODO(android ISS)
    */
   blurOnSubmit?: ?boolean,
 
@@ -819,19 +819,19 @@ const emptyFunctionThatReturnsTrue = () => true;
  * in AndroidManifest.xml ( https://developer.android.com/guide/topics/manifest/activity-element.html )
  * or control this param programmatically with native code.
  *
-     *
-     * The following values work on macOS only:
-     *
-     * - `'ortography'`
-     * - `'spelling'`
-     * - `'grammar'`
-     * - `'quote'`
-     * - `'dash'`
-     * - `'replacement'`
-     * - `'correction'`
-     * - `'regularExpression'`
-     * - `'transitInformation'`
-     *
+ *
+ * The following values work on macOS only:
+ *
+ * - `'ortography'`
+ * - `'spelling'`
+ * - `'grammar'`
+ * - `'quote'`
+ * - `'dash'`
+ * - `'replacement'`
+ * - `'correction'`
+ * - `'regularExpression'`
+ * - `'transitInformation'`
+ *
  */
 
 const TextInput = createReactClass({

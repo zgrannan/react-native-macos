@@ -35,7 +35,7 @@ const DebugInstructions: () => Node = Platform.select({
   // ]TODO(macOS ISS#2323203)
   default: () => (
     <Text>
-      Press <Text style={styles.highlight}>Cmd or Ctrl + M</Text> or {' '}
+      Press <Text style={styles.highlight}>Cmd or Ctrl + M</Text> or{' '}
       <Text style={styles.highlight}>Shake</Text> your device to open the React
       Native debug menu.
     </Text>
