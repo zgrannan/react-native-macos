@@ -7,7 +7,7 @@
 
 #import <React/RCTImageEditingManager.h>
 
-#import <UIKit/UIKit.h>
+#import <React/RCTUIKit.h>
 
 #import <React/RCTConvert.h>
 #import <React/RCTImageLoader.h>

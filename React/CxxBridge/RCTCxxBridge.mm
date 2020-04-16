@@ -922,7 +922,7 @@ struct RCTInstanceCallback : public InstanceCallback {
 
 #if RCT_DEV
   RCTDevSettings *devSettings = [self devSettings]; // TODO(OSS Candidate ISS#2710739)
-  if ([devSettings isDevModeEnabled] && .devSettings.isHotLoadingAvailable) {
+  if ([devSettings isDevModeEnabled] && devSettings.isHotLoadingAvailable) {
     NSString *path = [self.bundleURL.path substringFromIndex:1]; // strip initial slash
     NSString *host = self.bundleURL.host;
     NSNumber *port = self.bundleURL.port;

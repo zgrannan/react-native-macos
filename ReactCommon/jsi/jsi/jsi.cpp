@@ -84,10 +84,6 @@ Instrumentation& Runtime::instrumentation() {
     bool createSnapshotToStream(std::ostream&, bool) override {
       return false;
     }
-
-    bool createSnapshotToStream(std::ostream&, bool) override {
-      return false;
-    }
     
     void writeBridgeTrafficTraceToFile(const std::string&) const override {
       std::abort();
