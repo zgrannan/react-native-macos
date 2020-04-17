@@ -37,6 +37,7 @@ static NSInteger RCTImageBytesForImage(UIImage *image)
 #endif // [TODO(macOS ISS#2323203)
 }
 
+#if TARGET_OS_OSX
 static NSData *NSImageDataForFileType(NSImage *image, NSBitmapImageFileType fileType, NSDictionary<NSString *, id> *properties)
 {
   RCTAssert(image.representations.count == 1, @"Expected only a single representation since UIImage only supports one.");
@@ -49,7 +50,7 @@ static NSData *NSImageDataForFileType(NSImage *image, NSBitmapImageFileType file
 
   return [imageRep representationUsingType:fileType properties:properties];
 }
-
+#endif // TARGET_OS_OSX
 @interface RCTImageLoader() <NativeImageLoaderSpec>
 
 @end
