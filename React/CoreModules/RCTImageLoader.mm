@@ -37,6 +37,19 @@ static NSInteger RCTImageBytesForImage(UIImage *image)
 #endif // [TODO(macOS ISS#2323203)
 }
 
+static NSData *NSImageDataForFileType(NSImage *image, NSBitmapImageFileType fileType, NSDictionary<NSString *, id> *properties)
+{
+  RCTAssert(image.representations.count == 1, @"Expected only a single representation since UIImage only supports one.");
+
+  NSBitmapImageRep *imageRep = (NSBitmapImageRep *)image.representations.firstObject;
+  if (![imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+    RCTAssert([imageRep isKindOfClass:[NSBitmapImageRep class]], @"We need an NSBitmapImageRep to create an image.");
+    return nil;
+  }
+
+  return [imageRep representationUsingType:fileType properties:properties];
+}
+
 @interface RCTImageLoader() <NativeImageLoaderSpec>
 
 @end
@@ -829,7 +842,12 @@ static UIImage *RCTResizeImageIfNeeded(UIImage *image,
       }
     } else {
       UIImage *image = imageOrData;
-      CGFloat imageScale = UIImageGetScale(image); // TODO(macOS ISS#2323203)
+#if !TARGET_OS_OSX
+      CGFloat imageScale = image.scale;
+#else
+      // Trust -[NSImage size] on macOS since an image is a collection of representations instead of a thin wrapper around a CGImage
+      CGFloat imageScale = 1.0;
+#endif // TARGET_OS_OSX
       size = (CGSize){
           image.size.width * imageScale, // TODO(macOS ISS#2323203)
           image.size.height * imageScale, // TODO(macOS ISS#2323203)
@@ -929,10 +947,20 @@ static UIImage *RCTResizeImageIfNeeded(UIImage *image,
     NSData *imageData = nil;
     if (RCTUIImageHasAlpha(image)) { // TODO(macOS ISS#2323203)
         mimeType = @"image/png";
+#if TARGET_OS_OSX
+        imageData = NSImageDataForFileType(image, NSBitmapImageFileTypePNG, @{});
+#else
         imageData = UIImagePNGRepresentation(image);
+#endif // !TARGET_OS_OSX
     } else {
         mimeType = @"image/jpeg";
+#if TARGET_OS_OSX
+        imageData = NSImageDataForFileType(image,
+                                           NSBitmapImageFileTypeJPEG,
+                                           @{NSImageCompressionFactor : @(1.0)});
+#else
         imageData = UIImageJPEGRepresentation(image, 1.0);
+#endif // !TARGET_OS_OSX
     }
 
     NSURLResponse *response = [[NSURLResponse alloc] initWithURL:request.URL

@@ -127,13 +127,13 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
 
   // Whether the latest change of props requires the image to be reloaded
   BOOL _needsReload;
-  
+
+  RCTUIImageViewAnimated *_imageView;
+
 #if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
   // Whether observing changes to the window's backing scale
   BOOL _subscribedToWindowBackingNotifications;
 #endif // [TODO(macOS ISS#2323203)
-
-  RCTUIImageViewAnimated *_imageView;
 }
 
 - (instancetype)initWithBridge:(RCTBridge *)bridge
@@ -147,7 +147,7 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
 #if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
     self.wantsLayer = YES;
 #endif
-#if !TARGET_OS_OSX // ]TODO(macOS ISS#2323203)
+#if !TARGET_OS_OSX
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self
                selector:@selector(clearImageIfDetached)
@@ -157,10 +157,8 @@ static NSDictionary *onLoadParamsForSource(RCTImageSource *source)
                selector:@selector(clearImageIfDetached)
                    name:UIApplicationDidEnterBackgroundNotification
                  object:nil];
+#endif
     _imageView = [[RCTUIImageViewAnimated alloc] init];
-#else
-    _imageView = [[NSImageView alloc] init];
-#endif // TODO(macOS ISS#2323203)
     _imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:_imageView];
   }
@@ -477,11 +475,6 @@ RCT_NOT_IMPLEMENTED(- (instancetype)initWithFrame:(CGRect)frame)
       self->_pendingImageSource = nil;
     }
 
-#if TARGET_OS_OSX // TODO(macOS ISS#2323203)
-      // NSImages don't have rendering modes, so ignore
-      self->_imageView.image = [[NSImage alloc] initWithCGImage:posterImageRef size:NSZeroSize /* shorthand for same size as CGImageRef */];
-#else // TODO(macOS ISS#2323203)
-#endif // TODO(macOS ISS#2323203)
     self.image = image;
 
     if (isPartialLoad) {

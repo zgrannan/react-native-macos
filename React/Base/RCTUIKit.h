@@ -324,9 +324,6 @@ NS_INLINE NSEdgeInsets UIEdgeInsetsMake(CGFloat top, CGFloat left, CGFloat botto
 
 CGFloat UIImageGetScale(NSImage *image);
 
-NSData *UIImagePNGRepresentation(NSImage *image);
-NSData *UIImageJPEGRepresentation(NSImage *image, CGFloat compressionQuality);
-
 CGImageRef UIImageGetCGImageRef(NSImage *image);
 
 NS_INLINE UIImage *UIImageWithContentsOfFile(NSString *filePath)
@@ -338,8 +335,6 @@ NS_INLINE UIImage *UIImageWithData(NSData *imageData)
 {
   return [[NSImage alloc] initWithData:imageData];
 }
-
-CGImageRef UIImageGetCGImageRef(NSImage *image);
 
 // UIBezierPath
 @compatibility_alias UIBezierPath NSBezierPath;

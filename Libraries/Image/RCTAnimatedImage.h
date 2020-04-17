@@ -18,4 +18,8 @@
 
 @interface RCTAnimatedImage : UIImage <RCTAnimatedImage>
 
+// This is a known initializer for UIImage, but needs to be exposed publicly for macOS since
+// this is not a known initializer for NSImage
+- (nullable instancetype)initWithData:(NSData *)data scale:(CGFloat)scale;
+
 @end

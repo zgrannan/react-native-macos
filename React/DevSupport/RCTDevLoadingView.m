@@ -12,7 +12,9 @@
 #import <React/RCTBridge.h>
 #import <React/RCTDefines.h>
 #import <React/RCTDevSettings.h> // TODO(OSS Candidate ISS#2710739)
+#if !TARGET_OS_OSX
 #import <React/RCTModalHostViewController.h>
+#endif // !TARGET_OS_OSX
 #import <React/RCTUtils.h>
 
 #if RCT_DEV | RCT_ENABLE_LOADING_VIEW

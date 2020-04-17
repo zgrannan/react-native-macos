@@ -49,6 +49,8 @@
 #import "UIView+React.h"
 #import "RCTDeviceInfo.h" // TODO(macOS ISS#2323203)
 
+#import <React/RCTUIKit.h>
+
 void RCTTraverseViewNodes(id<RCTComponent> view, void (^block)(id<RCTComponent>)) // TODO(OSS Candidate ISS#2710739)
 {
   if (view.reactTag) {
@@ -1112,7 +1114,7 @@ RCT_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)reactTag
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
   if (!componentData) {
-    __block UIView *view;
+      __block RCTPlatformView *view;
     RCTUnsafeExecuteOnMainQueueSync(^{
       view = self->_viewRegistry[reactTag];
     });

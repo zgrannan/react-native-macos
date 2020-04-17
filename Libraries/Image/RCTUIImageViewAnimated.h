@@ -8,6 +8,10 @@
 #import <React/RCTAnimatedImage.h>
 #import <React/RCTDefines.h>
 
+#if TARGET_OS_OSX
+@interface RCTUIImageViewAnimated : NSImageView
+#else
 @interface RCTUIImageViewAnimated : UIImageView
+#endif // !TARGET_OS_OSX
 
 @end

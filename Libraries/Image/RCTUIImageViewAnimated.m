@@ -45,8 +45,9 @@ static NSUInteger RCTDeviceFreeMemory() {
 @property (nonatomic, strong) NSOperationQueue *fetchQueue;
 @property (nonatomic, strong) dispatch_semaphore_t lock;
 @property (nonatomic, assign) CGFloat animatedImageScale;
+#if !TARGET_OS_OSX
 @property (nonatomic, strong) CADisplayLink *displayLink;
-
+#endif // !TARGET_OSX
 @end
 
 @implementation RCTUIImageViewAnimated
@@ -55,8 +56,9 @@ static NSUInteger RCTDeviceFreeMemory() {
 {
   if (self = [super initWithFrame:frame]) {
     self.lock = dispatch_semaphore_create(1);
+    #if !TARGET_OS_OSX
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-    
+    #endif // !TARGET_OSX
   }
   return self;
 }
@@ -86,8 +88,11 @@ static NSUInteger RCTDeviceFreeMemory() {
   if (self.image == image) {
     return;
   }
-  
+
+#if !TARGET_OS_OSX
   [self stop];
+#endif !TARGET_OS_OSX
+
   [self resetAnimatedImage];
 
   if ([image respondsToSelector:@selector(animatedImageFrameAtIndex:)]) {
@@ -103,8 +108,8 @@ static NSUInteger RCTDeviceFreeMemory() {
     
     // Get the current frame and loop count.
     self.totalLoopCount = self.animatedImage.animatedImageLoopCount;
-    
-    self.animatedImageScale = image.scale;
+
+    self.animatedImageScale = UIImageGetScale(image);
     
     self.currentFrame = image;
     
@@ -112,13 +117,15 @@ static NSUInteger RCTDeviceFreeMemory() {
     self.frameBuffer[@(self.currentFrameIndex)] = self.currentFrame;
     dispatch_semaphore_signal(self.lock);
 
+#if !TARGET_OS_OSX
     // Calculate max buffer size
     [self calculateMaxBufferCount];
 
     if ([self paused]) {
       [self start];
     }
-    
+#endif // !TARGET_OS_OSX
+
     [self.layer setNeedsDisplay];
   } else {
     super.image = image;
@@ -144,6 +151,7 @@ static NSUInteger RCTDeviceFreeMemory() {
   return _frameBuffer;
 }
 
+#if !TARGET_OS_OSX
 - (CADisplayLink *)displayLink
 {
   if (!_displayLink) {
@@ -324,5 +332,6 @@ static NSUInteger RCTDeviceFreeMemory() {
     dispatch_semaphore_signal(self.lock);
   }];
 }
+#endif // !TARGET_OS_OSX
 
 @end

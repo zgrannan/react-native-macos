@@ -47,9 +47,12 @@
     if (!image) {
       return nil;
     }
+#if TARGET_OS_OSX
+    self = [image copy];
+#else
     self = [super initWithCGImage:image.CGImage scale:MAX(scale, 1) orientation:image.imageOrientation];
-
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif // !TARGET_OS_OSX
   }
 
   return self;
@@ -140,7 +143,11 @@
   if (!imageRef) {
     return nil;
   }
+#if TARGET_OS_OSX
+  UIImage *image = [[NSImage alloc] initWithCGImage:imageRef size:CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef))];
+#else
   UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:UIImageOrientationUp];
+#endif // !TARGET_OS_OSX
   CGImageRelease(imageRef);
   return image;
 }
@@ -160,7 +167,9 @@
     CFRelease(_imageSource);
     _imageSource = NULL;
   }
+#if !TARGET_OS_OSX
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
+#endif // !TARGET_OS_OSX
 }
 
 @end

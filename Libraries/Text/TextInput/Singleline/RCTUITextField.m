@@ -418,15 +418,18 @@ static RCTUIColor *defaultPlaceholderTextColor()
 
 #pragma mark - Overrides
 
+#if !TARGET_OS_OSX
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 // Overrides selectedTextRange setter to get notify when selectedTextRange changed.
+- (void)setSelectedTextRange:(NSRange)selectedTextRange
 - (void)setSelectedTextRange:(UITextRange *)selectedTextRange
 {
   [super setSelectedTextRange:selectedTextRange];
   [_textInputDelegateAdapter selectedTextRangeWasSet];
 }
 #pragma clang diagnostic pop
+#endif // !TARGET_OS_OSX
 
 #if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
 - (BOOL)becomeFirstResponder

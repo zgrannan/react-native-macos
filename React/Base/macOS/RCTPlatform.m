@@ -33,4 +33,8 @@ RCT_EXPORT_MODULE(MacOSConstants)
   };
 }
 
+Class RCTPlatformCls(void) {
+  return RCTPlatform.class;
+}
+
 @end

@@ -67,13 +67,13 @@ Pod::Spec.new do |s|
                                 "React/UIUtils/*",
                                 "React/Profiler/{RCTFPSGraph,RCTPerfMonitor}.*",
                                 "React/Profiler/RCTProfileTrampoline-{arm,arm64,i386}.S",
-                                "Base/RCTKeyCommands.*",
-                                "Base/Surface/SurfaceHostingView/*",
-                                "Base/Surface/RCTSurface{,Delegate,Root*}.*",
-                                "Base/RCTTV*.*",
-                                "Base/RCTReloadCommand.*",
-                            "Views/{RCTModal*,RCTMasked*,RCTTV*,RCTRefreshControl*,RCTWrapperViewController}.*",
-                                "Views/SafeAreaView/*"
+                                "React/Base/RCTKeyCommands.*",
+                                "React/Base/Surface/SurfaceHostingView/*",
+                                "React/Base/Surface/RCTSurface{,Delegate,Root*}.*",
+                                "React/Base/RCTTV*.*",
+                                "React/Base/RCTReloadCommand.*",
+                                "React/Views/{RCTModal*,RCTMasked*,RCTTV*,RCTRefreshControl*,RCTWrapperViewController}.*",
+                                "React/Views/SafeAreaView/*"
 
     ss.tvos.exclude_files     = "React/Modules/RCTClipboard*",
                                 "React/Views/RCTDatePicker*",
