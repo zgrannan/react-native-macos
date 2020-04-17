@@ -29,6 +29,7 @@ module.exports = {
       'platforms': [
         'ios',
         'android',
+        'macos',
       ],
     },
     'unmockedModulePathPatterns': [

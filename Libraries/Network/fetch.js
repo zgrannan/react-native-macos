@@ -13,6 +13,6 @@
 
 // side-effectful require() to put fetch,
 // Headers, Request, Response in global scope
-require('../vendor/core/whatwg-fetch');
+require('whatwg-fetch');
 
 module.exports = {fetch, Headers, Request, Response};

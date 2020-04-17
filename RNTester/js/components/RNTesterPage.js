@@ -12,7 +12,7 @@
 
 const RNTesterTitle = require('./RNTesterTitle');
 const React = require('react');
-import Platform from '../../Libraries/Utilities/Platform'; // TODO(OSS Candidate ISS#2710739)
+import {Platform} from 'react-native'; // TODO(macOS ISS#2323203)
 
 const {ScrollView, StyleSheet, View} = require('react-native');
 

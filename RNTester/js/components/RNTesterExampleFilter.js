@@ -10,7 +10,7 @@
 
 'use strict';
 
-import Platform from '../../Libraries/Utilities/Platform'; // TODO(macOS ISS#2323203)
+import {Platform} from 'react-native'; // TODO(macOS ISS#2323203)
 const React = require('react');
 
 const {StyleSheet, TextInput, View} = require('react-native');

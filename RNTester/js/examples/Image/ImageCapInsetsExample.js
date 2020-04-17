@@ -12,7 +12,7 @@
 
 const React = require('react');
 const ReactNative = require('react-native');
-import Platform from '../../Libraries/Utilities/Platform'; // TODO(OSS Candidate ISS#2710739)
+import {Platform} from 'react-native'; // TODO(macOS ISS#2323203)
 
 const nativeImageSource = require('../../../../Libraries/Image/nativeImageSource');
 const {Image, StyleSheet, Text, View} = ReactNative;

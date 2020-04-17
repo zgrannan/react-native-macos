@@ -12,7 +12,7 @@
 import type {Node} from 'React';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import React, {Component} from 'react';
-import Platform from '../../Libraries/Utilities/Platform'; // TODO(OSS Candidate ISS#2710739)
+import {Platform} from 'react-native'; // TODO(macOS ISS#2323203)
 
 type State = {|animating: boolean|};
 type Props = $ReadOnly<{||}>;

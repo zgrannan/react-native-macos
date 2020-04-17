@@ -11,7 +11,7 @@
 'use strict';
 
 const NativeEventEmitter = require('../EventEmitter/NativeEventEmitter');
-import Platform from '../Utilities/Platform'; // TODO(macOS ISS#2323203)
+import {Platform} from 'react-native'; // TODO(macOS ISS#2323203)
 import NativePushNotificationManagerIOS from './NativePushNotificationManagerIOS';
 const invariant = require('invariant');
 
