@@ -30,7 +30,7 @@ import type {
 } from './ViewAccessibility';
 
 // [TODO(macOS ISS#2323203)
-import type {DraggedTypesType} from 'DraggedType';
+import type {DraggedTypesType} from '../View/DraggedType';
 // ]TODO(macOS ISS#2323203)
 
 export type ViewLayout = Layout;

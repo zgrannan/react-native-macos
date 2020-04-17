@@ -11,7 +11,6 @@
 
 import type {Spec} from './NativeUIManager';
 
-
 interface UIManagerJSInterface extends Spec {
   +getViewManagerConfig: (viewManagerName: string) => Object;
   // The following are not marked read-only due to logic in UIManagerStatTracker.

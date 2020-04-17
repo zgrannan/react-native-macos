@@ -12,7 +12,9 @@
 
 const processColor = require('./processColor');
 
-function processColorArray(colors: ?Array<string>): ?Array<?(number | NativeOrDynamicColorType)> {
+function processColorArray(
+  colors: ?Array<string>,
+): ?Array<?(number | NativeOrDynamicColorType)> {
   return colors == null ? null : colors.map(processColor);
 }
 

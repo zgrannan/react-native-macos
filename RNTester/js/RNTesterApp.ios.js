@@ -75,7 +75,6 @@ class RNTesterApp extends React.Component<Props, RNTesterNavigationState> {
         if (!this._mounted) {
           return;
         }
-        }
         // ]TODO(OSS Candidate ISS#2710739)
         const exampleAction = URIActionMap(
           this.props.exampleFromAppetizeParams,

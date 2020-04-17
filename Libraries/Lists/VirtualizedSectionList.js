@@ -167,7 +167,7 @@ type State = {
  * Right now this just flattens everything into one list and uses VirtualizedList under the
  * hood. The only operation that might not scale well is concatting the data arrays of all the
  * sections when new props are received, which should be plenty fast for up to ~10,000 items.
- */åß
+ */
 class VirtualizedSectionList<
   SectionT: SectionBase<any>,
 > extends React.PureComponent<Props<SectionT>, State> {

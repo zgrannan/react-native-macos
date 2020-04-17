@@ -1904,7 +1904,7 @@ type CellRendererProps = {
   horizontal: ?boolean,
   index: number,
   inversionStyle: ViewStyleProp,
-    isSelected: ?boolean, // TODO(macOS ISS#2323203)
+  isSelected: ?boolean, // TODO(macOS ISS#2323203)
   item: Item,
   onLayout: (event: Object) => void, // This is extracted by ScrollViewStickyHeader
   onUnmount: (cellKey: string) => void,
@@ -2044,6 +2044,7 @@ class CellRenderer extends React.Component<
       item,
       index,
       isSelected, // TODO(macOS ISS#2323203)
+    );
 
     const onLayout =
       /* $FlowFixMe(>=0.68.0 site=react_native_fb) This comment suppresses an

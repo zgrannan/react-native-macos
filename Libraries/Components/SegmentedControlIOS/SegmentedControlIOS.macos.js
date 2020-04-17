@@ -12,14 +12,14 @@
 
 'use strict';
 
-const React = require('React');
-const StyleSheet = require('StyleSheet');
+const React = require('react');
+const StyleSheet = require('../../StyleSheet/StyleSheet');
 
-const requireNativeComponent = require('requireNativeComponent');
+const requireNativeComponent = require('react-native');
 
-import type {SyntheticEvent} from 'CoreEventTypes';
-import type {ViewProps} from 'ViewPropTypes';
-import type {NativeComponent} from 'ReactNative';
+import type {SyntheticEvent} from 'react-native/Libraries/Types/CoreEventTypes';
+import type {ViewProps} from '../View/ViewPropTypes';
+import type {NativeComponent} from '../../Renderer/shims/ReactNative';
 
 type Event = SyntheticEvent<
   $ReadOnly<{|

@@ -38,8 +38,8 @@ import type {
 } from '../View/ViewAccessibility';
 
 // [TODO(macOS ISS#2323203)
-const {DraggedTypes} = require('DraggedType');
-import type {DraggedTypesType} from 'DraggedType';
+const {DraggedTypes} = require('../View/DraggedType');
+import type {DraggedTypesType} from '../View/DraggedType';
 // ]TODO(macOS ISS#2323203)
 
 type TargetEvent = SyntheticEvent<
@@ -337,20 +337,7 @@ const TouchableWithoutFeedback = ((createReactClass({
       hitSlop: this.props.hitSlop,
       focusable:
         this.props.focusable !== false && this.props.onPress !== undefined,
-      accessibilityRole: this.props.accessibilityRole,
-      accessibilityStates: this.props.accessibilityStates,
       onAccessibilityTap: this.props.onAccessibilityTap, // TODO(OSS Candidate ISS#2710739)
-      acceptsKeyboardFocus:
-        (this.props.acceptsKeyboardFocus === undefined ||
-          this.props.acceptsKeyboardFocus) &&
-        !this.props.disabled, // TODO(macOS ISS#2323203)
-      enableFocusRing:
-        this.props.enableFocusRing === true && !this.props.disabled, // TODO(macOS ISS#2323203)
-      tabIndex: this.props.tabIndex, // TODO(win ISS#2323203)
-      nativeID: this.props.nativeID,
-      testID: this.props.testID,
-      onLayout: this.props.onLayout,
-      hitSlop: this.props.hitSlop,
       onStartShouldSetResponder: this.touchableHandleStartShouldSetResponder,
       onResponderTerminationRequest: this
         .touchableHandleResponderTerminationRequest,

@@ -10,7 +10,7 @@
 
 'use strict';
 
-import AlertMacOS from 'AlertMacOS'; // TODO(macOS ISS#2323203)
+import AlertMacOS from './AlertMacOS'; // TODO(macOS ISS#2323203)
 import Platform from '../Utilities/Platform';
 import NativeDialogManagerAndroid, {
   type DialogOptions,

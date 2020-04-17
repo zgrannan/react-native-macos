@@ -163,7 +163,7 @@ module.exports = {
     return require('../Alert/Alert');
   },
   get AlertMacOS() {
-    return require('AlertMacOS');
+    return require('../Alert/AlertMacOS');
   },
   get Animated() {
     return require('../Animated/src/Animated');
@@ -200,7 +200,7 @@ module.exports = {
   },
   // [TODO(macOS ISS#2323203)
   get DatePickerMacOS() {
-    return require('DatePickerMacOS');
+    return require('../Components/DatePickerMacOS/DatePickerMacOS');
   }, // ]TODO(macOS ISS#2323203)
   get DeviceInfo() {
     return require('../Utilities/DeviceInfo');

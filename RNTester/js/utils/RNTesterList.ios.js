@@ -30,7 +30,7 @@ const ComponentExamples: Array<RNTesterExample> = [
   },
   {
     key: 'DarkModeExample',
-    module: require('./DarkModeExample'),
+    module: require('../examples/DarkModeExample/DarkModeExample'),
     supportsTVOS: false,
   },
   {
@@ -46,7 +46,7 @@ const ComponentExamples: Array<RNTesterExample> = [
   // [TODO(OSS Candidate ISS#2710739)
   {
     key: 'FocusEvents',
-    module: require('./FocusEventsExample'),
+    module: require('../examples/FocusEventsExample/FocusEventsExample'),
     supportsTVOS: true,
   }, // ]TODO(OSS Candidate ISS#2710739)
   {
