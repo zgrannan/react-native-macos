@@ -20,19 +20,32 @@ export type PlatformSelectSpec<D, I> = {
 };
 
 const Platform = {
+  __constants: null,
   OS: 'macos',
   get Version() {
     const constants = NativeModules.PlatformConstants;
     return constants && constants.osVersion;
   },
+  get constants(): {|
+    isTesting: boolean,
+    osVersion: string,
+    reactNativeVersion: {|
+      major: number,
+      minor: number,
+      patch: number,
+      prerelease: ?number,
+    |},
+  |} {
+    if (this.__constants == null) {
+      this.__constants = NativeModules.PlatformConstants;
+    }
+    return this.__constants;
+  },
+
   get isTesting(): boolean {
     if (__DEV__) {
-      const constants = NativeModules.PlatformConstants;
-      return constants && constants.isTesting;
+      return this.constants.isTesting;
     }
-    return false;
-  },
-  get isTV() {
     return false;
   },
   select: <D, I>(spec: PlatformSelectSpec<D, I>): D | I =>

@@ -13,6 +13,7 @@ import RCTActionSheetManager from './NativeActionSheetManager';
 
 const invariant = require('invariant');
 const processColor = require('../StyleSheet/processColor');
+import type {NativeOrDynamicColorType} from '../Color/NativeOrDynamicColorType'; // TODO(macOS ISS#2323203)
 
 /**
  * Display action sheets and share sheets on iOS.
@@ -44,7 +45,7 @@ const ActionSheetIOS = {
       +destructiveButtonIndex?: ?number,
       +cancelButtonIndex?: ?number,
       +anchor?: ?number,
-      +tintColor?: number | string,
+      +tintColor?: number | NativeOrDynamicColorType, // TODO(macOS ISS#2323203)
     |},
     callback: (buttonIndex: number) => void,
   ) {
