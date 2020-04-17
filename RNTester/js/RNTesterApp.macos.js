@@ -33,8 +33,6 @@ const RNTesterNavigationReducer = require('./RNTesterNavigationReducer');
 // const SnapshotViewIOS = require('./SnapshotViewIOS.ios');
 const URIActionMap = require('./URIActionMap');
 
-import type {RNTesterExample} from './Shared/RNTesterTypes';
-// import type {RNTesterExample} from './RNTesterList.macos'; // Do we need this?
 import type {RNTesterAction} from './RNTesterActions';
 import type {RNTesterNavigationState} from './RNTesterNavigationReducer';
 
