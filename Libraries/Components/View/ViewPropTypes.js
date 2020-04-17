@@ -290,7 +290,7 @@ type AndroidViewProps = $ReadOnly<{|
    *
    * @platform android
    */
-  clickable?: ?boolean, // TODO(android ISS)
+  focusable?: ?boolean, // TODO(android ISS)
 
   /**
    * When `clickable` is true, the system will try to invoke this function

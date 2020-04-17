@@ -337,7 +337,6 @@ const TouchableWithoutFeedback = ((createReactClass({
       hitSlop: this.props.hitSlop,
       focusable:
         this.props.focusable !== false && this.props.onPress !== undefined,
-      onAccessibilityTap: this.props.onAccessibilityTap, // TODO(OSS Candidate ISS#2710739)
       onStartShouldSetResponder: this.touchableHandleStartShouldSetResponder,
       onResponderTerminationRequest: this
         .touchableHandleResponderTerminationRequest,

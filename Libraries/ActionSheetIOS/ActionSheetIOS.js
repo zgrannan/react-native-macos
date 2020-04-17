@@ -45,7 +45,7 @@ const ActionSheetIOS = {
       +destructiveButtonIndex?: ?number,
       +cancelButtonIndex?: ?number,
       +anchor?: ?number,
-      +tintColor?: number | NativeOrDynamicColorType, // TODO(macOS ISS#2323203)
+      +tintColor?: number | string | NativeOrDynamicColorType, // TODO(macOS ISS#2323203)
     |},
     callback: (buttonIndex: number) => void,
   ) {

@@ -641,7 +641,7 @@ class FlatList<ItemT> extends React.PureComponent<Props<ItemT>, void> {
     return {
       [virtualizedListRenderKey]: (info: RenderItemProps<ItemT>) => {
         if (numColumns > 1) {
-          const {item, index, isSelected} = info; // TODO(macOS ISS#2323203)
+          const {item, index} = info;
           invariant(
             Array.isArray(item),
             'Expected array of items with numColumns > 1',
@@ -656,7 +656,7 @@ class FlatList<ItemT> extends React.PureComponent<Props<ItemT>, void> {
                 const element = renderer({
                   item: it,
                   index: index * numColumns + kk,
-                  isSelected: isSelected, // TODO(macOS ISS#2323203)
+                  isSelected: info.isSelected, // TODO(macOS ISS#2323203)
                   separators: info.separators,
                 });
                 return element != null ? (

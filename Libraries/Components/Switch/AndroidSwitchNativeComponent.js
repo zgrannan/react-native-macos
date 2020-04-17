@@ -16,6 +16,7 @@ const requireNativeComponent = require('../../ReactNative/requireNativeComponent
 
 import type {SyntheticEvent} from '../../Types/CoreEventTypes';
 import type {ViewProps} from '../View/ViewPropTypes';
+import type {NativeOrDynamicColorType} from '../../Color/NativeOrDynamicColorType';
 
 type SwitchChangeEvent = SyntheticEvent<
   $ReadOnly<{|
@@ -29,13 +30,13 @@ type NativeProps = $ReadOnly<{|
   // Props
   disabled?: ?boolean,
   enabled?: ?boolean,
-  thumbColor?: ?string,
-  trackColorForFalse?: ?string,
-  trackColorForTrue?: ?string,
+  thumbColor?: ?(string | NativeOrDynamicColorType),
+  trackColorForFalse?: ?(string | NativeOrDynamicColorType),
+  trackColorForTrue?: ?(string | NativeOrDynamicColorType),
   value?: ?boolean,
   on?: ?boolean,
-  thumbTintColor?: ?string,
-  trackTintColor?: ?string,
+  thumbTintColor?: ?(string | NativeOrDynamicColorType),
+  trackTintColor?: ?(string | NativeOrDynamicColorType),
 
   // Events
   onChange?: ?(event: SwitchChangeEvent) => mixed,

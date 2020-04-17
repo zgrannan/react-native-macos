@@ -25,7 +25,7 @@ export interface Spec extends TurboModule {
       +destructiveButtonIndex?: ?number,
       +cancelButtonIndex?: ?number,
       +anchor?: ?number,
-      +tintColor?: ?number | NativeOrDynamicColorType, // TODO(macOS ISS#2323203)
+      +tintColor?: ?(number | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
     |},
     callback: (buttonIndex: number) => void,
   ) => void;
@@ -35,7 +35,7 @@ export interface Spec extends TurboModule {
       +url?: ?string,
       +subject?: ?string,
       +anchor?: ?number,
-      +tintColor?: ?number,
+      +tintColor?: ?(number | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
       +excludedActivityTypes?: ?Array<string>,
     |},
     failureCallback: (error: {|
