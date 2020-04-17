@@ -246,7 +246,6 @@ class VirtualizedSectionList<
       return rowIndexPath;
     }
 
-    const count = this.props.sections[sectionIndex].data.length;
     let row = rowIndexPath.rowIndex;
     let rowAbove = row - 1;
 
