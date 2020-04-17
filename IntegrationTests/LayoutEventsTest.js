@@ -10,10 +10,10 @@
 
 'use strict';
 
-const Platform = require('Platform');
 const React = require('react');
 const ReactNative = require('react-native');
 const {Image, LayoutAnimation, StyleSheet, Text, View} = ReactNative;
+const {Platform} = ReactNative; // TODO(macOS ISS#2323203)
 const {TestModule} = ReactNative.NativeModules;
 
 import type {ViewStyleProp} from 'react-native/Libraries/StyleSheet/StyleSheet';
@@ -53,8 +53,8 @@ class LayoutEventsTest extends React.Component<Props, State> {
   animateViewLayout() {
     debug('animateViewLayout invoked');
     LayoutAnimation.configureNext(
-      Platform.OS === 'macos'
-        ? LayoutAnimation.Presets.easeInEaseOut
+      Platform.OS === 'macos' // [TODO(macOS ISS#2323203)
+        ? LayoutAnimation.Presets.easeInEaseOut // ]TODO(macOS ISS#2323203)
         : LayoutAnimation.Presets.spring,
       () => {
         debug('animateViewLayout done');

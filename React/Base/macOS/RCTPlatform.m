@@ -16,7 +16,7 @@
 
 @implementation RCTPlatform
 
-RCT_EXPORT_MODULE(MacOSConstants)
+RCT_EXPORT_MODULE(PlatformConstants)
 
 + (BOOL)requiresMainQueueSetup
 {
