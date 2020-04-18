@@ -11,6 +11,7 @@
 'use strict';
 
 import {requireNativeComponent} from 'react-native';
+import type {NativeOrDynamicColorType} from '../../Color/NativeOrDynamicColorType'; // TODO(macOS ISS#2323203)
 
 import type {
   DirectEventHandler,
@@ -24,7 +25,7 @@ import type {ViewProps} from '../../Components/View/ViewPropTypes';
 
 type PickerItem = $ReadOnly<{|
   label: string,
-  color?: ?Int32,
+  color?: ?Int32 | ?NativeOrDynamicColorType, // TODO(macOS ISS#2323203)
 |}>;
 
 type PickerItemSelectEvent = $ReadOnly<{|
