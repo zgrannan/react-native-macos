@@ -12,7 +12,7 @@
 
 'use strict';
 
-const NativeModules = require('../BatchedBridge/NativeModules');
+import NativePlatformConstantsMacOS from './NativePlatformConstantsMacOS';
 
 export type PlatformSelectSpec<D, I> = {
   default?: D,
@@ -22,9 +22,8 @@ export type PlatformSelectSpec<D, I> = {
 const Platform = {
   __constants: null,
   OS: 'macos',
-  get Version() {
-    const constants = NativeModules.PlatformConstants;
-    return constants && constants.osVersion;
+  get Version(): $FlowFixMe {
+    return this.constants.osVersion;
   },
   get constants(): {|
     isTesting: boolean,
@@ -35,13 +34,16 @@ const Platform = {
       patch: number,
       prerelease: ?number,
     |},
+    systemName: string,
   |} {
     if (this.__constants == null) {
-      this.__constants = NativeModules.PlatformConstants;
+      this.__constants = NativePlatformConstantsMacOS.getConstants();
     }
     return this.__constants;
   },
-
+  get isTV(): boolean {
+    return false;
+  },
   get isTesting(): boolean {
     if (__DEV__) {
       return this.constants.isTesting;

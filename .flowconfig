@@ -42,8 +42,6 @@ module.file_ext=.js
 module.file_ext=.json
 module.file_ext=.ios.js
 
-# TODO(macOS ISS#2323203):
-module.system.haste.name_reducers='^\(.*\)\.macos$' -> '\1'
 munge_underscores=true
 
 module.name_mapper='^react-native$' -> '<PROJECT_ROOT>/Libraries/react-native/react-native-implementation'

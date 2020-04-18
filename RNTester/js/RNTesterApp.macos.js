@@ -15,10 +15,10 @@
 const RNTesterActions = require('./utils/RNTesterActions');
 const RNTesterExampleContainer = require('./components/RNTesterExampleContainer');
 const RNTesterExampleList = require('./components/RNTesterExampleList');
-const RNTesterList = require('./utils/RNTesterList.ios');
+const RNTesterList = require('./utils/RNTesterList.macos');
 const RNTesterNavigationReducer = require('./utils/RNTesterNavigationReducer');
 const React = require('react');
-const SnapshotViewIOS = require('./examples/Snapshot/SnapshotViewIOS.ios');
+// const SnapshotViewIOS = require('./examples/Snapshot/SnapshotViewIOS.ios');
 const URIActionMap = require('./utils/URIActionMap');
 
 const {
