@@ -37,7 +37,7 @@ type Props = {
 
 class RowComponent extends React.PureComponent<{
   item: Object,
-  isSelected?: ?boolean,
+  isSelected?: ?boolean, // TODO(macOS ISS#2323203)
   onNavigate: Function,
   onPress?: Function,
   onShowUnderlay?: Function,
@@ -52,12 +52,12 @@ class RowComponent extends React.PureComponent<{
   };
   render() {
     const {item} = this.props;
-    const rowStyle = this.props.isSelected ? styles.selectedRow : styles.row;
+    const rowStyle = this.props.isSelected ? styles.selectedRow : styles.row; // TODO(macOS ISS#2323203)
     return (
       <TouchableHighlight
         onShowUnderlay={this.props.onShowUnderlay}
         onHideUnderlay={this.props.onHideUnderlay}
-        onAccessibilityAction={this._onPress}
+        onAccessibilityAction={this._onPress} // TODO(macOS ISS#2323203)
         acceptsKeyboardFocus={false} // TODO(macOS ISS#2323203)
         onPress={this._onPress}>
         <View style={rowStyle}>
@@ -128,18 +128,21 @@ class RNTesterExampleList extends React.Component<Props, $FlowFixMeState> {
   }
 
   _handleOnSelectionEntered = item => {
+    // [TODO(macOS ISS#2323203)
     const {key} = item;
     this.props.onNavigate(RNTesterActions.ExampleAction(key));
-  };
+  }; // ]TODO(macOS ISS#2323203)
 
   _itemShouldUpdate(curr, prev) {
     return curr.item !== prev.item;
   }
 
-  _renderItem = ({item, isSelected, separators}) => (
+  _renderItem = (
+    {item, isSelected, separators}, // TODO(macOS ISS#2323203)
+  ) => (
     <RowComponent
       item={item}
-      isSelected={isSelected}
+      isSelected={isSelected} // TODO(macOS ISS#2323203)
       onNavigate={this.props.onNavigate}
       onShowUnderlay={separators.highlight}
       onHideUnderlay={separators.unhighlight}
@@ -241,11 +244,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   selectedRow: {
+    // [TODO(macOS ISS#2323203)
     backgroundColor: '#DDECF8',
     justifyContent: 'center',
     paddingHorizontal: 15,
     paddingVertical: 8,
-  },
+  }, // ]TODO(macOS ISS#2323203)
   separator: {
     height: StyleSheet.hairlineWidth,
     ...Platform.select({
@@ -268,10 +272,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(217, 217, 217)',
   },
   sectionListContentContainer: Platform.select({
+    // [TODO(macOS ISS#2323203)
     macos: {backgroundColor: {semantic: 'separatorColor'}},
     ios: {backgroundColor: {semantic: 'separatorColor'}},
     default: {backgroundColor: 'white'},
-  }),
+  }), // ]TODO(macOS ISS#2323203)
   rowTitleText: {
     fontSize: 17,
     fontWeight: '500',

@@ -27,7 +27,6 @@ const nodeOptions = babelRegisterOnly.config([nodeFiles]);
 
 babelRegisterOnly([]);
 
-/* $FlowFixMe */
 const transformer = require('metro-react-native-babel-transformer');
 module.exports = {
   process(src /*: string */, file /*: string */) /*: string */ {

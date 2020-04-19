@@ -13,7 +13,7 @@
 #import <React/RCTNativeAnimatedNodesManager.h>
 #import <React/RCTValueAnimatedNode.h>
 #import <React/RCTUIManager.h>
-#import <React/RCTPlatformDisplayLink.h>
+#import <React/RCTPlatformDisplayLink.h> // TODO(macOS ISS#2323203)
 
 static const NSTimeInterval FRAME_LENGTH = 1.0 / 60.0;
 
@@ -123,7 +123,6 @@ static id RCTPropChecker(NSString *prop, NSNumber *value)
   id _uiManager;
   RCTNativeAnimatedNodesManager *_nodesManager;
   RCTFakeDisplayLink *_displayLink;
-
 }
 
 - (void)setUp
@@ -171,7 +170,6 @@ static id RCTPropChecker(NSString *prop, NSNumber *value)
     [[_uiManager expect] synchronouslyUpdateViewOnUIThread:@1001
                                                   viewName:@"UIView"
                                                      props:RCTPropChecker(@"opacity", frame)];
-    
     [_nodesManager stepAnimations:_displayLink];
     [_uiManager verify];
   }

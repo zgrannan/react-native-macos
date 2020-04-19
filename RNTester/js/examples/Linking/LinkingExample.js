@@ -78,14 +78,14 @@ class IntentAndroidExample extends React.Component {
           <OpenURLButton url={'http://facebook.com'} />
           <OpenURLButton
             url={
-              Platform.OS === 'macos'
+              Platform.OS === 'macos' /* TODO(OSS Candidate ISS#2710739) */
                 ? 'mailto:mark@facebook.com'
                 : 'fb://notifications'
             }
           />
           <OpenURLButton
             url={
-              Platform.OS === 'macos'
+              Platform.OS === 'macos' /* TODO(OSS Candidate ISS#2710739) */
                 ? 'maps:ll=45.5200,-122.681'
                 : 'geo:37.484847,-122.148386'
             }

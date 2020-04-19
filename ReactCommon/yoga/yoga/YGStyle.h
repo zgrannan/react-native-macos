@@ -16,7 +16,6 @@
 #include "Yoga-internal.h"
 #include "Yoga.h"
 
-
 class YGStyle {
   template <typename Enum>
   using Values =

@@ -137,8 +137,8 @@ class FlatListExample extends React.PureComponent<Props, State> {
             debug={this.state.debug}
             disableVirtualization={!this.state.virtualized}
             acceptsKeyboardFocus={true} // TODO(macOS ISS#2323203)
-            enableSelectionOnKeyPress={true}
-            onSelectionEntered={this._handleSelectionEntered}
+            enableSelectionOnKeyPress={true} // TODO(macOS ISS#2323203)
+            onSelectionEntered={this._handleSelectionEntered} // TODO(macOS ISS#2323203)
             getItemLayout={
               this.state.fixedHeight ? this._getItemLayout : undefined
             }
@@ -190,10 +190,11 @@ class FlatListExample extends React.PureComponent<Props, State> {
     return {
       renderItem: undefined,
       [flatListPropKey]: ({item, isSelected, separators}) => {
+        // TODO(macOS ISS#2323203)
         return (
           <ItemComponent
             item={item}
-            isSelected={isSelected}
+            isSelected={isSelected} // TODO(macOS ISS#2323203)
             horizontal={this.state.horizontal}
             fixedHeight={this.state.fixedHeight}
             onPress={this._pressItem}
@@ -224,11 +225,12 @@ class FlatListExample extends React.PureComponent<Props, State> {
     }
   };
   _pressItem = (key: string) => {
+    // [TODO(macOS ISS#2323203)
     this._listRef.getNode().recordInteraction();
     pressItem(this, key);
   };
   _handleSelectionEntered = item => {
-    const {key} = item;
+    const {key} = item; // ]TODO(macOS ISS#2323203)
     this._listRef.getNode().recordInteraction();
     pressItem(this, key);
   };

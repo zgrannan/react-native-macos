@@ -28,11 +28,12 @@ const ComponentExamples: Array<RNTesterExample> = [
     module: require('../examples/Button/ButtonExample'),
     supportsTVOS: true,
   },
+  // [TODO(OSS Candidate ISS#2710739)
   {
     key: 'DarkModeExample',
     module: require('../examples/DarkModeExample/DarkModeExample'),
     supportsTVOS: false,
-  },
+  }, // ]TODO(OSS Candidate ISS#2710739)
   {
     key: 'DatePickerIOSExample',
     module: require('../examples/DatePicker/DatePickerIOSExample'),

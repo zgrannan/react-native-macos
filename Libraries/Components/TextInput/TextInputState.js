@@ -76,6 +76,7 @@ function blurTextInput(textFieldID: ?number) {
     }
   }
 }
+
 function registerInput(textFieldID: number) {
   inputs.add(textFieldID);
 }

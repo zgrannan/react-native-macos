@@ -20,7 +20,7 @@ const {Image, StyleSheet, Text, View} = ReactNative;
 type Props = $ReadOnly<{||}>;
 class ImageCapInsetsExample extends React.Component<Props> {
   render(): React.Node {
-    let nativeImage;
+    let nativeImage; // [TODO(macOS ISS#2323203)
     if (Platform.OS === 'macos') {
       nativeImage = nativeImageSource({
         macos: 'story-background',
@@ -33,14 +33,14 @@ class ImageCapInsetsExample extends React.Component<Props> {
         width: 60,
         height: 60,
       });
-    }
+    } // ]TODO(macOS ISS#2323203)
 
     return (
       <View>
         <View style={styles.background}>
           <Text>capInsets: none</Text>
           <Image
-            source={nativeImage}
+            source={nativeImage} // TODO(macOS ISS#2323203)
             style={styles.storyBackground}
             resizeMode="stretch"
             capInsets={{left: 0, right: 0, bottom: 0, top: 0}}
@@ -49,7 +49,7 @@ class ImageCapInsetsExample extends React.Component<Props> {
         <View style={[styles.background, {paddingTop: 10}]}>
           <Text>capInsets: 15</Text>
           <Image
-            source={nativeImage}
+            source={nativeImage} // TODO(macOS ISS#2323203)
             style={styles.storyBackground}
             resizeMode="stretch"
             capInsets={{left: 15, right: 15, bottom: 15, top: 15}}

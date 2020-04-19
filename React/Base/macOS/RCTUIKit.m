@@ -111,6 +111,29 @@ CGImageRef UIImageGetCGImageRef(NSImage *image)
   return [image CGImageForProposedRect:NULL context:NULL hints:NULL];
 }
 
+static NSData *NSImageDataForFileType(NSImage *image, NSBitmapImageFileType fileType, NSDictionary<NSString *, id> *properties)
+{
+  RCTAssert(image.representations.count == 1, @"Expected only a single representation since UIImage only supports one.");
+
+  NSBitmapImageRep *imageRep = (NSBitmapImageRep *)image.representations.firstObject;
+  if (![imageRep isKindOfClass:[NSBitmapImageRep class]]) {
+    RCTAssert([imageRep isKindOfClass:[NSBitmapImageRep class]], @"We need an NSBitmapImageRep to create an image.");
+    return nil;
+  }
+
+  return [imageRep representationUsingType:fileType properties:properties];
+}
+
+NSData *UIImagePNGRepresentation(NSImage *image) {
+  return NSImageDataForFileType(image, NSBitmapImageFileTypePNG, @{});
+}
+
+NSData *UIImageJPEGRepresentation(NSImage *image, CGFloat compressionQuality) {
+  return NSImageDataForFileType(image,
+                                NSBitmapImageFileTypeJPEG,
+                                @{NSImageCompressionFactor: @(1.0)});
+}
+
 // UIBezierPath
 UIBezierPath *UIBezierPathWithRoundedRect(CGRect rect, CGFloat cornerRadius)
 {

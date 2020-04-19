@@ -16,7 +16,7 @@ const requireNativeComponent = require('../../ReactNative/requireNativeComponent
 
 import type {SyntheticEvent} from '../../Types/CoreEventTypes';
 import type {ViewProps} from '../View/ViewPropTypes';
-import type {NativeOrDynamicColorType} from '../../Color/NativeOrDynamicColorType';
+import type {NativeOrDynamicColorType} from '../../Color/NativeOrDynamicColorType'; // TODO(macOS ISS#2323203)
 
 type SwitchChangeEvent = SyntheticEvent<
   $ReadOnly<{|
@@ -30,13 +30,13 @@ type NativeProps = $ReadOnly<{|
   // Props
   disabled?: ?boolean,
   enabled?: ?boolean,
-  thumbColor?: ?(string | NativeOrDynamicColorType),
-  trackColorForFalse?: ?(string | NativeOrDynamicColorType),
-  trackColorForTrue?: ?(string | NativeOrDynamicColorType),
+  thumbColor?: ?(string | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
+  trackColorForFalse?: ?(string | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
+  trackColorForTrue?: ?(string | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
   value?: ?boolean,
   on?: ?boolean,
-  thumbTintColor?: ?(string | NativeOrDynamicColorType),
-  trackTintColor?: ?(string | NativeOrDynamicColorType),
+  thumbTintColor?: ?(string | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
+  trackTintColor?: ?(string | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
 
   // Events
   onChange?: ?(event: SwitchChangeEvent) => mixed,

@@ -15,7 +15,7 @@ const React = require('react');
 const {
   Image,
   LayoutAnimation,
-  Platform,
+  Platform, // TODO(OSS Candidate ISS#2710739)
   StyleSheet,
   Text,
   View,
@@ -45,7 +45,7 @@ class LayoutEventExample extends React.Component<Props, State> {
 
   animateViewLayout = () => {
     LayoutAnimation.configureNext(
-      Platform.OS === 'macos'
+      Platform.OS === 'macos' /* TODO(OSS Candidate ISS#2710739) */
         ? LayoutAnimation.Presets.easeInEaseOut
         : LayoutAnimation.Presets.spring,
       () => {

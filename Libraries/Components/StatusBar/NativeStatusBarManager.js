@@ -12,7 +12,7 @@
 
 import type {TurboModule} from '../../TurboModule/RCTExport';
 import * as TurboModuleRegistry from '../../TurboModule/TurboModuleRegistry';
-import type {NativeOrDynamicColorType} from '../../Color/NativeOrDynamicColorType';
+import type {NativeOrDynamicColorType} from '../../Color/NativeOrDynamicColorType'; // TODO(macOS ISS#2323203)
 
 export interface Spec extends TurboModule {
   // Android only
@@ -21,7 +21,7 @@ export interface Spec extends TurboModule {
     +DEFAULT_BACKGROUND_COLOR: number,
   |};
   +setColor: (
-    color: number | NativeOrDynamicColorType,
+    color: number | NativeOrDynamicColorType, // TODO(macOS ISS#2323203)
     animated: boolean,
   ) => void;
   +setTranslucent: (translucent: boolean) => void;

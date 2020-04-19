@@ -75,7 +75,6 @@ class RNTesterApp extends React.Component<Props, RNTesterNavigationState> {
         if (!this._mounted) {
           return;
         }
-        // ]TODO(OSS Candidate ISS#2710739)
         const exampleAction = URIActionMap(
           this.props.exampleFromAppetizeParams,
         );
@@ -94,8 +93,6 @@ class RNTesterApp extends React.Component<Props, RNTesterNavigationState> {
   componentWillUnmount() {
     this._mounted = false;
   }
-
-  // ]TODO(OSS Candidate ISS#2710739)
 
   _handleBack = () => {
     this._handleAction(RNTesterActions.Back());
@@ -189,10 +186,7 @@ RNTesterList.ComponentExamples.concat(RNTesterList.APIExamples).forEach(
         render() {
           return (
             <SnapshotViewIOS>
-              <RNTesterExampleContainer
-                module={ExampleModule}
-                displayFilter={false}
-              />
+              <RNTesterExampleContainer module={ExampleModule} />
             </SnapshotViewIOS>
           );
         }

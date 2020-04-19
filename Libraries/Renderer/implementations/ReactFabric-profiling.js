@@ -7307,7 +7307,6 @@ function startWorkOnPendingInteractions(root, expirationTime) {
       }
     }
   }
-  performWork(0, !0);
 }
 function finishPendingInteractions(root, committedExpirationTime) {
   var earliestRemainingTimeAfterCommit = root.firstPendingTime,

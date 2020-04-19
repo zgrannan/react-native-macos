@@ -68,13 +68,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     padding: 8,
     ...Platform.select({
+      // [TODO(macOS ISS#2323203)
       macos: {
         backgroundColor: {semantic: 'windowBackgroundColor'},
       },
       default: {
         backgroundColor: undefined,
       },
-    }),
+    }), // ]TODO(macOS ISS#2323203)
   },
 });
 
@@ -161,19 +162,6 @@ exports.examples = [
     },
   },
   {
-    platform: 'ios',
-    title: 'Custom size',
-    render() {
-      return (
-        <ActivityIndicator
-          style={[styles.centering, {transform: [{scale: 1.5}]}]}
-          size="large"
-        />
-      );
-    },
-  },
-  {
-    platform: 'android',
     title: 'Custom size',
     render(): Node {
       return (

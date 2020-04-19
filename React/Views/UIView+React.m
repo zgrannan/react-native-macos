@@ -378,7 +378,7 @@
   [string appendString:self.description];
   [string appendString:@"\n"];
 
-  for (RCTPlatformView *subview in self.subviews) {
+  for (RCTPlatformView *subview in self.subviews) { // TODO(macOS ISS#2323203)
     [subview react_addRecursiveDescriptionToString:string atLevel:level + 1];
   }
 }

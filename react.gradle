@@ -62,16 +62,6 @@ android {
         resValue "integer", "react_native_inspector_proxy_port", reactNativeInspectorProxyPort()
     }
 }
-    def value = project.getProperties().get("reactNativeInspectorProxyPort")
-    return value != null ? value : reactNativeDevServerPort()
-}
-
-android {
-    buildTypes.all {
-        resValue "integer", "react_native_dev_server_port", reactNativeDevServerPort()
-        resValue "integer", "react_native_inspector_proxy_port", reactNativeInspectorProxyPort()
-    }
-}
 
 afterEvaluate {
     def isAndroidLibrary = plugins.hasPlugin("com.android.library")

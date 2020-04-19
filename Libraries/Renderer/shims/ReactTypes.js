@@ -7,7 +7,6 @@
  * @flow
  */
 
-/* eslint-disable no-use-before-define */
 export type ReactNode =
   | React$Element<any>
   | ReactPortal

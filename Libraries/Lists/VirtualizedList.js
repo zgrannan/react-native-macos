@@ -47,7 +47,7 @@ export type Separators = {
 export type RenderItemProps<ItemT> = {
   item: ItemT,
   index: number,
-  isSelected: boolean,
+  isSelected: boolean, // TODO(macOS ISS#2323203)
   separators: Separators,
 };
 
@@ -787,7 +787,7 @@ class VirtualizedList extends React.PureComponent<Props, State> {
       selectedRowIndex: Math.max(
         0,
         Math.min(prevState.selectedRowIndex, getItemCount(data)),
-      ),
+      ), // TODO(macOS ISS#2323203)
     };
   }
 
@@ -2001,6 +2001,7 @@ class CellRenderer extends React.Component<
   }
 
   _renderElement(renderItem, ListItemComponent, item, index, isSelected) {
+    // TODO(macOS ISS#2323203)
     if (renderItem && ListItemComponent) {
       console.warn(
         'VirtualizedList: Both ListItemComponent and renderItem props are present. ListItemComponent will take' +

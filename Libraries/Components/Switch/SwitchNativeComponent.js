@@ -28,14 +28,14 @@ type NativeProps = $ReadOnly<{|
   // Props
   disabled?: WithDefault<boolean, false>,
   value?: WithDefault<boolean, false>,
-  tintColor?: ?(ColorValue | NativeOrDynamicColorType),
-  onTintColor?: ?(ColorValue | NativeOrDynamicColorType),
-  thumbTintColor?: ?(ColorValue | NativeOrDynamicColorType),
+  tintColor?: ?(ColorValue | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
+  onTintColor?: ?(ColorValue | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
+  thumbTintColor?: ?(ColorValue | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
 
   // Deprecated props
-  thumbColor?: ?(ColorValue | NativeOrDynamicColorType),
-  trackColorForFalse?: ?(ColorValue | NativeOrDynamicColorType),
-  trackColorForTrue?: ?(ColorValue | NativeOrDynamicColorType),
+  thumbColor?: ?(ColorValue | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
+  trackColorForFalse?: ?(ColorValue | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
+  trackColorForTrue?: ?(ColorValue | NativeOrDynamicColorType), // TODO(macOS ISS#2323203)
 
   // Events
   onChange?: ?BubblingEventHandler<SwitchChangeEvent>,

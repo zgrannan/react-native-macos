@@ -32,11 +32,13 @@ fi
 
 case "$CONFIGURATION" in
   *Debug*)
-    # Speed up build times by skipping the creation of the offline package for debug
-    # builds on the simulator since the packager is supposed to be running anyways.
     if [[ "$PLATFORM_NAME" == *simulator || "$PLATFORM_NAME" == macosx ]]; then
-      echo "Skipping bundling for Simulator or macOS platform"
-      exit 0;
+      if [[ "$FORCE_BUNDLING" ]]; then
+        echo "FORCE_BUNDLING enabled; continuing to bundle."
+      else
+        echo "Skipping bundling in Debug for the Simulator (since the packager bundles for you). Use the FORCE_BUNDLING flag to change this behavior."
+        exit 0;
+      fi
     else
       echo "Bundling for physical device. Use the SKIP_BUNDLING flag to change this behavior."
     fi

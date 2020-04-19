@@ -130,7 +130,7 @@ exports.examples = [
   },
   {
     title: 'Custom thumb image',
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
     render(): React.Element<any> {
       return (
         <SliderExample thumbImage={require('../../assets/uie_thumb_big.png')} />
@@ -139,14 +139,14 @@ exports.examples = [
   },
   {
     title: 'Custom track image',
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
     render(): React.Element<any> {
       return <SliderExample trackImage={require('../../assets/slider.png')} />;
     },
   },
   {
     title: 'Custom min/max track image',
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
     render(): React.Element<any> {
       return (
         <SliderExample

@@ -8,6 +8,7 @@
 
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
+// TODO(OSS Candidate ISS#2710739) #import <UIKit/UIView.h>
 #import <XCTest/XCTest.h>
 
 #import <React/RCTImageUtils.h>

@@ -47,12 +47,13 @@
     if (!image) {
       return nil;
     }
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
     self = [image copy];
-#else
+#else // ]TODO(macOS ISS#2323203)
     self = [super initWithCGImage:image.CGImage scale:MAX(scale, 1) orientation:image.imageOrientation];
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif // !TARGET_OS_OSX
+#endif // TODO(macOS ISS#2323203)
   }
 
   return self;
@@ -143,11 +144,11 @@
   if (!imageRef) {
     return nil;
   }
-#if TARGET_OS_OSX
+#if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
   UIImage *image = [[NSImage alloc] initWithCGImage:imageRef size:CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef))];
-#else
+#else // ]TODO(macOS ISS#2323203)
   UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:_scale orientation:UIImageOrientationUp];
-#endif // !TARGET_OS_OSX
+#endif // TODO(macOS ISS#2323203)
   CGImageRelease(imageRef);
   return image;
 }
@@ -167,9 +168,9 @@
     CFRelease(_imageSource);
     _imageSource = NULL;
   }
-#if !TARGET_OS_OSX
+#if !TARGET_OS_OSX // TODO(macOS ISS#2323203)
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-#endif // !TARGET_OS_OSX
+#endif // TODO(macOS ISS#2323203)
 }
 
 @end

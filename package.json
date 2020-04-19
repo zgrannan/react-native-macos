@@ -23,7 +23,6 @@
     "folly",
     "init.sh",
     "local-cli",
-    "IntegrationTests",
     "scripts/compose-source-maps.js",
     "scripts/fixmacscripts.sh",
     "scripts/ios-configure-glog.sh",
@@ -49,7 +48,6 @@
     "ReactAndroid",
     "ReactCommon",
     "README.md",
-    "RNTester/js",
     "stubs/glog",
     "third-party-podspecs",
     "template",
@@ -60,7 +58,6 @@
     "!template/package-lock.json"
   ],
   "scripts": {
-    "build": "echo \"no build needed\" ",
     "start": "react-native start",
     "test": "jest",
     "test-ci": "jest --maxWorkers=2 --ci --reporters=\"default\" --reporters=\"jest-junit\"",

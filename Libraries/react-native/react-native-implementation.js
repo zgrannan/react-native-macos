@@ -162,9 +162,10 @@ module.exports = {
   get Alert() {
     return require('../Alert/Alert');
   },
+  // [TODO(macOS ISS#2323203)
   get AlertMacOS() {
     return require('../Alert/AlertMacOS');
-  },
+  }, // ]TODO(macOS ISS#2323203)
   get Animated() {
     return require('../Animated/src/Animated');
   },

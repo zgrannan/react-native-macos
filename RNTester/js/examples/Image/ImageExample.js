@@ -468,7 +468,7 @@ exports.examples = [
         />
       );
     },
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
   },
   {
     title: 'Image Download Progress',
@@ -481,7 +481,7 @@ exports.examples = [
         />
       );
     },
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
   },
   {
     title: 'defaultSource',
@@ -497,7 +497,7 @@ exports.examples = [
         />
       );
     },
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
   },
   {
     title: 'Cache Policy',
@@ -526,9 +526,8 @@ exports.examples = [
         </View>
       );
     },
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
   },
-
   {
     title: 'Border Color',
     render: function(): React.Node {
@@ -836,7 +835,7 @@ exports.examples = [
         />
       );
     },
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
   },
   {
     title: 'Base64 image',
@@ -845,7 +844,7 @@ exports.examples = [
         <Image style={styles.base64} source={{uri: base64Icon, scale: 3}} />
       );
     },
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
   },
   {
     title: 'Cap Insets',
@@ -856,7 +855,7 @@ exports.examples = [
     render: function(): React.Node {
       return <ImageCapInsetsExample />;
     },
-    platform: ['ios', 'macos'],
+    platform: ['ios', 'macos'], // TODO(OSS Candidate ISS#2710739)
   },
   {
     title: 'Image Size',
@@ -910,6 +909,7 @@ exports.examples = [
     platform: 'ios',
   },
   {
+    /* [TODO(OSS Candidate ISS#2710739) */
     title: 'Bundled images',
     description: 'Images shipped in a separate native bundle',
     render: function() {
@@ -937,7 +937,7 @@ exports.examples = [
       );
     },
     platform: 'macos',
-  },
+  } /* TODO(OSS Candidate ISS#2710739) */,
   {
     title: 'Blur Radius',
     render: function(): React.Node {

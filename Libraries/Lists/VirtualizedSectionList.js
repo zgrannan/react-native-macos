@@ -573,7 +573,7 @@ type ItemWithSeparatorProps = $ReadOnly<{|
   cellKey: string,
   index: number,
   item: Item,
-  isSelected: boolean,
+  isSelected: boolean, // TODO(macOS ISS#2323203)
   onUpdateSeparator: (cellKey: string, newProps: Object) => void,
   prevCellKey?: ?string,
   renderItem: Function,

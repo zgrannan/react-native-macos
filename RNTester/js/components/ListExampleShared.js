@@ -52,7 +52,7 @@ const ITEM_HEIGHT = 72;
 class ItemComponent extends React.PureComponent<{
   fixedHeight?: ?boolean,
   horizontal?: ?boolean,
-  isSelected?: ?boolean,
+  isSelected?: ?boolean, // TODO(macOS ISS#2323203)
   item: Item,
   onPress: (key: string) => void,
   onShowUnderlay?: () => void,
@@ -65,7 +65,7 @@ class ItemComponent extends React.PureComponent<{
     const {fixedHeight, horizontal, item} = this.props;
     const itemHash = Math.abs(hashCode(item.title));
     const imgSource = THUMB_URLS[itemHash % THUMB_URLS.length];
-    const rowStyle = this.props.isSelected ? styles.selectedRow : styles.row;
+    const rowStyle = this.props.isSelected ? styles.selectedRow : styles.row; // TODO(macOS ISS#2323203)
     return (
       <TouchableHighlight
         onPress={this._onPress}
@@ -78,7 +78,7 @@ class ItemComponent extends React.PureComponent<{
         style={horizontal ? styles.horizItem : styles.item}>
         <View
           style={[
-            rowStyle,
+            rowStyle, // TODO(macOS ISS#2323203)
             horizontal && {width: HORIZ_WIDTH},
             fixedHeight && {height: ITEM_HEIGHT},
           ]}>
@@ -312,10 +312,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   selectedRow: {
+    // [TODO(macOS ISS#2323203)
     flexDirection: 'row',
     padding: 10,
     backgroundColor: '#DDECF8',
-  },
+  }, // ]TODO(macOS ISS#2323203)
   searchTextInput: {
     backgroundColor: 'white',
     borderColor: '#cccccc',
@@ -343,11 +344,12 @@ const styles = StyleSheet.create({
       transform: [{scale: 0.5}],
     },
     macos: {
+      // [TODO(macOS ISS#2323203)
       top: 4,
       left: 12,
       margin: -10,
       transform: [{scale: 0.5}],
-    },
+    }, // ]TODO(macOS ISS#2323203)
   }),
   stacked: {
     alignItems: 'center',

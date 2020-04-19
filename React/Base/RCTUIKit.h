@@ -336,6 +336,9 @@ NS_INLINE UIImage *UIImageWithData(NSData *imageData)
   return [[NSImage alloc] initWithData:imageData];
 }
 
+NSData *UIImagePNGRepresentation(NSImage *image);
+NSData *UIImageJPEGRepresentation(NSImage *image, CGFloat compressionQuality);
+
 // UIBezierPath
 @compatibility_alias UIBezierPath NSBezierPath;
 
