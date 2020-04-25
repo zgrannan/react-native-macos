@@ -157,10 +157,10 @@ RCT_EXTERN void RCTGetRGBAColorComponents(CGColorRef color, CGFloat rgba[_Nonnul
 // Converts a CGColor to a hex string
 RCT_EXTERN NSString *RCTColorToHexString(CGColorRef color);
 
-#if !TARGET_OS_OSX // [TODO(macOS ISS#2323203)
+#if !TARGET_OS_OSX // TODO(macOS ISS#2323203)
 // Get standard localized string (if it exists)
 RCT_EXTERN NSString *RCTUIKitLocalizedString(NSString *string);
-#endif // ]TODO(macOS ISS#2323203)
+#endif // TODO(macOS ISS#2323203)
 
 // Get a human readable type string from an NSObject. For example NSString becomes string
 RCT_EXTERN NSString *RCTHumanReadableType(NSObject *obj);

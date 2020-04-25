@@ -14,7 +14,7 @@
 @implementation RCTMultilineTextInputView
 {
 #if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
-  RCTUIScrollView *_scrollView; // TODO(macOS ISS#3536887)
+  RCTUIScrollView *_scrollView;
 #endif // ]TODO(macOS ISS#2323203)
   RCTUITextView *_backedTextInputView;
 }

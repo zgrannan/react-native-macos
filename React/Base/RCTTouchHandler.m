@@ -40,7 +40,7 @@
   NSMutableArray<NSMutableDictionary *> *_reactTouches;
   NSMutableArray<RCTPlatformView *> *_touchViews; // TODO(macOS ISS#2323203)
 
-  __weak RCTUIView *_cachedRootView;
+  __weak RCTUIView *_cachedRootView; // TODO(macOS ISS#2323203)
 
   uint16_t _coalescingKey;
 #if TARGET_OS_OSX// [TODO(macOS ISS#2323203)

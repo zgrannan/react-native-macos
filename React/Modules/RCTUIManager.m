@@ -1114,7 +1114,7 @@ RCT_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)reactTag
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
   if (!componentData) {
-      __block RCTPlatformView *view;
+      __block RCTPlatformView *view; // TODO(macOS ISS#2323203)
     RCTUnsafeExecuteOnMainQueueSync(^{
       view = self->_viewRegistry[reactTag];
     });

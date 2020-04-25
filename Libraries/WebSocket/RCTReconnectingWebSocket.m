@@ -16,8 +16,6 @@
 
 #if DEBUG // TODO(OSS Candidate ISS#2710739)
 
-#endif /* DEBUG */ // TODO(OSS Candidate ISS#2710739)
-
 @interface RCTReconnectingWebSocket () <RCTSRWebSocketDelegate>
 @end
 
@@ -26,8 +24,6 @@
   RCTSRWebSocket *_socket;
 }
 
-#if DEBUG // TODO(OSS Candidate ISS#2710739)
-#endif /* DEBUG */ // TODO(OSS Candidate ISS#2710739)
 - (instancetype)initWithURL:(NSURL *)url queue:(dispatch_queue_t)queue
 {
   if (self = [super init]) {
@@ -99,5 +95,7 @@
 }
 
 @end
+
+#endif /* DEBUG */ // TODO(OSS Candidate ISS#2710739)
 
 #endif

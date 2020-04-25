@@ -7,7 +7,7 @@
 
 #import <React/RCTImageEditingManager.h>
 
-#import <React/RCTUIKit.h>
+#import <React/RCTUIKit.h> // TODO(macOS ISS#2323203)
 
 #import <React/RCTConvert.h>
 #import <React/RCTImageLoader.h>
@@ -54,7 +54,7 @@ RCT_EXPORT_METHOD(cropImage:(NSURLRequest *)imageRequest
      CGSize targetSize = rect.size;
      CGRect targetRect = {{-rect.origin.x, -rect.origin.y}, image.size};
      CGAffineTransform transform = RCTTransformFromTargetRect(image.size, targetRect);
-     UIImage *croppedImage = RCTTransformImage(image, targetSize, UIImageGetScale(image), transform);
+     UIImage *croppedImage = RCTTransformImage(image, targetSize, UIImageGetScale(image), transform); // TODO(macOS ISS#2323203)
 
      // Scale image
      if (cropData[@"displaySize"]) {
@@ -62,7 +62,7 @@ RCT_EXPORT_METHOD(cropImage:(NSURLRequest *)imageRequest
        RCTResizeMode resizeMode = [RCTConvert RCTResizeMode:cropData[@"resizeMode"] ?: @"contain"];
        targetRect = RCTTargetRect(croppedImage.size, targetSize, 1, resizeMode);
        transform = RCTTransformFromTargetRect(croppedImage.size, targetRect);
-       croppedImage = RCTTransformImage(croppedImage, targetSize, UIImageGetScale(image), transform);
+       croppedImage = RCTTransformImage(croppedImage, targetSize, UIImageGetScale(image), transform); // TODO(macOS ISS#2323203)
      }
 
      // Store image

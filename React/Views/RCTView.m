@@ -20,7 +20,7 @@
 UIAccessibilityTraits const SwitchAccessibilityTrait = 0x20000000000001;
 #endif // TODO(macOS ISS#2323203)
 
-@implementation RCTPlatformView (RCTViewUnmounting)
+@implementation RCTPlatformView (RCTViewUnmounting) // TODO(macOS ISS#2323203)
 
 - (void)react_remountAllSubviews
 {
@@ -918,7 +918,7 @@ static CGFloat RCTDefaultIfNegativeTo(CGFloat defaultValue, CGFloat x) {
   // solve this, we'll need to add a container view inside the main view to
   // correctly clip the subviews.
 
-#if !TARGET_OS_OSX
+#if !TARGET_OS_OSX // [TODO(macOS ISS#2323203)
   id savedTraitCollection = nil;
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, *)) {
@@ -926,7 +926,7 @@ static CGFloat RCTDefaultIfNegativeTo(CGFloat defaultValue, CGFloat x) {
     [UITraitCollection setCurrentTraitCollection:[self traitCollection]];
   }
 #endif
-#endif
+#endif // ]TODO(macOS ISS#2323203)
 
   if (useIOSBorderRendering) {
     layer.cornerRadius = cornerRadii.topLeft;
@@ -939,13 +939,13 @@ static CGFloat RCTDefaultIfNegativeTo(CGFloat defaultValue, CGFloat x) {
     return;
   }
 
-#if !TARGET_OS_OSX
+#if !TARGET_OS_OSX // [TODO(macOS ISS#2323203)
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, *)) {
     [UITraitCollection setCurrentTraitCollection:savedTraitCollection];
   }
 #endif 
-#endif
+#endif // ]TODO(macOS ISS#2323203)
 
 #if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
   CGFloat scaleFactor = self.window.backingScaleFactor;
@@ -1143,9 +1143,9 @@ setBorderStyle()
 
 - (void)dealloc
 {
-#if TARGET_OS_OSX // TODO(macOS ISS#2323203)
+#if TARGET_OS_OSX // [TODO(macOS ISS#2323203)
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-#endif // TODO(macOS ISS#2323203)
+#endif // ]TODO(macOS ISS#2323203)
   CGColorRelease(_borderColor);
   CGColorRelease(_borderTopColor);
   CGColorRelease(_borderRightColor);

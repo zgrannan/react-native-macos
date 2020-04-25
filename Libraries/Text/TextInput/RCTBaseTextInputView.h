@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Whether this text input ignores the `textAttributes` property. Defaults to `NO`. If set to `YES`, the value of `textAttributes` will be ignored in favor of standard text input behavior.
  */
-@property (nonatomic) BOOL ignoresTextAttributes; // [TODO(OSS Candidate ISS#2710739)
+@property (nonatomic) BOOL ignoresTextAttributes; // TODO(OSS Candidate ISS#2710739)
 @property (nonatomic, strong, nullable) RCTTextAttributes *textAttributes;
 @property (nonatomic, assign) UIEdgeInsets reactPaddingInsets;
 @property (nonatomic, assign) UIEdgeInsets reactBorderInsets;
