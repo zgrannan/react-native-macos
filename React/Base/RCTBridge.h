@@ -10,9 +10,7 @@
 #import <React/RCTBridgeDelegate.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTDefines.h>
-#if !TARGET_OS_OSX // [TODO(macOS ISS#2323203)
 #import <React/RCTFrameUpdate.h>
-#endif // ]TODO(macOS ISS#2323203)
 #import <React/RCTInvalidating.h>
 
 @class JSValue;

@@ -37,10 +37,8 @@
 #endif // TODO(macOS ISS#2323203)
 #import "RCTShadowView+Internal.h"
 #import "RCTShadowView.h"
-#if !TARGET_OS_OSX // TODO(macOS ISS#2323203)
 #import "RCTSurfaceRootShadowView.h"
 #import "RCTSurfaceRootView.h"
-#endif // TODO(macOS ISS#2323203)
 #import "RCTUIManagerObserverCoordinator.h"
 #import "RCTUIManagerUtils.h"
 #import "RCTUtils.h"
@@ -291,7 +289,6 @@ static NSDictionary *deviceOrientationEventBody(UIDeviceOrientation orientation)
   return RCTGetUIManagerQueue();
 }
 
-#if !TARGET_OS_OSX // TODO(macOS ISS#2323203)
 - (void)registerRootViewTag:(NSNumber *)rootTag
 {
   RCTAssertUIManagerQueue();
@@ -316,7 +313,6 @@ static NSDictionary *deviceOrientationEventBody(UIDeviceOrientation orientation)
     self->_viewRegistry[rootTag] = rootView;
   });
 }
-#endif // TODO(macOS ISS#2323203)
 
 - (void)registerRootView:(RCTRootContentView *)rootView
 {

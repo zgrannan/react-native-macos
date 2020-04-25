@@ -68,8 +68,6 @@ Pod::Spec.new do |s|
                                 "React/Profiler/{RCTFPSGraph,RCTPerfMonitor}.*",
                                 "React/Profiler/RCTProfileTrampoline-{arm,arm64,i386}.S",
                                 "React/Base/RCTKeyCommands.*",
-                                "React/Base/Surface/SurfaceHostingView/*",
-                                "React/Base/Surface/RCTSurface{,Delegate,Root*}.*",
                                 "React/Base/RCTTV*.*",
                                 "React/Base/RCTReloadCommand.*",
                                 "React/Views/{RCTModal*,RCTMasked*,RCTTV*,RCTRefreshControl*,RCTWrapperViewController}.*",
