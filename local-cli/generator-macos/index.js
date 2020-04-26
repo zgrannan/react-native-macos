@@ -7,6 +7,7 @@ const path = require('path');
 const childProcess = require('child_process');
 const fs = require('fs');
 const {
+  appendToExistingFile,
   createDir,
   copyAndReplaceAll,
   copyAndReplaceWithChangedCallback,
@@ -60,6 +61,9 @@ function copyProjectTemplateAndReplace(
 
   [
     { from: path.join(srcRootPath, 'react-native.config.js'), to: 'react-native.config.js' },
+  ].forEach((mapping) => appendToExistingFile(mapping.from, mapping.to, templateVars));
+
+  [
     { from: path.join(srcRootPath, 'metro.config.macos.js'), to: 'metro.config.macos.js' },
   ].forEach((mapping) => copyAndReplaceWithChangedCallback(mapping.from, destPath, mapping.to, templateVars, options.overwrite));
 
@@ -134,8 +138,11 @@ function installDependencies(options) {
 
   // Patch package.json to have start:macos
   const projectPackageJsonPath = path.join(cwd, 'package.json');
+  /** @type {{ scripts?: {} }} */
   const projectPackageJson = JSON.parse(fs.readFileSync(projectPackageJsonPath, { encoding: 'UTF8' }));
-  projectPackageJson.scripts['start:macos'] = 'node node_modules/react-native-macos/local-cli/cli.js start --use-react-native-macos';
+  const scripts = projectPackageJson.scripts || {};
+  scripts['start:macos'] = 'node node_modules/react-native-macos/local-cli/cli.js start --use-react-native-macos';
+  projectPackageJson.scripts = scripts;
   fs.writeFileSync(projectPackageJsonPath, JSON.stringify(projectPackageJson, null, 2));
 
   // Install dependencies using correct package manager
