@@ -18,6 +18,7 @@ const RNTesterExampleList = require('./components/RNTesterExampleList');
 const RNTesterList = require('./utils/RNTesterList.macos');
 const RNTesterNavigationReducer = require('./utils/RNTesterNavigationReducer');
 const React = require('react');
+/* $FlowFixMe allow macOS to share iOS file */
 const SnapshotViewIOS = require('./examples/Snapshot/SnapshotViewIOS.ios');
 const URIActionMap = require('./utils/URIActionMap');
 
