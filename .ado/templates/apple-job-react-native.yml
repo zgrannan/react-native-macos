@@ -35,8 +35,9 @@ steps:
   - task: CmdLine@2
     displayName: pod install
     inputs:
-      script: pod install
-      workingDirectory: $(Agent.BuildDirectory)/RNTester
+      script: |
+        cd RNTester
+        pod install
 
   - task: ShellScript@2
     displayName: 'Setup packager and WebSocket test server'
