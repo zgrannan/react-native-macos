@@ -14,8 +14,6 @@
 
 #if RCT_DEV // Only supported in dev mode
 
-#if DEBUG // TODO(OSS Candidate ISS#2710739)
-
 @interface RCTReconnectingWebSocket () <RCTSRWebSocketDelegate>
 @end
 
@@ -95,7 +93,5 @@
 }
 
 @end
-
-#endif /* DEBUG */ // TODO(OSS Candidate ISS#2710739)
 
 #endif

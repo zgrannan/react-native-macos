@@ -1,8 +1,0 @@
-{
-  "type": "patch",
-  "comment": "Merge branch 'fb61merge' of github.com:microsoft/react-native into fb61merge",
-  "packageName": "@react-native-community/eslint-plugin",
-  "email": "tomun@microsoft.com",
-  "dependentChangeType": "patch",
-  "date": "2020-04-26T22:11:34.595Z"
-}
