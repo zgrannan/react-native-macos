@@ -18,7 +18,7 @@ const RNTesterExampleList = require('./components/RNTesterExampleList');
 const RNTesterList = require('./utils/RNTesterList.macos');
 const RNTesterNavigationReducer = require('./utils/RNTesterNavigationReducer');
 const React = require('react');
-// const SnapshotViewIOS = require('./examples/Snapshot/SnapshotViewIOS.ios');
+const SnapshotViewIOS = require('./examples/Snapshot/SnapshotViewIOS.ios');
 const URIActionMap = require('./utils/URIActionMap');
 
 const {
@@ -77,7 +77,6 @@ class RNTesterApp extends React.Component<Props, RNTesterNavigationState> {
         if (!this._mounted) {
           return;
         }
-        // ]TODO(OSS Candidate ISS#2710739)
         const exampleAction = URIActionMap(
           this.props.exampleFromAppetizeParams,
         );
@@ -96,8 +95,6 @@ class RNTesterApp extends React.Component<Props, RNTesterNavigationState> {
   componentWillUnmount() {
     this._mounted = false;
   }
-
-  // ]TODO(OSS Candidate ISS#2710739)
 
   _handleBack = () => {
     this._handleAction(RNTesterActions.Back());
@@ -183,7 +180,6 @@ AppRegistry.registerComponent('RootViewSizeFlexibilityExampleApp', () =>
 AppRegistry.registerComponent('RNTesterApp', () => RNTesterApp);
 
 // Register suitable examples for snapshot tests
-/* TODO(tomun)
 RNTesterList.ComponentExamples.concat(RNTesterList.APIExamples).forEach(
   (Example: RNTesterExample) => {
     const ExampleModule = Example.module;
@@ -205,5 +201,5 @@ RNTesterList.ComponentExamples.concat(RNTesterList.APIExamples).forEach(
     }
   },
 );
-*/
+
 module.exports = RNTesterApp;
