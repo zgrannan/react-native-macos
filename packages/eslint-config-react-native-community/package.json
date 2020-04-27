@@ -26,5 +26,8 @@
   },
   "devDependencies": {
     "eslint": "^5.1.0"
+  },
+  "beachball": {
+    "shouldPublish": false
   }
 }

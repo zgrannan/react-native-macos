@@ -11,5 +11,8 @@
     "jscodeshift": "^0.6.2",
     "nullthrows": "^1.1.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "beachball": {
+    "shouldPublish": false
+  }  
 }
