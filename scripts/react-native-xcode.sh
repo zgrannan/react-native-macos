@@ -125,6 +125,11 @@ case "$PLATFORM_NAME" in
     ;;
 esac
 
+EXTRA_ARGS=
+if [ -d "$PROJECT_ROOT/node_modules/react-native-macos" ]; then
+  EXTRA_ARGS=--use-react-native-macos
+fi
+
 "$NODE_BINARY" $NODE_ARGS "$CLI_PATH" $BUNDLE_COMMAND \
   $CONFIG_ARG \
   --entry-file "$ENTRY_FILE" \
@@ -133,7 +138,7 @@ esac
   --reset-cache \
   --bundle-output "$BUNDLE_FILE" \
   --assets-dest "$DEST" \
-  --use-react-native-macos \
+  $EXTRA_ARGS \
   $EXTRA_PACKAGER_ARGS
 
 if [[ $DEV != true && ! -f "$BUNDLE_FILE" ]]; then
