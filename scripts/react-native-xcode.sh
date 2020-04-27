@@ -13,7 +13,7 @@ set -x
 DEST=$CONFIGURATION_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH
 
 # Enables iOS devices to get the IP address of the machine running Metro Bundler
-if [[ "$CONFIGURATION" = *Debug* && ! "$PLATFORM_NAME" == *simulator && ! "$PLATFORM_NAME" == macosx ]]; then
+if [[ "$CONFIGURATION" = *Debug* && ! "$PLATFORM_NAME" == *simulator ]]; then
   IP=$(ipconfig getifaddr en0)
   if [ -z "$IP" ]; then
     IP=$(ipconfig getifaddr en1)
@@ -32,7 +32,7 @@ fi
 
 case "$CONFIGURATION" in
   *Debug*)
-    if [[ "$PLATFORM_NAME" == *simulator || "$PLATFORM_NAME" == macosx ]]; then
+    if [[ "$PLATFORM_NAME" == *simulator ]]; then
       if [[ "$FORCE_BUNDLING" ]]; then
         echo "FORCE_BUNDLING enabled; continuing to bundle."
       else
@@ -71,7 +71,9 @@ if [[ "$ENTRY_FILE" ]]; then
   :
 elif [[ -s "index.ios.js" ]]; then
    ENTRY_FILE=${1:-index.ios.js}
- else
+elif [[ -s "index.macos.js" ]]; then
+   ENTRY_FILE=${1:-index.macos.js}
+else
    ENTRY_FILE=${1:-index.js}
 fi
 
@@ -131,6 +133,7 @@ esac
   --reset-cache \
   --bundle-output "$BUNDLE_FILE" \
   --assets-dest "$DEST" \
+  --use-react-native-macos \
   $EXTRA_PACKAGER_ARGS
 
 if [[ $DEV != true && ! -f "$BUNDLE_FILE" ]]; then
