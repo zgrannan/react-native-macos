@@ -86,13 +86,21 @@ const ExceptionsManager = {
     NativeModule.updateExceptionMessage(message, stack, exceptionId);
   },
   dismissRedbox(): void {
-    if (Platform.OS !== 'ios' && NativeModule.dismissRedbox) {
+    if (
+      Platform.OS !== 'ios' &&
+      Platform.OS !== 'macos' /* TODO(macOS ISS#2323203) */ &&
+      NativeModule.dismissRedbox
+    ) {
       // TODO(T53311281): This is a noop on iOS now. Implement it.
       NativeModule.dismissRedbox();
     }
   },
   reportException(data: ExceptionData): void {
-    if (Platform.OS !== 'ios' && NativeModule.reportException) {
+    if (
+      Platform.OS !== 'ios' &&
+      Platform.OS !== 'macos' /* TODO(macOS ISS#2323203) */ &&
+      NativeModule.reportException
+    ) {
       // TODO(T53311281): This is a noop on iOS now. Implement it.
       NativeModule.reportException(data);
       return;
