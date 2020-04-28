@@ -240,12 +240,6 @@ public class ReactInstanceManagerBuilder {
           mCurrentActivity, "Activity needs to be set if initial lifecycle state is resumed");
     }
 
-    if (mInitialLifecycleState == LifecycleState.RESUMED) {
-      Assertions.assertNotNull(
-        mCurrentActivity,
-        "Activity needs to be set if initial lifecycle state is resumed");
-    }
-
     Assertions.assertCondition(
         mUseDeveloperSupport || mJSBundleAssetUrl != null || mJSBundleLoader != null,
         "JS Bundle File or Asset URL has to be provided when dev support is disabled");

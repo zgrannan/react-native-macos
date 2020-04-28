@@ -10,7 +10,6 @@ import static android.content.Context.UI_MODE_SERVICE;
 
 import android.annotation.SuppressLint;
 import android.app.UiModeManager;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
@@ -33,7 +32,9 @@ public class AndroidInfoModule extends ReactContextBaseJavaModule implements Tur
   public static final String NAME = "PlatformConstants";
   private static final String IS_TESTING = "IS_TESTING";
 
-  public AndroidInfoModule(ReactApplicationContext reactContext) { super(reactContext); }
+  public AndroidInfoModule(ReactApplicationContext reactContext) {
+    super(reactContext);
+  }
 
   /**
    * See:

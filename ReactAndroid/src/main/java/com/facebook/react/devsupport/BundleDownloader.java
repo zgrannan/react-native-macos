@@ -144,7 +144,7 @@ public class BundleDownloader {
             String url = call.request().url().toString();
 
             callback.onFailure(
-                DebugServerException.makeGeneric(url,
+                DebugServerException.makeGeneric(
                     url, "Could not connect to development server.", "URL: " + url, e));
           }
 

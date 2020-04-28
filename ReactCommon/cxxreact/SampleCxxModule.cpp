@@ -52,7 +52,7 @@ void Sample::except() {
   // throw std::runtime_error("oops");
 }
 
-void Sample::call_later(int64_t msec, std::function<void()> f) {
+void Sample::call_later(int msec, std::function<void()> f) {
   std::thread t([=] {
       std::this_thread::sleep_for(std::chrono::milliseconds(msec));
       f();

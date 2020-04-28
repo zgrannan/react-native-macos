@@ -7,7 +7,6 @@
 package com.facebook.react.common;
 
 import android.net.Uri;
-import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.facebook.common.logging.FLog;
