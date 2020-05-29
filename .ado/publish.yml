@@ -45,10 +45,19 @@ jobs:
           script: node .ado/renamePackageToMac.js
 
       - task: Npm@1
-        displayName: "Publish react-native-macos to npmjs.org"
+        displayName: "Publish latest react-native-macos to npmjs.org"
         inputs:
           command: 'publish'
           publishEndpoint: 'npmjs'
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+      - task: Npm@1
+        displayName: "Publish stable react-native-macos to npmjs.org"
+        inputs:
+          command: 'custom'
+          customCommand: publish --tag $(Build.SourceBranchName)
+          publishEndpoint: 'npmjs'
+        condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - job: RNGithubOfficePublish
     displayName: React-Native GitHub Publish to Office
