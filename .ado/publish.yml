@@ -66,7 +66,7 @@ jobs:
   - job: RNGithubOfficePublish
     displayName: React-Native GitHub Publish to Office
     pool:
-      vmImage: ubuntu-18.04
+      vmImage: ubuntu-latest
     timeoutInMinutes: 90 # how long to run the job before automatically cancelling
     cancelTimeoutInMinutes: 5 # how much time to give 'run always even if cancelled tasks' before killing them
     steps:
