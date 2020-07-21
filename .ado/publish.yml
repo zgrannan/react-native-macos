@@ -147,5 +147,5 @@ jobs:
       - task: PublishBuildArtifacts@1
         displayName: 'Publish final artifacts'
         inputs:
-          PathtoPublish: '$(Build.StagingDirectory)\final'
+          PathtoPublish: '$(Build.StagingDirectory)/final'
           ArtifactName: 'ReactNative-Final' 
