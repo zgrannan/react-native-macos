@@ -182,8 +182,7 @@ const AppRegistry = {
    */
   runApplication(appKey: string, appParameters: any): void {
     if (appKey !== 'LogBox') {
-      const msg =
-        'Running "' + appKey + '" with ' + JSON.stringify(appParameters);
+      const msg = 'Running "' + appKey;
       infoLog(msg);
       BugReporting.addSource(
         'AppRegistry.runApplication' + runCount++,
